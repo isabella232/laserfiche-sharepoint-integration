@@ -1,0 +1,51 @@
+.overlay {  
+  position: relative;  
+  display: block;
+  opacity: 0;
+  top: 0;  
+  bottom: 0;  
+  left: 0;  
+  right: 0; 
+  width: 50%;
+  height: 100%; 
+  z-index: 1;
+  background-color:rgb(46, 44, 44);
+}
+.maindialog{
+  background-color:white;
+  padding: 30px;
+ transition: all 5s ease-in-out;
+ max-height:fit-content;
+
+}
+.text{
+  position: relative;
+  font-size: 16px;
+  color:black;
+  //z-index: 4;
+  text-align: center;
+}
+.button{
+  color: #178080;
+  margin-left: 200px;
+  display: none;
+  font-weight: bold;
+  writing-mode:tb;
+
+}
+.button1{
+   //font-weight: bold;
+   color: black;
+   font-size: 15px;
+}
+.button2{
+ //font-weight: bold;
+ color: rgb(8, 8, 8);
+ font-size: 15px;
+ margin-right: 16px;
+}
+.href{
+  font-weight: bold;
+  color:rgb(9, 34, 172);
+}
+

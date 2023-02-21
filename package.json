@@ -1,0 +1,53 @@
+{
+  "name": "laserfiche-sharepoint-integration",
+  "version": "0.0.1",
+  "private": true,
+  "main": "lib/index.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Laserfiche/laserfiche-sharepoint-integration"
+  },
+  "scripts": {
+    "build": "gulp bundle",
+    "clean": "gulp clean",
+    "test": "gulp test"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
+    "@laserfiche/lf-repository-api-client": "^1.0.12",
+    "@laserfiche/lf-ui-components-services": "^13.0.1",
+    "@laserfiche/types-lf-ui-components": "^13.1.3",
+    "@microsoft/decorators": "1.13.1",
+    "@microsoft/sp-core-library": "1.13.1",
+    "@microsoft/sp-dialog": "1.13.1",
+    "@microsoft/sp-listview-extensibility": "1.13.1",
+    "@microsoft/sp-lodash-subset": "1.13.1",
+    "@microsoft/sp-office-ui-fabric-core": "1.13.1",
+    "@microsoft/sp-property-pane": "1.13.1",
+    "@microsoft/sp-webpart-base": "1.13.1",
+    "axios": "^0.24.0",
+    "bootstrap": "^5.1.3",
+    "jquery": "^3.6.0",
+    "office-ui-fabric-react": "7.174.1",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "react-router-dom": "^5.3.0",
+    "spfx-navigation": "^1.3.0"
+  },
+  "devDependencies": {
+    "@microsoft/rush-stack-compiler-3.9": "0.4.47",
+    "@microsoft/sp-build-web": "1.13.1",
+    "@microsoft/sp-module-interfaces": "1.13.1",
+    "@microsoft/sp-tslint-rules": "1.13.1",
+    "@types/bootstrap": "^5.1.8",
+    "@types/jquery": "^3.5.10",
+    "@types/react": "16.9.51",
+    "@types/react-dom": "16.9.8",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/webpack-env": "1.13.1",
+    "ajv": "~5.2.2",
+    "gulp": "~4.0.2",
+    "url-loader": "^4.1.1"
+  }
+}

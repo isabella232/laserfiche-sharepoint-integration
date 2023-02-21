@@ -1,0 +1,54 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "laserfiche-repository-access-web-part-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/LaserficheRepositoryAccessWebPart/LaserficheRepositoryAccessWebPartWebPart.js",
+          "manifest": "./src/webparts/LaserficheRepositoryAccessWebPart/LaserficheRepositoryAccessWebPartWebPart.manifest.json"
+        }
+      ]
+    },
+    "laserfiche-admin-configuration-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/laserficheAdminConfiguration/LaserficheAdminConfigurationWebPart.js",
+          "manifest": "./src/webparts/laserficheAdminConfiguration/LaserficheAdminConfigurationWebPart.manifest.json"
+        }
+      ]
+    },
+    "send-to-laserfiche-login-component-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/sendToLaserficheLoginComponent/SendToLaserficheLoginComponentWebPart.js",
+          "manifest": "./src/webparts/sendToLaserficheLoginComponent/SendToLaserficheLoginComponentWebPart.manifest.json"
+        }
+      ]
+    },
+    "saveto-laserfiche-command-set": {
+      "components": [
+        {
+          "entrypoint": "./lib/extensions/savetoLaserfiche/SavetoLaserficheCommandSet.js",
+          "manifest": "./src/extensions/savetoLaserfiche/SavetoLaserficheCommandSet.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {
+    "jquery": {
+      "path": "node_modules/jquery/dist/jquery.min.js",
+      "globalName": "jQuery"
+    },
+    "bootstrap": {
+      "path": "node_modules/bootstrap/dist/js/bootstrap.min.js",
+      "globalName": "bootstrap"
+    }
+  },
+  "localizedResources": {
+    "LaserficheRepositoryAccessWebPartWebPartStrings": "lib/webparts/LaserficheRepositoryAccessWebPart/loc/{locale}.js",
+    "LaserficheAdminConfigurationWebPartStrings": "lib/webparts/laserficheAdminConfiguration/loc/{locale}.js",
+    "SendToLaserficheLoginComponentWebPartStrings": "lib/webparts/sendToLaserficheLoginComponent/loc/{locale}.js",
+    "SavetoLaserficheCommandSetStrings": "lib/extensions/savetoLaserfiche/loc/{locale}.js"
+  }
+}
