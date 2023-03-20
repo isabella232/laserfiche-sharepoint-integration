@@ -65,18 +65,16 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   public lfRepoTreeService: LfRepoTreeNodeService;
   public lfFieldsService: LfFieldsService;
   public showFieldContainer: boolean = false;
-  public REGIONAL_DOMAIN: string = `${this.props.region}`/*  "laserfiche.com" */; // only update this if you are using a different region or environment
 
   constructor(props: ILaserficheRepositoryAccessWebPartProps, state: ILaserficheRepositoryAccessWebPartState) {
     super(props);
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css');
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css');
+    SPComponentLoader.loadCss("https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css");
+    SPComponentLoader.loadCss("https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css");
     this.loginComponent = React.createRef();
     this.fieldContainer = React.createRef();
     const selection: Selection = new Selection({
       onSelectionChanged: () => this.setState({ selectionDetails: this._getSelectionDetails() }),
     });
-  window.localStorage.setItem("regionProp",this.props.region);
     //Defing static columns in the grid
     const columns: IColumn[] = [
       {
@@ -205,6 +203,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
         },
       },
     ];
+
     this.state = {
       columns: columns,
       items: [],
@@ -220,6 +219,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       showUploadModal: false,
       showCreateModal: false,
       showAlertModal: false,
+      region: this.props.devMode ? "a.clouddev.laserfiche.com" : "laserfiche.com",
     };
   }
   public GetIconClassForDocExtension(extension) {
@@ -411,10 +411,12 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     $("#folderNameValidation").hide();
     $("#mainWebpartContent").hide();
 
-    await SPComponentLoader.loadScript('https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js');
-    await SPComponentLoader.loadScript('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js');
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css');
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css');
+    await SPComponentLoader.loadScript("https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js");
+    await SPComponentLoader.loadScript(
+      "https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js"
+    );
+    SPComponentLoader.loadCss("https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css");
+    SPComponentLoader.loadCss("https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css");
     this.setState({
       loading: true,
       showUploadModal: false,
@@ -511,7 +513,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   public onTemplateChange = async (ev: Event) => {
     const templatechange = (ev as CustomEvent<number>).detail;
     await this.updateFieldValuesAsync();
-  }
+  };
   public async updateFieldValuesAsync(): Promise<void> {
     try {
       const fieldValues = await this.lfFieldsService.getAllFieldDefinitionsAsync();
@@ -525,15 +527,15 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   public loginCompleted = async () => {
     $("#mainWebpartContent").show();
     await this.getAndInitializeRepositoryClientAndServicesAsync();
-  }
+  };
 
   //lf-login will trigger on click on Sign Out
   public logoutCompleted = async () => {
     $("#mainWebpartContent").hide();
-  }
+  };
   public onDialogOpened = () => {
     $("div.adhoc-modal").css("height", "450px");
-  }
+  };
   public async getAndInitializeRepositoryClientAndServicesAsync() {
     const accessToken = this.loginComponent?.current?.authorization_credentials?.accessToken;
     if (accessToken) {
@@ -613,7 +615,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       columns: newColumns,
       items: newItems,
     });
-  }
+  };
 
   //Open New folder Modal Popup
   public OpenNewFolderModal() {
@@ -877,7 +879,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
           fileExtension /* document.getElementById('importFile')["value"].split('\\').pop().split(".")[1] */
       );
     }
-  }
+  };
 
   //On scroll display remaining items
   public ScrollToDisplayLazyLoadItems = (e) => {
@@ -890,7 +892,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       });*/
       }
     }
-  }
+  };
 
   public async GetLazyLoadItems() {
     var itemslength = this.state.items.length;
@@ -985,9 +987,9 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
           <div className="btnSignOut">
             <lf-login
               redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectUrl}
-              authorize_url_host_name={this.props.region}
               redirect_behavior="Replace"
               client_id={clientId}
+              authorize_url_host_name={this.state.region}
               ref={this.loginComponent}
             ></lf-login>
           </div>

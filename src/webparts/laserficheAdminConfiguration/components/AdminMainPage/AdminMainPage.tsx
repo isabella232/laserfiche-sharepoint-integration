@@ -27,18 +27,18 @@ declare global {
   }
 }
 
-export default class AdminMainPage extends React.Component<IAdminPageProps> {
+export default class AdminMainPage extends React.Component<IAdminPageProps, {region: string;}> {
   public loginComponent: React.RefObject<any>;
   public repoClient: IRepositoryApiClientExInternal;
   public lfFieldsService: LfFieldsService;
-  public REGIONAL_DOMAIN: string =`${this.props.region}`/*  'laserfiche.com' */; // only update this if you are using a different region or environment
 
   constructor(props: IAdminPageProps) {
     super(props);
     SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css');
     SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css');
     this.loginComponent = React.createRef();
-    window.localStorage.setItem("regionProp",this.props.region);
+
+    this.state = {region: this.props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com'};
   }
   public async componentDidMount(): Promise<void> {
     await SPComponentLoader.loadScript('https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js');
@@ -272,7 +272,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps> {
         <div className="btnSignOut">
           <lf-login
             redirect_uri={redirectPage}
-            authorize_url_host_name={this.props.region}
+            authorize_url_host_name={this.state.region}
             redirect_behavior="Replace"
             client_id={clientId}
             ref={this.loginComponent}

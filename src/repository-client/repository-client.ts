@@ -1,7 +1,4 @@
 import * as React from "react";
-import { 
-  ILaserficheRepositoryAccessWebPartProps
- } from "../../src/webparts/LaserficheRepositoryAccessWebPart/components/ILaserficheRepositoryAccessWebPartProps";
 import {
   IRepositoryApiClient,
   RepositoryApiClient,
@@ -10,7 +7,6 @@ import { IRepositoryApiClientExInternal } from "./repository-client-types";
 
 export class RepositoryClientExInternal {
   public repoClient: IRepositoryApiClientExInternal;
-  public REGIONAL_DOMAIN: string = window.localStorage.getItem("regionProp"); /* 'a.clouddev.laserfiche.com'; */
 
   constructor(private loginRef: React.RefObject<any>) {
 
@@ -32,7 +28,7 @@ export class RepositoryClientExInternal {
       this.loginRef.current?.authorization_credentials?.accessToken;
     if (accessToken) {
       this.addAuthorizationHeader(request, accessToken);
-      return { regionalDomain: this.REGIONAL_DOMAIN }; // update this if you are using a different region
+      return { regionalDomain: this.loginRef.current.account_endpoints.regionalDomain }; // update this if you are using a different region
     } else {
       throw new Error("No access token");
     }

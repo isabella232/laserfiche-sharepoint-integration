@@ -24,8 +24,7 @@
     "officeFabricIconFontName": "Page",
     "properties": {
       "WebPartTitle":"Profile Editor",
-      "LaserficheRedirectPage":"/SitePages/LaserficheSpAdministration.aspx",
-      "region":""
+      "LaserficheRedirectPage":"/SitePages/LaserficheSpAdministration.aspx"
     }
   }]
 }

@@ -24,8 +24,7 @@
     "officeFabricIconFontName": "Page",
     "properties": {
       "WebPartTitle":"Laserfiche Repository",
-      "LaserficheRedirectUrl":"/SitePages/LaserficheSpApp.aspx",
-      "region":""
+      "LaserficheRedirectUrl":"/SitePages/LaserficheSpApp.aspx"
     }
   }]
 }

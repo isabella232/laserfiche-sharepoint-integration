@@ -5,4 +5,5 @@ export interface ISendToLaserficheLoginComponentState {
     repoId:string;
     filelink:string;
     baseurl:string;
+    region: string
   }

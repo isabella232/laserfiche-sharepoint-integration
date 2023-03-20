@@ -38,7 +38,6 @@ export default class AddNewManageConfiguration extends React.Component<IAddNewMa
   public lfFieldsService: LfFieldsService;
   public showTree: boolean = false;
   public selectedFolder: LfRepoTreeNode;
-  public REGIONAL_DOMAIN: string = `${this.props.region}` /* 'laserfiche.com' */;
   public entrySelected: LfRepoTreeNode | undefined;
 
   constructor(props: IAddNewManageConfigurationProps) {
@@ -69,10 +68,9 @@ export default class AddNewManageConfiguration extends React.Component<IAddNewMa
       },
       shouldShowOpen: false, 
       shouldShowSelect: false,
-      shouldDisableSelect: false
+      shouldDisableSelect: false,
+      region: this.props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com'
     };
-    window.localStorage.setItem("regionProp",this.props.region);
-
   }
   //On component load get content types from SharePoint and laserfiche templates
   public async componentDidMount(): Promise<void> {
@@ -860,7 +858,7 @@ export default class AddNewManageConfiguration extends React.Component<IAddNewMa
     return (
       <div>
         <div style={{ display: 'none' }}>
-          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} authorize_url_host_name={this.REGIONAL_DOMAIN} redirect_behavior="Replace" client_id={clientId} ref={this.loginComponent}></lf-login>
+          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} authorize_url_host_name={this.state.region} redirect_behavior="Replace" client_id={clientId} ref={this.loginComponent}></lf-login>
         </div>
         <div className="container-fluid p-3" style={{"maxWidth":"85%","marginLeft":"-26px"}}>
           <main className="bg-white shadow-sm">
