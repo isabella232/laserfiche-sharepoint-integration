@@ -39,7 +39,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
     this.loginComponent = React.createRef();
     this.loginComponent = React.createRef();
 
-    this.setState({
+    this.state = {
       baseurl: '',
       filelink: '',
       filedata: '',
@@ -47,7 +47,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
       parentItemId: 1,
       repoId: '',
       region: this.props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com'
-    });
+    };
   }
   public async componentDidMount():Promise<void> {
     await SPComponentLoader.loadScript('https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js');
