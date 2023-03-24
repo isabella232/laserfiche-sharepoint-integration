@@ -4,5 +4,5 @@ export interface IEditManageConfigurationProps {
     context:WebPartContext;
     match:any;
     laserficheRedirectPage:string;
-    region:string;
+    devMode: boolean;
   }

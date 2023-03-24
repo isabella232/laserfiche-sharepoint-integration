@@ -27,7 +27,6 @@ let filelink: string = "";
 export default class SendToLaserficheLoginComponent extends React.Component<ISendToLaserficheLoginComponentProps, ISendToLaserficheLoginComponentState> {
   public loginComponent: React.RefObject<any>;
   public repoClient: IRepositoryApiClientExInternal;
-  public REGIONAL_DOMAIN: string = 'laserfiche.com'; // only update this if you are using a different region or environment
 
   constructor(props: ISendToLaserficheLoginComponentProps) {
     super(props);
@@ -37,16 +36,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
       SPComponentLoader.loadScript('https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js',  { globalExportsName: 'jQuery' }).then((): void => {        
         });
       });
-      window.localStorage.setItem("regionProp",this.props.region);
     this.loginComponent = React.createRef();
     this.loginComponent = React.createRef();
+
     this.state = {
       baseurl: '',
       filelink: '',
       filedata: '',
       accessToken: '',
       parentItemId: 1,
-      repoId: ''
+      repoId: '',
+      region: this.props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com'
     };
   }
   public async componentDidMount():Promise<void> {
@@ -206,7 +206,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
       try {
         const entryCreateResult: CreateEntryResult = await this.repoClient.entriesClient.importDocument(entryRequest);
         var Entryid = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid}`;
+        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid}`;
 
         if (Action === 'Copy') {
           document.getElementById("it").innerHTML = 'Document uploaded';
@@ -246,7 +246,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         const conflict409 = error.operations.setFields.exceptions[0].statusCode === 409;
         if(conflict409) {
           var entryidConflict1=error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict1}`;
+          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict1}`;
 
           document.getElementById("it").innerHTML = 'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
           document.getElementById("imgid").style.display = 'none';
@@ -282,7 +282,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
       try {
         const entryCreateResult: CreateEntryResult = await this.repoClient.entriesClient.importDocument(entryRequest);
         var Entryid3 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid3}`;  
+        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid3}`;  
 
         if (Action === 'Copy') {
           document.getElementById("it").innerHTML = 'Document uploaded';
@@ -322,7 +322,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         if(error.operations.setFields.exceptions[0].statusCode === 409) {
 
           var entryidConflict2=error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict2}`;
+          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict2}`;
 
           document.getElementById("it").innerHTML = 'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
           document.getElementById("imgid").style.display = 'none';
@@ -359,7 +359,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         const entryCreateResult: CreateEntryResult = await this.repoClient.entriesClient.importDocument(entryRequest);
         //dialog.show();
         var Entryid6 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
+        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
 
         if (Action === 'Copy') {
           document.getElementById("it").innerHTML = 'Document uploaded';
@@ -399,7 +399,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         if(error.operations.setFields.exceptions[0].statusCode === 409) {
 
           var entryidConflict3=error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict3}`;
+          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict3}`;
 
           document.getElementById("it").innerHTML = 'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
           document.getElementById("imgid").style.display = 'none';
@@ -460,7 +460,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
       try {
         const entryCreateResult: CreateEntryResult = await this.repoClient.entriesClient.importDocument(entryRequest);
         var Entryid6 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
+        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
 
         if (Action === 'Copy') {
           document.getElementById("it").innerHTML = 'Document uploaded';
@@ -497,7 +497,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         if(error.operations.setFields.exceptions[0].statusCode === 409) {
 
           var entryidConflict4=error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict4}`;
+          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict4}`;
 
           document.getElementById("it").innerHTML = 'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
           document.getElementById("imgid").style.display = 'none';
@@ -533,7 +533,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         
         const entryCreateResult: CreateEntryResult = await this.repoClient.entriesClient.importDocument(entryRequest);
         var Entryid9 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid9}`;
+        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid9}`;
 
         if (Action === 'Copy') {
           document.getElementById("it").innerHTML = 'Document uploaded';
@@ -572,7 +572,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
       catch (error) {
         if (error.operations.setFields.exceptions[0].statusCode === 409) {
           var entryidConflict5=error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict5}`;
+          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict5}`;
 
           document.getElementById("it").innerHTML = 'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
           document.getElementById("imgid").style.display = 'none';
@@ -610,7 +610,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
       try {
         const entryCreateResult: CreateEntryResult = await this.repoClient.entriesClient.importDocument(entryRequest);
         var Entryid14 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
+        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
 
         if (Action === 'Copy') {
           document.getElementById("it").innerHTML = 'Document uploaded';
@@ -651,7 +651,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         if(error.operations.setFields.exceptions[0].statusCode === 409) {
 
           var entryidConflict6=error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict6}`;
+          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict6}`;
 
           document.getElementById("it").innerHTML = 'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
           document.getElementById("imgid").style.display = 'none';
@@ -704,7 +704,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
 
       const entryCreateResult: CreateEntryResult = await this.repoClient.entriesClient.importDocument(entryRequest);
       var Entryid14 = entryCreateResult.operations.entryCreate.entryId;
-      filelink = `https://app.${this.props.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
+      filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
   
       document.getElementById("it").innerHTML = 'Document uploaded';
       document.getElementById("imgid").style.display = 'none';
@@ -873,7 +873,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<ISen
         <p id="remve" style={{ "textAlign": "center", "fontWeight": "600", "fontSize": "20px" }}>Welcome to Laserfiche</p>
         {/* <p id="remvefile" style={{ "textAlign": "center", "fontWeight": "600", "fontSize": "18px","display":"none" }}>Please wait while we prepare your file to upload....</p> */}
         <div style={{ "textAlign": "center" }}>
-          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} authorize_url_host_name={this.props.region} redirect_behavior="Replace" client_id={clientId} sign_in_text="Sign in" ref={this.loginComponent}></lf-login>
+          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} authorize_url_host_name={this.state.region} redirect_behavior="Replace" client_id={clientId} sign_in_text="Sign in" ref={this.loginComponent}></lf-login>
         </div>
         <div>
           <div /* className="lf-component-container lf-right-button" */ style={{ "marginTop": "35px", "textAlign": "center" }}>

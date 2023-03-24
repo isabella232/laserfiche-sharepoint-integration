@@ -4,6 +4,6 @@ export interface IAdminPageProps {
     context:WebPartContext;
     webPartTitle:string;
     laserficheRedirectPage:string;
-    region:string;
+    devMode: boolean;
   }
   

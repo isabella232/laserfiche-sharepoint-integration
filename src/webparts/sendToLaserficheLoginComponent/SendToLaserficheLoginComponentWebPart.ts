@@ -4,10 +4,8 @@ import { Version } from '@microsoft/sp-core-library';
 import {
   IPropertyPaneConfiguration,
   PropertyPaneTextField,
-  PropertyPaneDropdown,
-  IPropertyPaneDropdownOption,
   PropertyPaneToggle,
-  IPropertyPaneGroup
+  IPropertyPaneGroup,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
@@ -16,21 +14,18 @@ import SendToLaserficheLoginComponent from './components/SendToLaserficheLoginCo
 import { ISendToLaserficheLoginComponentProps } from './components/ISendToLaserficheLoginComponentProps';
 
 export interface ISendToLaserficheLoginComponentWebPartProps {
-  region: string;
-  LaserficheRedirectPage:string;
-  Devmode:string;
+  LaserficheRedirectPage: string;
+  devMode: boolean;
 }
 
 export default class SendToLaserficheLoginComponentWebPart extends BaseClientSideWebPart<ISendToLaserficheLoginComponentWebPartProps> {
-
   public render(): void {
     const element: React.ReactElement<ISendToLaserficheLoginComponentProps> = React.createElement(
       SendToLaserficheLoginComponent,
       {
-        laserficheRedirectPage:this.properties.LaserficheRedirectPage,
-        context:this.context,
-        region:this.properties.region,
-        Devmode:this.properties.Devmode
+        laserficheRedirectPage: this.properties.LaserficheRedirectPage,
+        context: this.context,
+        devMode: this.properties.devMode,
       }
     );
 
@@ -44,93 +39,43 @@ export default class SendToLaserficheLoginComponentWebPart extends BaseClientSid
   protected get dataVersion(): Version {
     return Version.parse('1.0');
   }
-  //
-  private _listFields: IPropertyPaneDropdownOption[] = []; 
-  //
-  public regionDropdownOptions(){
-    this._listFields=[];
-    if(this.properties.Devmode=="yes"){
-      this._listFields.push({ key: 'a.clouddev.laserfiche.com', text: 'US' },
-      { key: 'a.clouddev.laserfiche.ca', text: 'CA' },
-      { key: 'a.clouddev.eu.laserfiche.com', text: 'EU' });
-    }else {
-      this._listFields.push({ key: 'accounts.laserfiche.com', text: 'US' },
-      { key: 'accounts.laserfiche.ca', text: 'CA' },
-      { key: 'accounts.eu.laserfiche.com', text: 'EU' });
-    }
-  }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    //this.regionDropdownOptions();
-    let regionOptions:any;
-    if (this.properties.Devmode) {
-      regionOptions = PropertyPaneDropdown('region', {
-        label: 'Region',
-        options: [{ key: 'a.clouddev.laserfiche.com', text: 'US' },
-        { key: 'a.clouddev.laserfiche.ca', text: 'CA' },
-        { key: 'a.clouddev.eu.laserfiche.com', text: 'EU' }],
-        //selectedKey:'a.clouddev.laserfiche.com'
-      });
-    } else {
-      regionOptions = PropertyPaneDropdown('region', {
-        label: 'Region',
-        options: [{ key: 'laserfiche.com', text: 'US' },
-        { key: 'laserfiche.ca', text: 'CA' },
-        { key: 'eu.laserfiche.com', text: 'EU' }],
-        //selectedKey:'accounts.laserfiche.com'
-      });
-    }
-    const searchParams= new URLSearchParams(location.search);
-    const devemode=searchParams.get('Devmode');
+    const searchParams = new URLSearchParams(location.search);
+    const devemode = searchParams.get('devMode');
 
-    let conditionalGroupFields:IPropertyPaneGroup["groupFields"]=[];
+    let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if(devemode=="YES"){
-       conditionalGroupFields = [
-        PropertyPaneTextField("LaserficheRedirectPage",{
-          label:strings.LaserficheRedirectPage
+    if (devemode.toLocaleLowerCase() == 'true') {
+      conditionalGroupFields = [
+        PropertyPaneTextField('LaserficheRedirectPage', {
+          label: strings.LaserficheRedirectPage,
         }),
-        PropertyPaneToggle("Devmode",{
-          label:"Dev Mode"
+        PropertyPaneToggle('devMode', {
+          label: 'Dev Mode',
         }),
-        regionOptions
       ];
-    }else{
-      conditionalGroupFields=[
-        PropertyPaneTextField("LaserficheRedirectPage",{
-          label:strings.LaserficheRedirectPage
+    } else {
+      conditionalGroupFields = [
+        PropertyPaneTextField('LaserficheRedirectPage', {
+          label: strings.LaserficheRedirectPage,
         }),
-        PropertyPaneDropdown('region', {
-          label: 'Region',
-          options: [{ key: 'laserfiche.com', text: 'US' },
-          { key: 'laserfiche.ca', text: 'CA' },
-          { key: 'eu.laserfiche.com', text: 'EU' }],
-          //selectedKey:'laserfiche.com'
-        })
       ];
     }
     return {
       pages: [
         {
           header: {
-            description: strings.PropertyPaneDescription
+            description: strings.PropertyPaneDescription,
           },
           groups: [
             {
               groupName: strings.BasicGroupName,
-              groupFields: conditionalGroupFields /* [
-                PropertyPaneTextField("LaserficheRedirectPage",{
-                  label:strings.LaserficheRedirectPage
-                }),
-                PropertyPaneToggle("Devmode",{
-                  label:"Dev Mode"
-                }),
-                regionOptions
-              ] */
-            }
-          ]
-        }
-      ]
+              groupFields: conditionalGroupFields,
+            },
+          ],
+        },
+      ],
     };
   }
 }

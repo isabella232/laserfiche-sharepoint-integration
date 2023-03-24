@@ -18,4 +18,5 @@ export interface ILaserficheRepositoryAccessWebPartState
     showUploadModal:boolean;
     showCreateModal:boolean;
     showAlertModal:boolean;
+    region: string;
 }

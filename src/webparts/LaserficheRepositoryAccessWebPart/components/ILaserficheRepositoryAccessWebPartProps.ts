@@ -4,6 +4,5 @@ export interface ILaserficheRepositoryAccessWebPartProps {
   context:WebPartContext;
   webPartTitle:string;
   laserficheRedirectUrl:string;
-  region:string;
-  Devmode:string;
+  devMode:boolean ;
 }

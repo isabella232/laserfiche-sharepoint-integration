@@ -37,7 +37,6 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   public lfRepoTreeService: LfRepoTreeNodeService;
   public lfFieldsService: LfFieldsService;
   public showTree: boolean = false;
-  public REGIONAL_DOMAIN: string = `${this.props.region}` /* 'laserfiche.com' */; // only update this if you are using a different region or environment
   public entrySelected: LfRepoTreeNode | undefined;
 
   constructor(props: IEditManageConfigurationProps) {
@@ -67,9 +66,9 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       },
       shouldShowOpen: false, 
       shouldShowSelect: false,
-      shouldDisableSelect: false
+      shouldDisableSelect: false,
+      region: this.props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com'
     };
-    window.localStorage.setItem("regionProp",this.props.region);
   }
   
   //On component load get content types from SharePoint,laserfiche templates and existing configuration from the list
@@ -872,7 +871,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
     return (
       <div>
         <div style={{ display: 'none' }}>
-          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} authorize_url_host_name={this.REGIONAL_DOMAIN} redirect_behavior="Replace" client_id={clientId} ref={this.loginComponent}></lf-login>
+          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} redirect_behavior="Replace" authorize_url_host_name={this.state.region} client_id={clientId} ref={this.loginComponent}></lf-login>
         </div>
         <div className="container-fluid p-3" style={{"maxWidth":"85%","marginLeft":"-26px"}}>
           <main className="bg-white shadow-sm">
@@ -1034,12 +1033,12 @@ export default class EditManageConfiguration extends React.Component<IEditManage
                 style={{height: '420px'}} isSelectable={this.isNodeSelectable}></lf-repository-browser>
                   <div className="repository-browser-button-containers">
                 <span>
-                  <button className="lf-button primary-button" onClick={this.onOpenNode} hidden={!this.state?.shouldShowOpen}>OPEN
+                  <button className="lf-button primary-button" onClick={this.onOpenNode} hidden={!this.state.shouldShowOpen}>OPEN
                   </button>
-                  <button className="lf-button primary-button" onClick={this.onSelectFolder} hidden={!this.state?.shouldShowSelect}
-                  disabled={this.state?.shouldDisableSelect}>Select
+                  <button className="lf-button primary-button" onClick={this.onSelectFolder} hidden={!this.state.shouldShowSelect}
+                  disabled={this.state.shouldDisableSelect}>Select
                   </button>
-                  <button className="sec-button lf-button margin-left-button" hidden={!this.state?.showFolderModal}
+                  <button className="sec-button lf-button margin-left-button" hidden={!this.state.showFolderModal}
                   onClick={this.onClickCancelButton}>CANCEL</button>
                 </span>
               </div>
