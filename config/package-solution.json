@@ -25,7 +25,18 @@
           ]
         }
       }
-    ]
+    ],
+    "metadata": {
+      "shortDescription": {
+        "default": "laserfiche-sharepoint-integration is an application to connect Laserfiche and SharePoint"
+      },
+      "longDescription": {
+        "default": "laserfiche-sharepoint-integration is an application to connect Laserfiche and SharePoint"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    }
   },
   "paths": {
     "zippedPackage": "solution/laserfiche-sharepoint-integration.sppkg"

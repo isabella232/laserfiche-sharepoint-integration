@@ -2,7 +2,6 @@ import * as React from "react";
 import * as $ from 'jquery';
 import * as bootstrap from 'bootstrap';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-//import { LfRepoTreeService, LfFieldsService, LfFolder, LfRepoTreeEntryType } from '@laserfiche/lf-ui-components-services';
 import {LfFieldsService,LfRepoTreeNode, LfRepoTreeNodeService} from '@laserfiche/lf-ui-components-services';
 import { NavLink } from 'react-router-dom';
 import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
@@ -10,13 +9,12 @@ import { IListItem } from './IListItem';
 import { IAddNewManageConfigurationProps } from './IAddNewManageConfigurationProps';
 import { IAddNewManageConfigurationState } from './IAddNewManageConfigurationState';
 import { Spinner, SpinnerSize } from "office-ui-fabric-react";
-import { LoginState, TreeNode, LfRepositoryBrowserComponent } from "@laserfiche/types-lf-ui-components";
+import { LoginState, TreeNode } from "@laserfiche/types-lf-ui-components";
 import { ODataValueContextOfIListOfWTemplateInfo, ODataValueOfIListOfTemplateFieldInfo, RepositoryApiClient, WTemplateInfo, EntryType, Shortcut } from "@laserfiche/lf-repository-api-client";
 import { IRepositoryApiClientExInternal } from "../../../../repository-client/repository-client-types";
 import { RepositoryClientExInternal } from "../../../../repository-client/repository-client";
 import { clientId } from "../../../constants";
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('@fortawesome/fontawesome-free/css/all.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
@@ -818,7 +816,7 @@ export default class AddNewManageConfiguration extends React.Component<IAddNewMa
             </td>
             <td>
               <span style={{ fontSize: "13px", color: "red" }}>Required field in Laserfiche</span>
-              <span id={'a'+index}  style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="fa fa-exclamation-triangle fa-lg" style={{"marginRight":"7px"}}></span>Data types mismatch</span>
+              <span id={'a'+index}  style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="material-icons">warning</span>Data types mismatch</span>
             </td>  
           </tr>
         );
@@ -839,8 +837,8 @@ export default class AddNewManageConfiguration extends React.Component<IAddNewMa
               </select>
             </td>
             <td>
-              <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="fa fa-trash-alt fa-lg mt-2"></span></a>
-              <span id={'a'+index} style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="fa fa-exclamation-triangle fa-lg" style={{"marginRight":"7px"}}></span>Data types mismatch</span>
+              <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="material-icons">delete</span></a>
+              <span id={'a'+index} style={{"display":"none","color":"red","fontSize":"13px","marginLeft":"10px"}} title={""}><span className="material-icons">warning</span>Data types mismatch</span>
             </td>
           </tr>
         );
