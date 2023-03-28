@@ -182,10 +182,15 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       await this.ensureRepoClientInitializedAsync();
 
       // create the tree service to interact with the LF Api
-      this.lfRepoTreeService = new LfRepoTreeNodeService(this.repoClient!);
-      // by default all entries are viewable
-      this.lfRepoTreeService.viewableEntryTypes = [EntryType.Folder, EntryType.Shortcut];
-      //await this.initializeTreeAsync();
+      if (this.repoClient) {
+        this.lfRepoTreeService = new LfRepoTreeNodeService(this.repoClient);
+        // by default all entries are viewable
+        this.lfRepoTreeService.viewableEntryTypes = [EntryType.Folder, EntryType.Shortcut];
+        //await this.initializeTreeAsync();
+      }
+      else {
+        console.debug('Unable to initialize tree service. repoClient is undefined');
+      }
 
     }
     else {
@@ -223,7 +228,12 @@ export default class EditManageConfiguration extends React.Component<IEditManage
         focusedNode = this.lfRepoTreeService?.createLfRepoTreeNode(focusedNodeEntry, repoName);
       }
     }
-    await this.repositoryBrowser?.current?.initAsync(this.lfRepoTreeService!, focusedNode);
+    if (this.lfRepoTreeService) {
+      await this.repositoryBrowser?.current?.initAsync(this.lfRepoTreeService, focusedNode);
+    }
+    else {
+      console.debug('Unable to initialize tree, lfRepoTreeService is undefined');
+    }
   }
 
   public onSelectFolder = async () => {

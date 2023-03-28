@@ -213,7 +213,12 @@ export default class AddNewManageConfiguration extends React.Component<IAddNewMa
         focusedNode = this.lfRepoTreeService?.createLfRepoTreeNode(focusedNodeEntry, repoName);
       }
     }
-    await this.repositoryBrowser?.current?.initAsync(this.lfRepoTreeService!, focusedNode);
+    if (this.lfRepoTreeService) {
+      await this.repositoryBrowser?.current?.initAsync(this.lfRepoTreeService, focusedNode);
+    }
+    else {
+      console.debug('Unable to initialize repositoryBrowser, lfRepoTreeService is undefined');
+    }
   }
 
   public onSelectFolder = async () => {
@@ -419,7 +424,7 @@ export default class AddNewManageConfiguration extends React.Component<IAddNewMa
     $('#validation_Configuration').hide();
     $('#validationConfiguration').hide();
     $('#configurationExists').hide();
-    let validation: boolean = true;
+    let validation = true;
     if (document.getElementById('configurationName')["value"] == "") {
       validation = false;
       $('#validation_Configuration').show();

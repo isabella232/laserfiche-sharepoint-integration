@@ -1289,8 +1289,7 @@ export default class SvgHtmlIcons extends React.Component {
     <symbol id="zoom-out" viewBox="0 0 24 24">
       <path d="M8 11v2h8v-2H8zM12 3c-5 0-9 4-9 9s4 9 9 9 9-4 9-9S17 3 12 3zM12 19c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7S15.9 19 12 19z"/>
     </symbol>
-    <symbol id="blank" viewBox="0 0 0 0">
-    </symbol>
+    <symbol id="blank" viewBox="0 0 0 0"/>
     <symbol id="info-16" viewBox="0 0 16 16">
       <path fill-rule="evenodd" d="M7.998,16.003C3.581,16.003,0,12.42,0,8.001S3.581,0,7.998,0
           c4.417,0,7.998,3.582,7.998,8.001S12.415,16.003,7.998,16.003z M8.999,3.02H7.016v1.984h1.983V3.02z M8.999,7.02H7.016v5.984h1.983
@@ -1879,8 +1878,7 @@ export default class SvgHtmlIcons extends React.Component {
       <path d="M4.1,5.3l6,6.5V12v7.3l3.8,2.5v-10l6-6.5c1-0.7,0.5-2.3-0.7-2.3H4.8C3.6,3,3.1,4.6,4.1,5.3z"/>
     </symbol>
     <symbol id="audit" viewBox="0 0 18 18">
-      <g>
-      </g>
+      <g/>
       <g>
         <g>
           <g>

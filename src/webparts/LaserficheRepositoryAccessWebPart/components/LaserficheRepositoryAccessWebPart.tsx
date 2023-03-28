@@ -507,7 +507,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   }
 
   //Get Field Values on Selection on template
-  public onTemplateChange = async (ev: Event) => {
+  public onTemplateChange = async () => {
     await this.updateFieldValuesAsync();
   };
   public async updateFieldValuesAsync(): Promise<void> {
@@ -604,7 +604,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
         newCol.isSortedDescending = true;
       }
     });
-    const newItems = _copyAndSort(items, currColumn.fieldName!, currColumn.isSortedDescending);
+    const newItems = _copyAndSort(items, currColumn.fieldName ?? '', currColumn.isSortedDescending);
     this.setState({
       columns: newColumns,
       items: newItems,
@@ -875,14 +875,8 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
 
   //On scroll display remaining items
   public ScrollToDisplayLazyLoadItems = (e) => {
-    if (e.target.scrollHeight == e.target.clientHeight) {
-    } else if (e.target.scrollHeight - parseInt(e.target.scrollTop) == e.target.clientHeight) {
+    if (e.target.scrollHeight - parseInt(e.target.scrollTop) == e.target.clientHeight) {
       this.GetLazyLoadItems();
-      {
-        /*this.GetLaserficheLazyLoadItems(this.state.accessToken, this.props.laserficheApiUrl, itemslength, itemId, this.state.repoId).then((results: IDocument[]) => {
-        this.setState({ items: this.state.items.concat(results), parentItemId: itemId });
-      });*/
-      }
     }
   };
 

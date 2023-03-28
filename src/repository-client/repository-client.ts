@@ -57,14 +57,21 @@ export class RepositoryClientExInternal {
   }
 
   public getCurrentRepo = async () => {
-    const repos = await this.repoClient!.repositoriesClient.getRepositoryList(
-      {}
-    );
-    const repo = repos[0];
-    if (repo.repoId && repo.repoName) {
-      return { repoId: repo.repoId, repoName: repo.repoName };
+    if (this.repoClient) {
+      const repos = await this.repoClient.repositoriesClient.getRepositoryList(
+        {}
+      );
+      const repo = repos[0];
+      if (repo.repoId && repo.repoName) {
+        return { repoId: repo.repoId, repoName: repo.repoName };
+      }
+      else {
+        throw new Error("Current repoId undefined.");
+      }
     }
-    throw new Error("Current repoId undefined.");
+    else {
+      throw new Error("repoClient undefined.");
+    }
   }
 
   public async createRepositoryClientAsync(): Promise<IRepositoryApiClientExInternal> {
@@ -101,7 +108,12 @@ export class RepositoryClientExInternal {
           return this.repoClient._repoName;
         } else {
           const repo = (await this.getCurrentRepo()).repoName;
-          this.repoClient!._repoName = repo;
+          if (this.repoClient) {
+            this.repoClient._repoName = repo;
+          }
+          else {
+            console.debug('Cannot set repoName, repoClient does not exist');
+          }
           return repo;
         }
       },
