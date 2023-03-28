@@ -10,6 +10,8 @@ import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as React from 'react';
 import { Navigation } from 'spfx-navigation';
+import { NgElement, WithProperties } from '@angular/elements';
+import { LfFieldContainerComponent } from '@laserfiche/types-lf-ui-components';
 
 SPComponentLoader.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js', {
   globalExportsName: 'jQuery',
@@ -38,7 +40,7 @@ let webpartconfigurations = '';
 let webpartconfigurationsAdmin = '';
 const Redirectpagelink = '/SitePages/LaserficheSpSignIn.aspx';
 export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLfCommandSetProperties> {
-  public fieldContainer: React.RefObject<any>;
+  public fieldContainer: React.RefObject<NgElement & WithProperties<LfFieldContainerComponent>>;
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     this.fieldContainer = React.createRef();
