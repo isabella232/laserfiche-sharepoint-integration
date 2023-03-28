@@ -4,7 +4,8 @@ import { ISendToLaserficheLoginComponentState } from './ISendToLaserficheLoginCo
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import CustomDailog from './SendToLaserficheCustomDialog';
 import { Navigation } from 'spfx-navigation';
-import { CreateEntryResult, PostEntryWithEdocMetadataRequest, PutFieldValsRequest, FileParameter,FieldToUpdate,ValueToUpdate } from '@laserfiche/lf-repository-api-client';import { LoginState } from '@laserfiche/types-lf-ui-components';
+import { CreateEntryResult, PostEntryWithEdocMetadataRequest, PutFieldValsRequest, FileParameter,FieldToUpdate,ValueToUpdate } from '@laserfiche/lf-repository-api-client';
+import { LoginState } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
