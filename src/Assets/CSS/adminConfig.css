@@ -1,62 +1,53 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:500');
 
-.tooltip
-{
-margin-left:10px !important;
+.tooltip {
+  margin-left: 10px !important;
 }
-.tooltip-inner
-{
-max-width:500px;
+.tooltip-inner {
+  max-width: 500px;
 }
-div.toolTipCustom
-{
-    text-align: left;
+div.toolTipCustom {
+  text-align: left;
 }
-.btnSignOut
-{
-    margin: 10px;
-    text-align: right;
+.btnSignOut {
+  margin: 10px;
+  text-align: right;
 }
-button.lf-button
-{
-    font:700 14px "Open Sans" !important;  
+button.lf-button {
+  font: 700 14px 'Open Sans' !important;
 }
 .lf-button.login-button {
-    width: 243px !important;
+  width: 243px !important;
 }
-.editPageSpinloader
-{
-    padding-bottom: 150px;
-    padding-top: 150px;
+.editPageSpinloader {
+  padding-bottom: 150px;
+  padding-top: 150px;
 }
-.addPageSpinloader
-{
-    padding-bottom: 150px;
-    padding-top: 150px;
+.addPageSpinloader {
+  padding-bottom: 150px;
+  padding-top: 150px;
 }
 .modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
-    width: 500px;
-    background-color: #fff;
-    overflow: auto;
-    max-height: -webkit-fill-available;
-    margin: 30px 0px;
-    overflow-y: auto;
-    overflow-x: hidden;
+  width: 500px;
+  background-color: #fff;
+  overflow: auto;
+  max-height: -webkit-fill-available;
+  margin: 30px 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
-.adminContent
-{
-    font-size: 16px !important;
+.adminContent {
+  font-size: 16px !important;
 }
-

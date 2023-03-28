@@ -9,7 +9,6 @@ import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
 
-
 export default class LaserficheAdminConfiguration extends React.Component<ILaserficheAdminConfigurationProps> {
   constructor(props: ILaserficheAdminConfigurationProps) {
     super(props);
@@ -18,15 +17,57 @@ export default class LaserficheAdminConfiguration extends React.Component<ILaser
     return (
       <HashRouter>
         <Stack>
-          <AdminMainPage context={this.props.context} webPartTitle={this.props.webPartTitle} laserficheRedirectPage={this.props.laserficheRedirectPage} devMode={this.props.devMode}/>
+          <AdminMainPage
+            context={this.props.context}
+            webPartTitle={this.props.webPartTitle}
+            laserficheRedirectPage={this.props.laserficheRedirectPage}
+            devMode={this.props.devMode}
+          />
           <StackItem>
             <Switch>
-              <Route exact={true} component={() => <HomePage />} path="/HomePage"/>
-              <Route exact={true} component={() => <HomePage />} path="/"/>
-              <Route exact={true} component={() => <ManageConfigurationsPage context={this.props.context} />} path="/ManageConfigurationsPage"/>
-              <Route exact={true} component={() => <ManageMappingsPage context={this.props.context} />} path="/ManageMappingsPage" />
-              <Route exact={true} component={() => <AddNewManageConfiguration context={this.props.context} laserficheRedirectPage={this.props.laserficheRedirectPage} devMode={this.props.devMode}  />} path="/AddNewManageConfiguration" />
-              <Route exact={true} render={(props) => <EditManageConfiguration {...props} context={this.props.context} laserficheRedirectPage={this.props.laserficheRedirectPage} devMode={this.props.devMode} />} path="/EditManageConfiguration/:name" />
+              <Route
+                exact={true}
+                component={() => <HomePage />}
+                path='/HomePage'
+              />
+              <Route exact={true} component={() => <HomePage />} path='/' />
+              <Route
+                exact={true}
+                component={() => (
+                  <ManageConfigurationsPage context={this.props.context} />
+                )}
+                path='/ManageConfigurationsPage'
+              />
+              <Route
+                exact={true}
+                component={() => (
+                  <ManageMappingsPage context={this.props.context} />
+                )}
+                path='/ManageMappingsPage'
+              />
+              <Route
+                exact={true}
+                component={() => (
+                  <AddNewManageConfiguration
+                    context={this.props.context}
+                    laserficheRedirectPage={this.props.laserficheRedirectPage}
+                    devMode={this.props.devMode}
+                  />
+                )}
+                path='/AddNewManageConfiguration'
+              />
+              <Route
+                exact={true}
+                render={(props) => (
+                  <EditManageConfiguration
+                    {...props}
+                    context={this.props.context}
+                    laserficheRedirectPage={this.props.laserficheRedirectPage}
+                    devMode={this.props.devMode}
+                  />
+                )}
+                path='/EditManageConfiguration/:name'
+              />
             </Switch>
           </StackItem>
         </Stack>

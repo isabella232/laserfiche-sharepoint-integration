@@ -1,5 +1,5 @@
 export interface ISendToLaserficheLoginComponentProps {
-  laserficheRedirectPage:string;
-  context:any;
+  laserficheRedirectPage: string;
+  context: any;
   devMode: boolean;
 }

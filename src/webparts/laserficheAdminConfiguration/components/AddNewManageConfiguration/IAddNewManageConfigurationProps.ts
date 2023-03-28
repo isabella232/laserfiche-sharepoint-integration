@@ -1,7 +1,7 @@
-import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 export interface IAddNewManageConfigurationProps {
-    context:WebPartContext;
-    laserficheRedirectPage:string;
-    devMode: boolean;
-  }
+  context: WebPartContext;
+  laserficheRedirectPage: string;
+  devMode: boolean;
+}

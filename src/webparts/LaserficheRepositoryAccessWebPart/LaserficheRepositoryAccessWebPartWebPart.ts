@@ -20,15 +20,13 @@ export interface ILaserficheRepositoryAccessWebPartWebPartProps {
 
 export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClientSideWebPart<ILaserficheRepositoryAccessWebPartWebPartProps> {
   public render(): void {
-    const element: React.ReactElement<ILaserficheRepositoryAccessWebPartProps> = React.createElement(
-      LaserficheRepositoryAccessWebPart,
-      {
+    const element: React.ReactElement<ILaserficheRepositoryAccessWebPartProps> =
+      React.createElement(LaserficheRepositoryAccessWebPart, {
         context: this.context,
         webPartTitle: this.properties.WebPartTitle,
         laserficheRedirectUrl: this.properties.LaserficheRedirectUrl,
         devMode: this.properties.devMode,
-      }
-    );
+      });
 
     ReactDom.render(element, this.domElement);
   }
