@@ -74,8 +74,10 @@ export class RepositoryClientExInternal {
         afterFetchResponseAsync: this.afterFetchResponseAsync,
       });
     const clearCurrentRepo = () => {
-      this.repoClient!._repoId = undefined;
-      this.repoClient!._repoName = undefined;
+      if (this.repoClient) {
+        this.repoClient._repoId = undefined;
+        this.repoClient._repoName = undefined;
+      }
     };
     this.repoClient = {
       clearCurrentRepo,
@@ -88,7 +90,9 @@ export class RepositoryClientExInternal {
         } else {
           console.log("getting id from api");
           const repo = (await this.getCurrentRepo()).repoId;
-          this.repoClient!._repoId = repo;
+          if (this.repoClient) {
+            this.repoClient._repoId = repo;
+          }
           return repo;
         }
       },

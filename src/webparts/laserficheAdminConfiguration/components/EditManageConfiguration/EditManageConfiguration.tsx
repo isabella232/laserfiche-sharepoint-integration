@@ -2,13 +2,13 @@ import * as React from "react";
 import * as $ from 'jquery';
 import * as bootstrap from 'bootstrap';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
+import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { NavLink } from 'react-router-dom';
 import { IEditManageConfigurationProps } from './IEditManageConfigurationProps';
 import { IEditManageConfigurationState } from './IEditManageConfigurationState';
 import { IListItem } from "./IListItem";
 import { Spinner, SpinnerSize } from "office-ui-fabric-react";
-import { ODataValueContextOfIListOfWTemplateInfo, ODataValueOfIListOfTemplateFieldInfo, RepositoryApiClient, WTemplateInfo, EntryType,Shortcut } from "@laserfiche/lf-repository-api-client";
+import { ODataValueContextOfIListOfWTemplateInfo, ODataValueOfIListOfTemplateFieldInfo, WTemplateInfo, EntryType } from "@laserfiche/lf-repository-api-client";
 import {LfFieldsService,LfRepoTreeNode, LfRepoTreeNodeService} from '@laserfiche/lf-ui-components-services';
 import { LoginState, TreeNode } from "@laserfiche/types-lf-ui-components";
 import { IRepositoryApiClientExInternal } from "../../../../repository-client/repository-client-types";
@@ -34,7 +34,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   public repoClient: IRepositoryApiClientExInternal;
   public lfRepoTreeService: LfRepoTreeNodeService;
   public lfFieldsService: LfFieldsService;
-  public showTree: boolean = false;
+  public showTree = false;
   public entrySelected: LfRepoTreeNode | undefined;
 
   constructor(props: IEditManageConfigurationProps) {
@@ -118,7 +118,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
         if (this.state.listItem != null) {
           const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
           if (jsonValue.length > 0) {
-            for (var i = 0; i < jsonValue.length; i++) {
+            for (let i = 0; i < jsonValue.length; i++) {
               if (jsonValue[i].ConfigurationName == configurationName) {
                 $('#configurationTitle').text(jsonValue[i].ConfigurationName);
                 $('#documentName').val(jsonValue[i].DocumentName);
@@ -157,7 +157,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   }
 
   //Cancel function on folders modal dialog box
-  public onCancelClick = (ev: Event) => {
+  public onCancelClick = () => {
     this.setState(() => { return { showFolderModal: false }; });
   }
 
@@ -234,16 +234,9 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       throw new Error('LfLoginComponent is not found.');
     }
     const selectedNode = this.repositoryBrowser.current?.currentFolder as LfRepoTreeNode;
-    let entryId = Number.parseInt(selectedNode.id, 10);
     const selectedFolderPath = selectedNode.path;
     $('#entryId').val(selectedNode.id);
     $('#destinationPath').val(selectedNode.path);
-    if (selectedNode.entryType === EntryType.Shortcut) {
-      if (selectedNode.targetId)
-      entryId = selectedNode.targetId;
-    }
-    const repoId = (await this.repoClient.getCurrentRepoId());
-    const waUrl = this.loginComponent.current.account_endpoints.webClientUrl;
     this.setState({
       lfSelectedFolder: {
         //selectedNodeUrl: getEntryWebAccessUrl(entryId.toString(), repoId, waUrl, selectedNode.isContainer) ?? '',
@@ -312,8 +305,8 @@ export default class EditManageConfiguration extends React.Component<IEditManage
 
   //Getting document name from Document Configuration list
   public async GetDocumentName(): Promise<string[]> {
-    let name: string[] = [];
-    let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('DocumentNameConfigList')/Items?$select=Title";
+    const name: string[] = [];
+    const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('DocumentNameConfigList')/Items?$select=Title";
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -323,7 +316,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
         },
       });
       const results = await res.json();
-      for (var i = 0; i < results.value.length; i++) {
+      for (let i = 0; i < results.value.length; i++) {
         name.push(results.value[i].Title);
       }
       return name;
@@ -334,9 +327,9 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   }
 
   //Get all Site columns from SharePoint site 
-  public async GetAllSharePointSiteColumns(): Promise<any> {
-    let array = [];
-    let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/fields?$filter=(Hidden ne true and Group ne '_Hidden')";
+  public async GetAllSharePointSiteColumns() {
+    const array = [];
+    const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/fields?$filter=(Hidden ne true and Group ne '_Hidden')";
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -348,7 +341,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       });
       const results = await res.json();
       if (results.value.length > 0) {
-        for (var i = 0; i < results.value.length; i++) {
+        for (let i = 0; i < results.value.length; i++) {
           array.push({ "DisplayName": results.value[i].Title + "[" + results.value[i].TypeAsString + "]", "InternalName": results.value[i].InternalName + "[" + results.value[i].TypeAsString + "]" });
         }
         return array;
@@ -379,8 +372,8 @@ export default class EditManageConfiguration extends React.Component<IEditManage
 
   //Get items from SharePoint Admin Configuration list based on Title ManageConfiguration
   public async GetItemIdByTitle(): Promise<IListItem[]> {
-    let array: IListItem[] = [];
-    let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+    const array: IListItem[] = [];
+    const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -391,7 +384,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       });
       const results = await res.json();
       if (results.value.length > 0) {
-        for (var i = 0; i < results.value.length; i++) {
+        for (let i = 0; i < results.value.length; i++) {
           array.push(results.value[i]);
         }
         return array;
@@ -410,15 +403,15 @@ export default class EditManageConfiguration extends React.Component<IEditManage
     $('#sharePointFieldMapping').hide();
     $('#laserficheFieldMapping').hide();
     $('#addMapping').hide();
-    let templatename = $("#documentTemplate option:selected").text();
+    const templatename = $("#documentTemplate option:selected").text();
     this.GetLaserficheFields(templatename).then((fields: string[]) => {
       if (fields != null) {
         this.setState({ laserficheFields: fields });
         $('#tableEditBodyId').show();
-        let array = [];
+        const array = [];
         for (let index = 0; index < fields.length; index++) {
-          var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
-          let laserficheField = fields[index]["InternalName"];
+          const id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+          const laserficheField = fields[index]["InternalName"];
           if (laserficheField.indexOf("[Required:true]") != -1) {
             array.push({ "id": id, "SharePointField": "Select", "LaserficheField": fields[index]["InternalName"] });
           }
@@ -430,7 +423,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
         $('#tableEditBodyId').hide();
       }
       for(let j=0;j<this.state.mappingList.length;j++){
-        var spanId='a'+j;
+        const spanId='a'+j;
         document.getElementById(spanId).style.display='none';
       }
     });
@@ -439,13 +432,13 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   //Get laserfiche fields based on template 
   public async GetLaserficheFields(templatename): Promise<string[]> {
     if (templatename != "None") {
-      let array = [];
+      const array = [];
       const repoId = await this.repoClient.getCurrentRepoId();
       const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo = await this.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
         { repoId, templateName: templatename }
       );
       const fieldsValues = apiTemplateResponse.value;
-      for (var i = 0; i < fieldsValues.length; i++) {
+      for (let i = 0; i < fieldsValues.length; i++) {
         array.push({ "DisplayName": fieldsValues[i].name + "[" + fieldsValues[i].fieldType + "]", "InternalName": fieldsValues[i].name + "[" + fieldsValues[i].fieldType + "]" + "[" + "Required:" + fieldsValues[i].isRequired + "]" + "[" + "length:" + fieldsValues[i].length + "]" + "[" + "constraint:" + fieldsValues[i].constraint + "]" });
       }
       return array;
@@ -458,25 +451,25 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   // Creating mapping fields if Laserfiche field is deleted in repository or any parameter updated for the field
   public async MappingFields(DocumentTemplate, SharePointFields, LaserficheFields) {
     if (DocumentTemplate != "None") {
-      let array = [];
+      const array = [];
       const repoId = await this.repoClient.getCurrentRepoId();
       const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo = await this.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
         { repoId, templateName: DocumentTemplate }
       );
       const fieldsValues = apiTemplateResponse.value;
-      for (var i = 0; i < fieldsValues.length; i++) {
+      for (let i = 0; i < fieldsValues.length; i++) {
         array.push({ "DisplayName": fieldsValues[i].name + "[" + fieldsValues[i].fieldType + "]", "InternalName": fieldsValues[i].name + "[" + fieldsValues[i].fieldType + "]" + "[" + "Required:" + fieldsValues[i].isRequired + "]" + "[" + "length:" + fieldsValues[i].length + "]" + "[" + "constraint:" + fieldsValues[i].constraint + "]" });
       }
       this.setState({ laserficheFields: array });
-      let array1 = [];
+      const array1 = [];
       for (let index = 0; index < SharePointFields.length; index++) {
-        var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+        const id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
         if (DocumentTemplate != "None") {
-          let laserfciheItems = array;
-          let laserficheValue = LaserficheFields[index].split("[")[0];
+          const laserfciheItems = array;
+          const laserficheValue = LaserficheFields[index].split("[")[0];
           let laserficheInternalName = "Select";
           laserfciheItems.some(item => {
-            let fieldName = item.DisplayName.split("[")[0];
+            const fieldName = item.DisplayName.split("[")[0];
             if (fieldName === laserficheValue) {
               laserficheInternalName = item.InternalName;
             }
@@ -486,19 +479,19 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       }
       this.setState({ mappingList: array1 });
       const rows = [...this.state.mappingList];
-      let missingFields = [];
+      const missingFields = [];
       for (let j = 0; j < rows.length; j++) {
         missingFields.push(rows[j].LaserficheField.split("[")[0]);
       }
-      let newArray = [];
-      for (var p = 0; p < array.length; p++) {
-        let laserficheField = array[p]["InternalName"].split("[")[0];
+      const newArray = [];
+      for (let p = 0; p < array.length; p++) {
+        const laserficheField = array[p]["InternalName"].split("[")[0];
         if (array[p]["InternalName"].indexOf("[Required:true]") != -1) {
           if (missingFields.indexOf(laserficheField) != -1) {
-
+            // do nothing
           }
           else {
-            var id1 = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+            const id1 = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
             newArray.push({ "id": id1, "SharePointField": "Select", "LaserficheField": array[p]["InternalName"] });
           }
         }
@@ -519,9 +512,9 @@ export default class EditManageConfiguration extends React.Component<IEditManage
     $('#sharePointFieldMapping').hide();
     $('#laserficheFieldMapping').hide();
     $('#addMapping').hide();
-    let templatename = $("#documentTemplate option:selected").text();
+    const templatename = $("#documentTemplate option:selected").text();
     if (templatename != "None") {
-      var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+      const id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
       const item = {
         id: id,
         SharePointField: "Select",
@@ -538,15 +531,15 @@ export default class EditManageConfiguration extends React.Component<IEditManage
 
   //OnChange functionality on elemnts
   public handleChange = idx => e => {
-    var rowID;
-    var item = {
+    let rowID;
+    const item = {
       id: e.target.id,
       name: e.target.name,
       value: e.target.value
     };
-    var rowsArray = this.state.mappingList;
-    var newRow = rowsArray.map((row, i) => {
-      for (var key in row) {
+    const rowsArray = this.state.mappingList;
+    const newRow = rowsArray.map((row) => {
+      for (const key in row) {
         if (key == item.name && row.id == item.id) {
           row[key] = item.value;
         }
@@ -554,17 +547,17 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       return row;
     });
     this.setState({ mappingList: newRow });
-    var rows = [...this.state.mappingList];
+    const rows = [...this.state.mappingList];
       for(let j=0; j<rows.length; j++){
-        var spanId='a'+j;
+        const spanId='a'+j;
         document.getElementById(spanId).style.display='none';
       }
       for(let i=0; i<rows.length; i++){
         if(rows[i]["SharePointField"].includes('[') && rows[i]["LaserficheField"].includes('[') ){
-        var sharepointfieldtype=rows[i]["SharePointField"].split('[')[1];
-        var spFieldtype=sharepointfieldtype.slice(0,-1);
-        var laserfichepointfieldtype=rows[i]["LaserficheField"].split('[')[1];
-        var lfFieldtype=laserfichepointfieldtype.slice(0,-1);
+          const sharepointfieldtype=rows[i]["SharePointField"].split('[')[1];
+          const spFieldtype=sharepointfieldtype.slice(0,-1);
+          const laserfichepointfieldtype=rows[i]["LaserficheField"].split('[')[1];
+          const lfFieldtype=laserfichepointfieldtype.slice(0,-1);
         rowID='a'+i;
         if(lfFieldtype=="DateTime"||lfFieldtype=="Date"||lfFieldtype=="Time"){
           if(spFieldtype!="DateTime"){
@@ -600,21 +593,21 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   }
   //delete the SharePoint and Laserfiche fields mapping
   public DeleteMapping() {
-    var id = $('#deleteModal').data('id');
+    const id = $('#deleteModal').data('id');
     const rows = [...this.state.mappingList];
     rows.splice(id, 1);
     this.setState({ mappingList: rows });
     this.setState(() => { return { showDeleteModal: false }; });
     for(let i=0; i<rows.length; i++){
-      var spanId='a'+i;
+      const spanId='a'+i;
       document.getElementById(spanId).style.display='none';
     }
     for(let i=0; i<rows.length; i++){
-      var sharepointfieldtype=rows[i]["SharePointField"].split('[')[1];
-      var spFieldtype=sharepointfieldtype.slice(0,-1);
-      var laserfichepointfieldtype=rows[i]["LaserficheField"].split('[')[1];
-      var lfFieldtype=laserfichepointfieldtype.slice(0,-1);
-      var rowID='a'+i;
+      const sharepointfieldtype=rows[i]["SharePointField"].split('[')[1];
+      const spFieldtype=sharepointfieldtype.slice(0,-1);
+      const laserfichepointfieldtype=rows[i]["LaserficheField"].split('[')[1];
+      const lfFieldtype=laserfichepointfieldtype.slice(0,-1);
+      const rowID='a'+i;
       if(lfFieldtype=="DateTime"||lfFieldtype=="Date"||lfFieldtype=="Time"){
         if(spFieldtype!="DateTime"){
           document.getElementById(rowID).style.display="inline-block";
@@ -646,11 +639,11 @@ export default class EditManageConfiguration extends React.Component<IEditManage
 
   //Update the existing configuration in SharePoint list
   public SaveNewManageConfigurtaion() {
-    var rowID;
+    let rowID;
     $('#sharePointFieldMapping').hide();
     $('#laserficheFieldMapping').hide();
     $('#addMapping').hide();
-    let validation: boolean = true;
+    let validation = true;
     const rows = [...this.state.mappingList];
     if (rows.some(item => item.SharePointField === "Select") && $("#documentTemplate option:selected").text() != "None") {
       $('#sharePointFieldMapping').show();
@@ -660,14 +653,14 @@ export default class EditManageConfiguration extends React.Component<IEditManage
     }
     else {
       for(let j=0; j<rows.length; j++){
-        var spanId='a'+j;
+        const spanId='a'+j;
         document.getElementById(spanId).style.display='none';
       }
       for(let i=0; i<rows.length; i++){
-        var sharepointfieldtype=rows[i]["SharePointField"].split('[')[1];
-        var spFieldtype=sharepointfieldtype.slice(0,-1);
-        var laserfichepointfieldtype=rows[i]["LaserficheField"].split('[')[1];
-        var lfFieldtype=laserfichepointfieldtype.slice(0,-1);
+        const sharepointfieldtype=rows[i]["SharePointField"].split('[')[1];
+        const spFieldtype=sharepointfieldtype.slice(0,-1);
+        const laserfichepointfieldtype=rows[i]["LaserficheField"].split('[')[1];
+        const lfFieldtype=laserfichepointfieldtype.slice(0,-1);
         rowID='a'+i;
         if(lfFieldtype=="DateTime"||lfFieldtype=="Date"||lfFieldtype=="Time"){
           if(spFieldtype!="DateTime"){
@@ -699,13 +692,13 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       $('#sharePointFieldMapping').hide();
       $('#laserficheFieldMapping').hide();
       $('#addMapping').hide();
-      var documentName = document.getElementById('documentName')["value"];
-      var docTemp = document.getElementById('documentTemplate')["value"];
-      var destPath = document.getElementById('destinationPath')["value"];
-      var entryId = document.getElementById('entryId')["value"];
-      var action = document.getElementById('action')["value"];
-      let sharepointFields = [];
-      let laserficheFields = [];
+      const documentName = document.getElementById('documentName')["value"];
+      const docTemp = document.getElementById('documentTemplate')["value"];
+      const destPath = document.getElementById('destinationPath')["value"];
+      const entryId = document.getElementById('entryId')["value"];
+      const action = document.getElementById('action')["value"];
+      const sharepointFields = [];
+      const laserficheFields = [];
       if (docTemp != "None") {
         for (let i = 0; i < rows.length; i++) {
           sharepointFields.push(rows[i].SharePointField);
@@ -715,10 +708,10 @@ export default class EditManageConfiguration extends React.Component<IEditManage
       this.GetItemIdByTitle().then((results: IListItem[]) => {
         this.setState({ listItem: results });
         if (this.state.listItem != null) {
-          let itemId = this.state.listItem[0].Id;
+          const itemId = this.state.listItem[0].Id;
           const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
           if (jsonValue.length > 0) {
-            for (var i = 0; i < jsonValue.length; i++) {
+            for (let i = 0; i < jsonValue.length; i++) {
               if (jsonValue[i].ConfigurationName == this.props.match.params.name) {
                 jsonValue[i].DocumentName = documentName;
                 jsonValue[i].DocumentTemplate = docTemp;
@@ -730,7 +723,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
                 break;
               }
             }
-            let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
+            const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
             const newJsonValue = [...jsonValue];
             const jsonObject = JSON.stringify(newJsonValue);
             const body: string = JSON.stringify({ 'Title': 'ManageConfigurations', 'JsonValue': jsonObject });
@@ -744,7 +737,7 @@ export default class EditManageConfiguration extends React.Component<IEditManage
               },
               body: body,
             };
-            this.props.context.spHttpClient.post(restApiUrl, SPHttpClient.configurations.v1, options).then((response: SPHttpClientResponse): void => {
+            this.props.context.spHttpClient.post(restApiUrl, SPHttpClient.configurations.v1, options).then((): void => {
               this.setState(() => { return { showConfirmModal: true }; });
             });
           }
@@ -772,30 +765,30 @@ export default class EditManageConfiguration extends React.Component<IEditManage
 
   //Selecting document token from Token modal pop up
   public SelectedDocumentToken() {
-    let tokenSelected = $("#tkn1 option:selected").text();
-    var cursorPos = document.getElementById("documentName")["selectionStart"];
-    let textAreaTxt = document.getElementById("documentName")["value"];
+    const tokenSelected = $("#tkn1 option:selected").text();
+    const cursorPos = document.getElementById("documentName")["selectionStart"];
+    const textAreaTxt = document.getElementById("documentName")["value"];
     $('#documentName').val(textAreaTxt.substring(0, cursorPos) + tokenSelected + textAreaTxt.substring(cursorPos));
     this.setState(() => { return { showtokensModal: false }; });
   }
 
   //Dynamically creating SharePoint and Laserfiche select elemnts
   public renderTableData() {
-    let sharePointFields = this.state.sharePointFields.map(v => (
+    const sharePointFields = this.state.sharePointFields.map(v => (
       <option value={v.InternalName}>{v.DisplayName}</option>
     ));
-    let laserficheRequiredFields = this.state.laserficheFields.map((requiredItem) => {
+    const laserficheRequiredFields = this.state.laserficheFields.map((requiredItem) => {
       if (requiredItem.InternalName.includes("[Required:true]")) {
         return (<option value={requiredItem.InternalName}>{requiredItem.DisplayName}</option>);
       }
     });
-    let laserficheFields = this.state.laserficheFields.map((items) => {
+    const laserficheFields = this.state.laserficheFields.map((items) => {
       if (items.InternalName.includes("[Required:false]")) {
         return (<option value={items.InternalName}>{items.DisplayName}</option>);
       }
     });
     return this.state.mappingList.map((item, index) => {
-      let laserfieldValue = this.state.mappingList[index].LaserficheField;
+      const laserfieldValue = this.state.mappingList[index].LaserficheField;
       if (laserfieldValue.includes("[Required:true]")) {
         return (
           <tr id={index} key={index}>
@@ -860,16 +853,16 @@ export default class EditManageConfiguration extends React.Component<IEditManage
   }
   
   public render(): React.ReactElement {
-    let laserficheTemplate = this.state.laserficheTemplates.map(item => (
+    const laserficheTemplate = this.state.laserficheTemplates.map(item => (
       <option value={item}>{item}</option>
     ));
-    let documentName = this.state.documentNames.map(name => (
+    const documentName = this.state.documentNames.map(name => (
       <option value={name}>{name}</option>
     ));
     return (
       <div>
         <div style={{ display: 'none' }}>
-          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} redirect_behavior="Replace" authorize_url_host_name={this.state.region} client_id={clientId} ref={this.loginComponent}></lf-login>
+          <lf-login redirect_uri={this.props.context.pageContext.web.absoluteUrl + this.props.laserficheRedirectPage} redirect_behavior="Replace" authorize_url_host_name={this.state.region} client_id={clientId} ref={this.loginComponent}/>
         </div>
         <div className="container-fluid p-3" style={{"maxWidth":"85%","marginLeft":"-26px"}}>
           <main className="bg-white shadow-sm">
@@ -882,14 +875,14 @@ export default class EditManageConfiguration extends React.Component<IEditManage
               <div className="card rounded-0">
                 <div className="card-header d-flex justify-content-between">
                   <div>
-                    <h6 className="mb-0">Profile : <span className="h5" id="configurationTitle"></span></h6>
+                    <h6 className="mb-0">Profile : <span className="h5" id="configurationTitle"/></h6>
                   </div>
                 </div>
                 <div className="card-body">
                   <div className="form-group row">
                     <label htmlFor="txt1" className="col-sm-2 col-form-label">Document Name</label>
                     <div className="col-sm-6">
-                      <input type="text" className="form-control" id="documentName" placeholder="Document Name" disabled></input>
+                      <input type="text" className="form-control" id="documentName" placeholder="Document Name" disabled/>
                     </div>
                     {/* <div className="col-sm-2" id="tokens">
                       <a href="javascript:;" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#tokensModal" onClick={() => this.SelectDocumentToken()} style={{ "marginTop": "2px !important" }}>Tokens</a>
@@ -907,9 +900,9 @@ export default class EditManageConfiguration extends React.Component<IEditManage
                   <div className="form-group row">
                     <label htmlFor="txt3" className="col-sm-2 col-form-label">Laserfiche Destination</label>
                     <div className="col-sm-6">
-                      <input type="text" className="form-control" id="destinationPath" placeholder="(Path in Laserfiche) Example: \folder\subfolder" disabled></input>
+                      <input type="text" className="form-control" id="destinationPath" placeholder="(Path in Laserfiche) Example: \folder\subfolder" disabled/>
                       <div><span>Use the Browse button to select a path</span></div>
-                      <input type="text" className="form-control" id="entryId" placeholder="(Path in Laserfiche) \Added from SharePoint" style={{ display: "none" }}></input>
+                      <input type="text" className="form-control" id="entryId" placeholder="(Path in Laserfiche) \Added from SharePoint" style={{ display: "none" }}/>
                     </div>
                     <div className="col-sm-2" id="folderModal" style={{ "marginTop": "2px" }}>
                       <a href="javascript:;" className="btn btn-primary btn-sm" data-toggle="modal" data-target="#folderModal" onClick={() => this.OpenFoldersModal()} >Browse</a>
@@ -938,7 +931,6 @@ export default class EditManageConfiguration extends React.Component<IEditManage
                       <tr>
                         <th className="text-center" style={{ width: "39%" }}>SharePoint Column</th>
                         <th className="text-center" style={{ width: "38%" }}>Laserfiche Field</th>
-                        <th></th>
                       </tr>
                     </thead>
                     <tbody id="tableEditBodyId">
@@ -1022,13 +1014,13 @@ export default class EditManageConfiguration extends React.Component<IEditManage
               </div>
               <div className="modal-body">
                 <div>
-                  <div ref={this.divRef}></div>
+                  <div ref={this.divRef}/>
                 </div>
                 <div className="lf-folder-browser-sample-container" style={{ "height": "400px" }}>
                   {/* <lf-folder-browser ref={this.folderbrowser} ok_button_text="Okay" cancel_button_text="Cancel"></lf-folder-browser> */}
                   <div className="repository-browser"> 
                   <lf-repository-browser ref={this.repositoryBrowser} ok_button_text="Okay" cancel_button_text="Cancel" multiple="false"
-                style={{height: '420px'}} isSelectable={this.isNodeSelectable}></lf-repository-browser>
+                style={{height: '420px'}} isSelectable={this.isNodeSelectable}/>
                   <div className="repository-browser-button-containers">
                 <span>
                   <button className="lf-button primary-button" onClick={this.onOpenNode} hidden={!this.state.shouldShowOpen}>OPEN
