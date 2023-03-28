@@ -11,12 +11,9 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as React from 'react';
 import { Navigation } from 'spfx-navigation';
 
-SPComponentLoader.loadScript(
-  'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js',
-  {
-    globalExportsName: 'jQuery',
-  }
-);
+SPComponentLoader.loadScript('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js', {
+  globalExportsName: 'jQuery',
+});
 
 /**
  * If your command set uses the ClientSideComponentProperties JSON input,
@@ -48,20 +45,15 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     return Promise.resolve();
   }
 
-  public onListViewUpdated(
-    event: IListViewCommandSetListViewUpdatedParameters
-  ): void {
+  public onListViewUpdated(event: IListViewCommandSetListViewUpdatedParameters): void {
     const compareOneCommand: Command = this.tryGetCommand('COMMAND_1');
     if (compareOneCommand) {
       // This command should be hidden unless exactly one row is selected.
       compareOneCommand.visible =
-        event.selectedRows.length === 1 &&
-        event.selectedRows[0]['_values'].get('ContentType') !== 'Folder';
+        event.selectedRows.length === 1 && event.selectedRows[0]['_values'].get('ContentType') !== 'Folder';
     }
   }
-  public async onExecute(
-    event: IListViewCommandSetExecuteEventParameters
-  ): Promise<void> {
+  public async onExecute(event: IListViewCommandSetExecuteEventParameters): Promise<void> {
     const libraryUrl = this.context.pageContext.list.title;
     const allfieldsvalues = event.selectedRows[0]['_values'];
     const fileId = allfieldsvalues.get('ID');
@@ -71,8 +63,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     await this.GetAllFieldsProperties(libraryUrl);
     await this.GetAllFieldsValues(libraryUrl, fileId);
     await this.pageConfigurationCheck();
-    const filecontenttypename =
-      event.selectedRows[0]['_values'].get('ContentType');
+    const filecontenttypename = event.selectedRows[0]['_values'].get('ContentType');
     const fileNamelength = fileName.split('.').length;
     let fileSplitValue = '';
     const fileExtensionOnly = fileName.split('.')[fileNamelength - 1];
@@ -86,9 +77,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     if (filecontenttypename === 'Folder') {
       alert('Cannot Send a Folder To Laserfiche');
     } else if (fileNoName === '') {
-      alert(
-        'Please add a filename to the selected file before trying to save to Laserfiche.'
-      );
+      alert('Please add a filename to the selected file before trying to save to Laserfiche.');
     } else if (fileExtensionOnly === 'url') {
       alert('Cannot send the .url file to Laserfiche');
     } else if (isCheckedOut != '') {
@@ -107,14 +96,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       );
     } else {
       dialog.show();
-      this.getAdminData(
-        fileName,
-        filecontenttypename,
-        fileUrl,
-        requestUrl,
-        fileExtensionOnly,
-        siteurl
-      );
+      this.getAdminData(fileName, filecontenttypename, fileUrl, requestUrl, fileExtensionOnly, siteurl);
     }
   }
   //checking whether the Sign-in Page configured or not
@@ -122,8 +104,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     webpartconfigurations = '';
     try {
       const res = await fetch(
-        this.context.pageContext.web.absoluteUrl +
-          `/_api/web/lists/getbytitle('Site Pages')/items`,
+        this.context.pageContext.web.absoluteUrl + `/_api/web/lists/getbytitle('Site Pages')/items`,
         {
           method: 'GET',
           headers: {
@@ -201,9 +182,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         }
       );
       const results = await res.json();
-      const responseEncoded = JSON.stringify(results)
-        .split('_x005f_')
-        .join('_');
+      const responseEncoded = JSON.stringify(results).split('_x005f_').join('_');
       const responseRemoveOdata = responseEncoded.split('OData_').join('');
       allFieldValueStore = JSON.parse(responseRemoveOdata);
       console.log(allFieldValueStore);
@@ -214,14 +193,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   }
 
   //Processing Admin Data and making All further validations to upload file with metadata
-  public getAdminData(
-    fileName,
-    filecontenFttypename,
-    fileUrl,
-    requestUrl,
-    fileExtensionOnly,
-    siteurl
-  ) {
+  public getAdminData(fileName, filecontenttypename, fileUrl, requestUrl, fileExtensionOnly, siteurl) {
     dialog.show();
     const siteUrl = this.context.pageContext.web.absoluteUrl;
     const spRequiredfieldValuesCheck = [];
@@ -238,8 +210,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
 
     this.context.spHttpClient
       .get(
-        siteUrl +
-          "/_api/web/lists/getByTitle('AdminConfigurationList')/items?$filter=Title eq 'ManageMapping'&$top=1",
+        siteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items?$filter=Title eq 'ManageMapping'&$top=1",
         SPHttpClient.configurations.v1,
         {
           headers: {
@@ -258,8 +229,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
 
           // we check whether the contentype of selected file is have a mapping or not
           if (filecontenttypename === Maping) {
-            const laserficheProfile =
-              manageMappingDetails[i]['LaserficheContentType'];
+            const laserficheProfile = manageMappingDetails[i]['LaserficheContentType'];
 
             this.context.spHttpClient
               .get(
@@ -305,14 +275,11 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       }
 
                       //checking whether the required fields mapped in admin configuration is present in Library
-                      const requiredFieldsCheckinLibrary =
-                        spRequiredfieldsFromAdmin.filter((element) =>
-                          staticFieldNames.includes(element)
-                        );
+                      const requiredFieldsCheckinLibrary = spRequiredfieldsFromAdmin.filter((element) =>
+                        staticFieldNames.includes(element)
+                      );
                       //missing Required fields from Library
-                      const requiredFieldsmissing = $(spRequiredfieldsFromAdmin)
-                        .not(requiredFieldsCheckinLibrary)
-                        .get();
+                      const requiredFieldsmissing = $(spRequiredfieldsFromAdmin).not(requiredFieldsCheckinLibrary).get();
 
                       /* if(requiredFieldsmissing.length!=0){
                   for(let l=0; l<requiredFieldsmissing.length; l++){
@@ -325,44 +292,28 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                   }
                 } */
 
-                      const missingRequiredFieldsNames = [
-                        ...new Set(requiredFieldsmissing),
-                      ];
+                const missingRequiredFieldsNames = [...new Set(requiredFieldsmissing)];
 
                       //getting internal names of required fields present in the library
                       for (const q of requiredFieldsCheckinLibrary /* =0; q<requiredFieldsCheckinLibrary.length; q++ */) {
-                        const nameField =
-                          q; /* requiredFieldsCheckinLibrary[q] */
-                        for (const w of Object.keys(
-                          fieldDataStatic
-                        ) /* =0; w<fieldDataStatic.length; w++ */) {
+                        const nameField = q; /* requiredFieldsCheckinLibrary[q] */
+                        for (const w of Object.keys(fieldDataStatic) /* =0; w<fieldDataStatic.length; w++ */) {
                           if (fieldDataStatic[w][nameField] != undefined) {
-                            const requiredFieldInternal =
-                              fieldDataStatic[w][nameField];
+                            const requiredFieldInternal = fieldDataStatic[w][nameField];
                             requiredFields.push(requiredFieldInternal);
                           }
                         }
                       }
 
-                      const requiredfieldsCountFromAdmin =
-                        spRequiredfieldsFromAdmin.length;
-                      const requiredfieldsCountFromLibrary =
-                        requiredFieldsCheckinLibrary.length;
+                      const requiredfieldsCountFromAdmin = spRequiredfieldsFromAdmin.length;
+                      const requiredfieldsCountFromLibrary = requiredFieldsCheckinLibrary.length;
 
                       // checking whether all the required sharepoint fields are present in the library
-                      if (
-                        requiredfieldsCountFromAdmin ==
-                        requiredfieldsCountFromLibrary
-                      ) {
+                      if (requiredfieldsCountFromAdmin == requiredfieldsCountFromLibrary) {
                         // checking whether all the required fields have values
-                        for (
-                          let b = 0;
-                          b < requiredfieldsCountFromLibrary;
-                          b++
-                        ) {
+                        for (let b = 0; b < requiredfieldsCountFromLibrary; b++) {
                           const spfieldname2 = requiredFields[b];
-                          const fieldvaluerequired =
-                            allFieldValueStore[spfieldname2];
+                          const fieldvaluerequired = allFieldValueStore[spfieldname2];
                           if (fieldvaluerequired != '') {
                             spRequiredfieldValuesCheck.push(fieldvaluerequired);
                           } else {
@@ -373,60 +324,30 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                         // getting display names of Required SharePoint fields to show in the error dialog
                         if (missigRequiredFieldsValues.length != 0) {
                           for (const z of missigRequiredFieldsValues /* =0; z<missigRequiredFieldsValues.length; z++ */) {
-                            const missingRequiredvalueFieldInternalName =
-                              z; /* missigRequiredFieldsValues[z] */
-                            for (const s of Object.keys(
-                              fieldDataInternal
-                            ) /* =0; s<fieldDataInternal.length; s++ */) {
-                              if (
-                                fieldDataInternal[s][
-                                  missingRequiredvalueFieldInternalName
-                                ] != undefined
-                              ) {
+                            const missingRequiredvalueFieldInternalName = z; /* missigRequiredFieldsValues[z] */
+                            for (const s of Object.keys(fieldDataInternal) /* =0; s<fieldDataInternal.length; s++ */) {
+                              if (fieldDataInternal[s][missingRequiredvalueFieldInternalName] != undefined) {
                                 missigRequiredFieldsValuesNames.push(
-                                  fieldDataInternal[s][
-                                    missingRequiredvalueFieldInternalName
-                                  ]
+                                  fieldDataInternal[s][missingRequiredvalueFieldInternalName]
                                 );
                               }
                             }
                           }
                         }
 
-                        const missigRequiredFieldsvaluesNames = [
-                          ...new Set(missigRequiredFieldsValuesNames),
-                        ];
+                        const missigRequiredFieldsvaluesNames = [...new Set(missigRequiredFieldsValuesNames)];
 
                         // checking if all the reuired fields present in the Library doesn't have Blanks
-                        if (
-                          requiredfieldsCountFromAdmin ==
-                          spRequiredfieldValuesCheck.length
-                        ) {
+                        if (requiredfieldsCountFromAdmin == spRequiredfieldValuesCheck.length) {
                           // getting internal names of all SharePoint fields From Admin Profile Mapping
-                          for (
-                            let y = 0;
-                            y < allSpFieldsFromAdmin.length;
-                            y++
-                          ) {
+                          for (let y = 0; y < allSpFieldsFromAdmin.length; y++) {
                             const nameFieldAll = allSpFieldsFromAdmin[y];
-                            for (
-                              let v = 0;
-                              v < fieldDataStaticAll.length;
-                              v++
-                            ) {
-                              if (
-                                fieldDataStaticAll[v][nameFieldAll] != undefined
-                              ) {
-                                const requiredFieldInternalName =
-                                  fieldDataStaticAll[v][nameFieldAll];
-                                requiredFieldsName.push(
-                                  requiredFieldInternalName
-                                );
+                            for (let v = 0; v < fieldDataStaticAll.length; v++) {
+                              if (fieldDataStaticAll[v][nameFieldAll] != undefined) {
+                                const requiredFieldInternalName = fieldDataStaticAll[v][nameFieldAll];
+                                requiredFieldsName.push(requiredFieldInternalName);
                               } else {
-                                if (
-                                  v == fieldDataStaticAll.length - 1 &&
-                                  requiredFieldsName.length < y + 1
-                                ) {
+                                if (v == fieldDataStaticAll.length - 1 && requiredFieldsName.length < y + 1) {
                                   requiredFieldsName.push(nameFieldAll);
                                 }
                               }
@@ -434,19 +355,14 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                           }
 
                           // for every mapping getting Values and assigning to Laserfiche Field
-                          for (
-                            let m = 0;
-                            m < allSpFieldsFromAdmin.length;
-                            m++
-                          ) {
+                          for (let m = 0; m < allSpFieldsFromAdmin.length; m++) {
                             const spfieldname1 = requiredFieldsName[m];
                             const spFieldIndex = m;
                             fieldvalue = allFieldValueStore[spfieldname1];
 
                             if (fieldvalue != undefined || fieldvalue != null) {
                               const Fieldvaluelength = fieldvalue.length;
-                              const LFfield =
-                                laserficheFieldsFromAdmin[spFieldIndex]; // Laserfiche Field name
+                              const LFfield = laserficheFieldsFromAdmin[spFieldIndex]; // Laserfiche Field name
 
                               //Checking Laserfiche Field Type
                               for (let o = 0; o < LFFields.length; o++) {
@@ -460,10 +376,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                                   const LFFieldtype = LFFieldtype1.slice(0, -1);
                                   if (Lflength2 != 0) {
                                     if (Fieldvaluelength > Lflength2) {
-                                      fieldvalue = fieldvalue.slice(
-                                        0,
-                                        Lflength2
-                                      );
+                                      fieldvalue = fieldvalue.slice(0, Lflength2);
                                     }
                                   } else if (
                                     LFFieldtype != 'DateTime' ||
@@ -471,80 +384,43 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                                     LFFieldtype != 'Date'
                                   ) {
                                     if (LFFieldtype == 'ShortInteger') {
-                                      const extractOnlynumbers =
-                                        fieldvalue.replace(/[^0-9]/g, '');
-                                      const extractOnlynumberslength =
-                                        extractOnlynumbers.length;
+                                      const extractOnlynumbers = fieldvalue.replace(/[^0-9]/g, '');
+                                      const extractOnlynumberslength = extractOnlynumbers.length;
                                       if (extractOnlynumberslength > 5) {
-                                        fieldvalue = extractOnlynumbers.slice(
-                                          0,
-                                          5
-                                        );
+                                        fieldvalue = extractOnlynumbers.slice(0, 5);
                                       } else {
                                         fieldvalue = extractOnlynumbers;
                                       }
                                     } else if (LFFieldtype == 'LongInteger') {
-                                      const extractOnlynumbersLonginteger =
-                                        fieldvalue.replace(/[^0-9]/g, '');
-                                      const extractOnlynumbersLongintegerlength =
-                                        extractOnlynumbersLonginteger.length;
-                                      if (
-                                        extractOnlynumbersLongintegerlength > 10
-                                      ) {
-                                        fieldvalue =
-                                          extractOnlynumbersLonginteger.slice(
-                                            0,
-                                            10
-                                          );
+                                      const extractOnlynumbersLonginteger = fieldvalue.replace(/[^0-9]/g, '');
+                                      const extractOnlynumbersLongintegerlength = extractOnlynumbersLonginteger.length;
+                                      if (extractOnlynumbersLongintegerlength > 10) {
+                                        fieldvalue = extractOnlynumbersLonginteger.slice(0, 10);
                                       } else {
-                                        fieldvalue =
-                                          extractOnlynumbersLonginteger;
+                                        fieldvalue = extractOnlynumbersLonginteger;
                                       }
                                     } else if (LFFieldtype == 'Number') {
-                                      const valueOnlyNumbers =
-                                        fieldvalue.replace(/[^0-9.]/g, '');
-                                      const valueOnlyNumberssplit =
-                                        valueOnlyNumbers.split('.');
+                                      const valueOnlyNumbers = fieldvalue.replace(/[^0-9.]/g, '');
+                                      const valueOnlyNumberssplit = valueOnlyNumbers.split('.');
                                       if (valueOnlyNumberssplit.length === 1) {
-                                        const valueOnlyNumbersLimitcheck =
-                                          valueOnlyNumbers.split('.')[0];
-                                        if (
-                                          valueOnlyNumbersLimitcheck.length > 13
-                                        ) {
-                                          fieldvalue =
-                                            valueOnlyNumbersLimitcheck.slice(
-                                              0,
-                                              13
-                                            );
+                                        const valueOnlyNumbersLimitcheck = valueOnlyNumbers.split('.')[0];
+                                        if (valueOnlyNumbersLimitcheck.length > 13) {
+                                          fieldvalue = valueOnlyNumbersLimitcheck.slice(0, 13);
                                         } else {
                                           fieldvalue = valueOnlyNumbers;
                                         }
                                       } else {
-                                        const valueOnlyNumbersbfrPeriod =
-                                          valueOnlyNumbers.split('.')[0];
-                                        const valueOnlyNumbersafrPeriod =
-                                          valueOnlyNumbers.split('.')[1];
+                                        const valueOnlyNumbersbfrPeriod = valueOnlyNumbers.split('.')[0];
+                                        const valueOnlyNumbersafrPeriod = valueOnlyNumbers.split('.')[1];
                                         if (
-                                          valueOnlyNumbersbfrPeriod.length <=
-                                            13 &&
+                                          valueOnlyNumbersbfrPeriod.length <= 13 &&
                                           valueOnlyNumbersafrPeriod.length <= 5
                                         ) {
                                           fieldvalue = valueOnlyNumbers;
                                         } else {
-                                          const valueOnlyNumbersbfrPeriod1 =
-                                            valueOnlyNumbersbfrPeriod.slice(
-                                              0,
-                                              13
-                                            );
-                                          const valueOnlyNumbersafrPeriod1 =
-                                            valueOnlyNumbersafrPeriod.slice(
-                                              0,
-                                              5
-                                            );
-                                          fieldvalue =
-                                            valueOnlyNumbersbfrPeriod1 +
-                                            '.' +
-                                            valueOnlyNumbersafrPeriod1;
+                                          const valueOnlyNumbersbfrPeriod1 = valueOnlyNumbersbfrPeriod.slice(0, 13);
+                                          const valueOnlyNumbersafrPeriod1 = valueOnlyNumbersafrPeriod.slice(0, 5);
+                                          fieldvalue = valueOnlyNumbersbfrPeriod1 + '.' + valueOnlyNumbersafrPeriod1;
                                         }
                                       }
                                     }
@@ -579,64 +455,32 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                             '"' +
                             '}';
                           console.log(fieldmetadata);
-                          window.localStorage.setItem(
-                            'Filemetadata',
-                            fieldmetadata
-                          );
+                          window.localStorage.setItem('Filemetadata', fieldmetadata);
                           window.localStorage.setItem('Filename', fileName);
-                          window.localStorage.setItem(
-                            'Documentname',
-                            mappedProfileDocumentName
-                          );
-                          window.localStorage.setItem(
-                            'DocTemplate',
-                            mappedProfileTemplate
-                          );
-                          window.localStorage.setItem(
-                            'Action',
-                            mappedProfileAction
-                          );
+                          window.localStorage.setItem('Documentname', mappedProfileDocumentName);
+                          window.localStorage.setItem('DocTemplate', mappedProfileTemplate);
+                          window.localStorage.setItem('Action', mappedProfileAction);
                           window.localStorage.setItem('Fileurl', fileUrl);
-                          window.localStorage.setItem(
-                            'Destinationfolder',
-                            mappedProfileDestinationFolder
-                          );
-                          window.localStorage.setItem(
-                            'Filedataurl',
-                            requestUrl
-                          );
-                          window.localStorage.setItem(
-                            'Fileextension',
-                            fileExtensionOnly
-                          );
+                          window.localStorage.setItem('Destinationfolder', mappedProfileDestinationFolder);
+                          window.localStorage.setItem('Filedataurl', requestUrl);
+                          window.localStorage.setItem('Fileextension', fileExtensionOnly);
                           window.localStorage.setItem('Siteurl', siteUrl);
                           window.localStorage.setItem('SiteUrl', siteurl);
                           window.localStorage.setItem('Maping', Maping);
-                          window.localStorage.setItem(
-                            'Filecontenttype',
-                            filecontenttypename
-                          );
-                          window.localStorage.setItem(
-                            'LContType',
-                            laserficheProfile
-                          );
+                          window.localStorage.setItem('Filecontenttype', filecontenttypename);
+                          window.localStorage.setItem('LContType', laserficheProfile);
                           window.localStorage.setItem('configname', configname);
                           Navigation.navigate(siteUrl + Redirectpagelink, true);
                         } else {
                           document.getElementById('it').innerHTML =
                             'The following SharePoint field values are blank and are mapped to required Laserfiche fields:<br/>&ensp;-' +
-                            missigRequiredFieldsvaluesNames.join(
-                              '<br/>&ensp;-'
-                            ) +
+                            missigRequiredFieldsvaluesNames.join('<br/>&ensp;-') +
                             '<br/><br/>Please fill out these required fields and try again.';
-                          document.getElementById('imgid').style.display =
-                            'none';
+                          document.getElementById('imgid').style.display = 'none';
                           //document.getElementById("ref").style.display='block';
-                          document.getElementById('divid').style.display =
-                            'block';
+                          document.getElementById('divid').style.display = 'block';
                           document.getElementById('divid1').onclick = this.Dc;
-                          document.getElementById('divid13').style.display =
-                            'none';
+                          document.getElementById('divid13').style.display = 'none';
                           staticFieldNames = [];
                           fieldDataDisplay = [];
                           fieldDataStatic = [];
@@ -651,11 +495,9 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                           '<br/><br/>Note:These are the internal names of the SharePoint fields';
                         document.getElementById('imgid').style.display = 'none';
                         //document.getElementById("ref").style.display='block';
-                        document.getElementById('divid').style.display =
-                          'block';
+                        document.getElementById('divid').style.display = 'block';
                         document.getElementById('divid1').onclick = this.Dc;
-                        document.getElementById('divid13').style.display =
-                          'none';
+                        document.getElementById('divid13').style.display = 'none';
                         staticFieldNames = [];
                         fieldDataDisplay = [];
                         fieldDataStatic = [];
@@ -665,39 +507,18 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       }
                     } else {
                       window.localStorage.setItem('Filename', fileName);
-                      window.localStorage.setItem(
-                        'Documentname',
-                        mappedProfileDocumentName
-                      );
-                      window.localStorage.setItem(
-                        'DocTemplate',
-                        mappedProfileTemplate
-                      );
-                      window.localStorage.setItem(
-                        'Action',
-                        mappedProfileAction
-                      );
+                      window.localStorage.setItem('Documentname', mappedProfileDocumentName);
+                      window.localStorage.setItem('DocTemplate', mappedProfileTemplate);
+                      window.localStorage.setItem('Action', mappedProfileAction);
                       window.localStorage.setItem('Fileurl', fileUrl);
-                      window.localStorage.setItem(
-                        'Destinationfolder',
-                        mappedProfileDestinationFolder
-                      );
+                      window.localStorage.setItem('Destinationfolder', mappedProfileDestinationFolder);
                       window.localStorage.setItem('Filedataurl', requestUrl);
-                      window.localStorage.setItem(
-                        'Fileextension',
-                        fileExtensionOnly
-                      );
+                      window.localStorage.setItem('Fileextension', fileExtensionOnly);
                       window.localStorage.setItem('Siteurl', siteUrl);
                       window.localStorage.setItem('SiteUrl', siteurl);
                       window.localStorage.setItem('Maping', Maping);
-                      window.localStorage.setItem(
-                        'Filecontenttype',
-                        filecontenttypename
-                      );
-                      window.localStorage.setItem(
-                        'LContType',
-                        laserficheProfile
-                      );
+                      window.localStorage.setItem('Filecontenttype', filecontenttypename);
+                      window.localStorage.setItem('LContType', laserficheProfile);
                       window.localStorage.setItem('configname', configname);
                       Navigation.navigate(siteUrl + Redirectpagelink, true);
                     }
