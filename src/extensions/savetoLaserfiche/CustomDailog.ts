@@ -5,7 +5,7 @@ import styles from './SendToLaserFiche.module.scss';
 export default class CustomDailog extends BaseDialog {  
     
     public render(): void {  
-        var html:string = "";  
+        let html = "";  
         html+=  `<div  class="${ styles["maindialog"] }">`; 
         html += `<div id="overlay" class="${ styles.overlay }"></div>`;
         //html+=  `<div>`;

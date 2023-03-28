@@ -8,7 +8,6 @@ import {
   IPropertyPaneGroup,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
-//import queryString from 'query-string';
 import * as strings from 'LaserficheRepositoryAccessWebPartWebPartStrings';
 import LaserficheRepositoryAccessWebPart from './components/LaserficheRepositoryAccessWebPart';
 import { ILaserficheRepositoryAccessWebPartProps } from './components/ILaserficheRepositoryAccessWebPartProps';
@@ -44,11 +43,11 @@ export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClient
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
     const searchParams = new URLSearchParams(location.search);
-    const devemode = searchParams.get('devMode');
+    const devMode = searchParams.get('devMode');
 
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devemode === 'true') {
+    if (devMode === 'true') {
       conditionalGroupFields = [
         PropertyPaneTextField('WebPartTitle', {
           label: strings.WebPartTitle,

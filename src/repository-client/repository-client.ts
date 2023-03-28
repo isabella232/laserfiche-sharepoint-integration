@@ -57,14 +57,21 @@ export class RepositoryClientExInternal {
   }
 
   public getCurrentRepo = async () => {
-    const repos = await this.repoClient!.repositoriesClient.getRepositoryList(
-      {}
-    );
-    const repo = repos[0];
-    if (repo.repoId && repo.repoName) {
-      return { repoId: repo.repoId, repoName: repo.repoName };
+    if (this.repoClient) {
+      const repos = await this.repoClient.repositoriesClient.getRepositoryList(
+        {}
+      );
+      const repo = repos[0];
+      if (repo.repoId && repo.repoName) {
+        return { repoId: repo.repoId, repoName: repo.repoName };
+      }
+      else {
+        throw new Error("Current repoId undefined.");
+      }
     }
-    throw new Error("Current repoId undefined.");
+    else {
+      throw new Error("repoClient undefined.");
+    }
   }
 
   public async createRepositoryClientAsync(): Promise<IRepositoryApiClientExInternal> {
@@ -74,8 +81,10 @@ export class RepositoryClientExInternal {
         afterFetchResponseAsync: this.afterFetchResponseAsync,
       });
     const clearCurrentRepo = () => {
-      this.repoClient!._repoId = undefined;
-      this.repoClient!._repoName = undefined;
+      if (this.repoClient) {
+        this.repoClient._repoId = undefined;
+        this.repoClient._repoName = undefined;
+      }
     };
     this.repoClient = {
       clearCurrentRepo,
@@ -88,7 +97,9 @@ export class RepositoryClientExInternal {
         } else {
           console.log("getting id from api");
           const repo = (await this.getCurrentRepo()).repoId;
-          this.repoClient!._repoId = repo;
+          if (this.repoClient) {
+            this.repoClient._repoId = repo;
+          }
           return repo;
         }
       },
@@ -97,7 +108,12 @@ export class RepositoryClientExInternal {
           return this.repoClient._repoName;
         } else {
           const repo = (await this.getCurrentRepo()).repoName;
-          this.repoClient!._repoName = repo;
+          if (this.repoClient) {
+            this.repoClient._repoName = repo;
+          }
+          else {
+            console.debug('Cannot set repoName, repoClient does not exist');
+          }
           return repo;
         }
       },

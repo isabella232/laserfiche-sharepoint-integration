@@ -1,7 +1,6 @@
 import * as React from "react";
 import { NavLink } from "react-router-dom";
 import * as $ from "jquery";
-import * as bootstrap from "bootstrap";
 import {
   SPHttpClient,
   SPHttpClientResponse,
@@ -88,7 +87,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
         if (response.status === 404) {
           const url: string =
             this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists";
-          const listDefinition: any = {
+          const listDefinition = {
             Title: "DocumentNameConfigList",
             Description: "My description",
             BaseTemplate: 100,
@@ -103,7 +102,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
             })
             .then((responses: { value: [] }): void => {
               console.log(responses);
-              var documentlist = responses["Title"];
+              const documentlist = responses["Title"];
               this.AddItemsInDocumentConfigList(documentlist);
             });
         }
@@ -127,8 +126,8 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
       "%(usersid)",
       "%(uuid)",
     ];
-    for (var i = 0; i < arary.length; i++) {
-      let restApiUrl: string =
+    for (let i = 0; i < arary.length; i++) {
+      const restApiUrl: string =
         this.props.context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getByTitle('" +
         documentlist +
@@ -163,7 +162,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
         if (response.status === 404) {
           const url: string =
             this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists";
-          const listDefinition: any = {
+          const listDefinition = {
             Title: "AdminConfigurationList",
             Description: "My description",
             BaseTemplate: 100,
@@ -177,7 +176,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
               return responses.json();
             })
             .then((responses: { value: [] }): void => {
-              var listtitle = responses["Title"];
+              const listtitle = responses["Title"];
               this.GetFormDigestValue(listtitle);
             });
         }
@@ -191,17 +190,17 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
       async: false,
       headers: { accept: "application/json;odata=verbose" },
       success: (data) => {
-        var FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
+        const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
         this.CreateColumns(listtitle, FormDigestValue);
       },
-      error: (xhr, status, error) => {
+      error: () => {
         console.log("Failed");
       },
     });
   }
   //Create columns in the newly created admin list
   public CreateColumns(listtitle, FormDigestValue) {
-    let siteUrl: string =
+    const siteUrl: string =
       this.props.context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('" +
       listtitle +
@@ -223,7 +222,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
       error: this.onQueryFailed,
     });
   }
-  public onQuerySucceeded(data) {
+  public onQuerySucceeded() {
     console.log("Fields created");
   }
   public onQueryFailed() {
@@ -264,7 +263,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
   }
 
   public render(): React.ReactElement {
-    let redirectPage =
+    const redirectPage =
       this.props.context.pageContext.web.absoluteUrl +
       this.props.laserficheRedirectPage;
     return (
@@ -276,7 +275,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
             redirect_behavior="Replace"
             client_id={clientId}
             ref={this.loginComponent}
-          ></lf-login>
+          />
         </div>
         <div>
           <span

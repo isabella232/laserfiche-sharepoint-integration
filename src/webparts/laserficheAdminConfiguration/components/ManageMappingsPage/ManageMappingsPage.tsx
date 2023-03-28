@@ -1,6 +1,5 @@
 import * as React from "react";
 import * as $ from 'jquery';
-import * as bootstrap from 'bootstrap';
 import { IManageMappingsPageProps } from "./IManageMappingsPageProps";
 import { IManageMappingsPageState } from "./IManageMappingsPageState";
 import { IListItem } from './IListItem';
@@ -45,12 +44,12 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
 
     //Get all laserfiche configuration created under manage configuration settings and append to Select element
     public GetAllLaserficheContentTypes() {
-        let array = [];
+        const array = [];
         this.GetManageConfiguration().then((results: IListItem[]) => {
             if (results != null) {
                 const jsonValue = JSON.parse(results[0].JsonValue);
                 if (jsonValue.length > 0) {
-                    for (var i = 0; i < jsonValue.length; i++) {
+                    for (let i = 0; i < jsonValue.length; i++) {
                         array.push({
                             name: jsonValue[i].ConfigurationName
                         });
@@ -63,8 +62,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
 
     //Get Manage Configurations setting value from the SharePoint list
     public async GetManageConfiguration(): Promise<IListItem[]> {
-        let data: IListItem[] = [];
-        let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+        const data: IListItem[] = [];
+        const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
         try {
             const res = await fetch(restApiUrl, {
                 method: 'GET',
@@ -75,7 +74,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
             });
             const results = await res.json();
             if (results.value.length > 0) {
-                for (var i = 0; i < results.value.length; i++) {
+                for (let i = 0; i < results.value.length; i++) {
                     data.push(results.value[i]);
                 }
                 return data;
@@ -91,8 +90,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
 
     //Get all content types from SharePoint append to Select element
     public async GetAllSharePointContentTypes() {
-        let array = [];
-        let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/contenttypes";
+        const array = [];
+        const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/contenttypes";
         try {
             const res = await fetch(restApiUrl, {
                 method: 'GET',
@@ -102,7 +101,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                 },
             });
             const results = await res.json();
-            for (var i = 0; i < results.value.length; i++) {
+            for (let i = 0; i < results.value.length; i++) {
                 array.push({
                     name: results.value[i].Name
                 });
@@ -132,11 +131,11 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
             this.GetItemIdByTitle().then((results: IListItem[]) => {
                 this.setState({ listItem: results });
                 if (this.state.listItem != null) {
-                    var entryExists = false;
-                    let itemId = this.state.listItem[0].Id;
+                    let entryExists = false;
+                    const itemId = this.state.listItem[0].Id;
                     const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
                     if (jsonValue.length > 0) {
-                        for (var i = 0; i < jsonValue.length; i++) {
+                        for (let i = 0; i < jsonValue.length; i++) {
                             if (jsonValue[i].id == rows[idx].id) {
                                 entryExists = true;
                                 break;
@@ -150,9 +149,9 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                         }
                     }
                     else {
-                        let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
+                        const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
                         const row = [...this.state.mappingRows];
-                        let newjsonValue = [{
+                        const newjsonValue = [{
                             "id": row[idx].id,
                             "SharePointContentType": row[idx].SharePointContentType,
                             "LaserficheContentType": row[idx].LaserficheContentType,
@@ -176,9 +175,9 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                     }
                 }
                 else {
-                    let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items";
+                    const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items";
                     const newRow = [...this.state.mappingRows];
-                    let jsonValues = [{
+                    const jsonValues = [{
                         "id": newRow[idx].id,
                         "SharePointContentType": newRow[idx].SharePointContentType,
                         "LaserficheContentType": newRow[idx].LaserficheContentType,
@@ -204,15 +203,15 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
 
     //Add New mapping in existing json value
     public AddNewInExistingMapping(jsonValue, rows, idx, itemId) {
-        var exitEntry = false;
-        for (var i = 0; i < jsonValue.length; i++) {
+        let exitEntry = false;
+        for (let i = 0; i < jsonValue.length; i++) {
             if (jsonValue[i].SharePointContentType == rows[idx].SharePointContentType) {
                 exitEntry = true;
                 break;
             }
         }
         if (exitEntry == false) {
-            let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
+            const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
             const newJsonValue = [...jsonValue, {
                 "id": rows[idx].id,
                 "SharePointContentType": rows[idx].SharePointContentType,
@@ -238,8 +237,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                 $('#sharePointValidationMapping').hide();
                 $('#laserficheValidationMapping').hide();
                 $('#validationOfMapping').hide(); 
-        }else{ 
-          }
+        }
         }
         else {
             $('#validationOfMapping').show();
@@ -248,8 +246,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
 
     //Update the existing mapping in json
     public UpdateExistingMapping(jsonValue, rows, idx, itemId) {
-        var exitEntry = false;
-        for (var i = 0; i < jsonValue.length; i++) {
+        let exitEntry = false;
+        for (let i = 0; i < jsonValue.length; i++) {
             if (jsonValue[i].SharePointContentType == rows[idx].SharePointContentType) {
                 if (jsonValue[i].id == rows[idx].id) {
                     exitEntry = false;
@@ -262,7 +260,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
             }
         }
         if (exitEntry == false) {
-            for (var j = 0; j < jsonValue.length; j++) {
+            for (let j = 0; j < jsonValue.length; j++) {
                 if (jsonValue[j].id == rows[idx].id) {
                     jsonValue[j].SharePointContentType = rows[idx].SharePointContentType;
                     jsonValue[j].LaserficheContentType = rows[idx].LaserficheContentType;
@@ -270,7 +268,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                     break;
                 }
             }
-            let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
+            const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
             const newJsonValue = [...jsonValue];
             const jsonObject = JSON.stringify(newJsonValue);
             const body: string = JSON.stringify({ 'Title': 'ManageMapping', 'JsonValue': jsonObject });
@@ -307,18 +305,18 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
         this.GetItemIdByTitle().then((results: IListItem[]) => {
             this.setState({ listItem: results });
             if (this.state.listItem != null) {
-                let itemId = this.state.listItem[0].Id;
+                const itemId = this.state.listItem[0].Id;
                 const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
-                var entryExists = false;
-                for (var i = 0; i < jsonValue.length; i++) {
+                let entryExists = -1;
+                for (let i = 0; i < jsonValue.length; i++) {
                     if (jsonValue[i].id == rows[idx].id) {
-                        entryExists = true;
+                        entryExists = i;
                         break;
                     }
                 }
-                if (entryExists == true) {
-                    jsonValue.splice(i, 1);
-                    let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
+                if (entryExists > -1) {
+                    jsonValue.splice(entryExists, 1);
+                    const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
                     const newJsonValue = [...jsonValue];
                     const jsonObject = JSON.stringify(newJsonValue);
                     const body: string = JSON.stringify({ 'Title': 'ManageMapping', 'JsonValue': jsonObject });
@@ -363,8 +361,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
 
     //Get ManageMapping value from the SharePoint list based on Title
     public async GetItemIdByTitle(): Promise<IListItem[]> {
-        let array: IListItem[] = [];
-        let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageMapping'";
+        const array: IListItem[] = [];
+        const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageMapping'";
         try {
             const res = await fetch(restApiUrl, {
                 method: 'GET',
@@ -375,7 +373,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
             });
             const results = await res.json();
             if (results.value.length > 0) {
-                for (var i = 0; i < results.value.length; i++) {
+                for (let i = 0; i < results.value.length; i++) {
                     array.push(results.value[i]);
                 }
                 return array;
@@ -391,7 +389,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
 
     //Add New Mapping in the UI
     public AddNewMapping = () => {
-        var id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
+        const id = (+ new Date() + Math.floor(Math.random() * 999999)).toString(36);
         const item = {
             id: id,
             SharePointContentType: "Select",
@@ -412,7 +410,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
     }
     //Getting confirmation in modal dialog to remove mapping
     public RemoveRow() {
-        var id = $('#deleteModal').data('id');
+        const id = $('#deleteModal').data('id');
         const rows = [...this.state.mappingRows];
         const deleteRows = [...this.state.mappingRows];
         rows.splice(id, 1);
@@ -433,7 +431,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
     }
     //change event on Select elements
     public handleChange = idx => e => {
-        var item = {
+        const item = {
             id: e.target.id,
             name: e.target.name,
             value: e.target.value
@@ -476,10 +474,10 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
     
     //dynamic render the mapping and create table row elements
     public renderTableData() {
-        let SharePointContents = this.state.sharePointContentTypes.map(v => (
+        const SharePointContents = this.state.sharePointContentTypes.map(v => (
             <option value={v.name}>{v.name}</option>
         ));
-        let LaserficheContents = this.state.laserficheContentTypes.map(v => (
+        const LaserficheContents = this.state.laserficheContentTypes.map(v => (
             <option value={v.name}>{v.name}</option>
         ));
         return this.state.mappingRows.map((item, index) => {
@@ -499,8 +497,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                             </select>
                         </td>
                         <td className="text-center">
-                            <a href="javascript:;" className="ml-3" onClick={this.EditSpecificMapping(index)}><span className="fa fa-pencil-alt fa-lg mt-2"></span></a>
-                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="fa fa-trash-alt fa-lg mt-2"></span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.EditSpecificMapping(index)}><span className="material-icons">edit</span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="material-icons">delete</span></a>
                         </td>
                     </tr>
                 );
@@ -521,8 +519,8 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                             </select>
                         </td>
                         <td className="text-center">
-                            <a href="javascript:;" className="ml-3" onClick={this.SaveSpecificMapping(index)} ><span className="fa fa-save fa-lg mt-2"></span></a>
-                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="fa fa-trash-alt fa-lg mt-2"></span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.SaveSpecificMapping(index)} ><span className="material-icons">save</span></a>
+                            <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificMapping(index)}><span className="material-icons">delete</span></a>
                         </td>
                     </tr>
                 );
@@ -530,7 +528,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
         });
     }
     public render(): React.ReactElement {
-        let viewSharePointContentTypes = this.props.context.pageContext.web.absoluteUrl + "/_layouts/15/mngctype.aspx";
+        const viewSharePointContentTypes = this.props.context.pageContext.web.absoluteUrl + "/_layouts/15/mngctype.aspx";
         return (
             <div className="">
                 <div className="">
@@ -580,7 +578,7 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
                                     </button>
                                 </div>
                                 <div className="modal-body">
-                                    Do you want to permanently delete the "{this.state.deleteSharePointcontentType}" mapping?{/*  for the "{this.state.deleteSharePointcontentType}" Content Type? */}
+                                    Do you want to permanently delete the &quot;{this.state.deleteSharePointcontentType}&quot; mapping?{/*  for the "{this.state.deleteSharePointcontentType}" Content Type? */}
                                 </div>
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-primary btn-sm" data-dismiss="modal" onClick={() => this.RemoveRow()}>OK</button>
@@ -594,5 +592,3 @@ export default class ManageMappingsPage extends React.Component<IManageMappingsP
         );
     }
 }
-
-

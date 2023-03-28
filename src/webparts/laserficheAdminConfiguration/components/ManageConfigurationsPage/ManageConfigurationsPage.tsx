@@ -1,13 +1,11 @@
 import * as React from "react";
 import * as $ from 'jquery';
-import * as bootstrap from 'bootstrap';
-import { NavLink, Route } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
 import { IManageConfigurationPageState } from './IManageConfigurationPageState';
 import { IListItem } from './IListItem';
-import { SPHttpClient, SPHttpClientResponse, ISPHttpClientOptions } from '@microsoft/sp-http';
+import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../../node_modules/@fortawesome/fontawesome-free/css/all.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
@@ -38,8 +36,8 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
     }
     //Get items from the AdminConfiguratiion list based on Title 'ManageConfiguration'
     public async GetItemIdByTitle(): Promise<IListItem[]> {
-        let array: IListItem[] = [];
-        let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+        const array: IListItem[] = [];
+        const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
         try {
             const res = await fetch(restApiUrl, {
                 method: 'GET',
@@ -50,7 +48,7 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
             });
             const results = await res.json();
             if (results.value.length > 0) {
-                for (var i = 0; i < results.value.length; i++) {
+                for (let i = 0; i < results.value.length; i++) {
                     array.push(results.value[i]);
                 }
                 return array;
@@ -74,7 +72,7 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
 
     //Remove row on click on delete button
     public RemoveRow() {
-        var id = $('#deleteModal').data('id');
+        const id = $('#deleteModal').data('id');
         const rows = [...this.state.configurationRows];
         const deleteRows = [...this.state.configurationRows];
         rows.splice(id, 1);
@@ -93,12 +91,12 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
         this.GetItemIdByTitle().then((results: IListItem[]) => {
             this.setState({ listItem: results });
             if (this.state.listItem != null) {
-                let itemId = this.state.listItem[0].Id;
+                const itemId = this.state.listItem[0].Id;
                 const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
-                for (var i = 0; i < jsonValue.length; i++) {
+                for (let i = 0; i < jsonValue.length; i++) {
                     if (jsonValue[i].ConfigurationName == rows[idx].ConfigurationName) {
                         jsonValue.splice(i, 1);
-                        let restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
+                        const restApiUrl: string = this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" + itemId + ")";
                         const newJsonValue = [...jsonValue];
                         const jsonObject = JSON.stringify(newJsonValue);
                         const body: string = JSON.stringify({ 'Title': 'ManageConfigurations', 'JsonValue': jsonObject });
@@ -127,8 +125,8 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
                 <tr id="addr0" key={index}>
                     <td>{this.state.configurationRows[index].ConfigurationName}</td>
                     <td className="text-center">
-                        <span><NavLink to={'/EditManageConfiguration/' + this.state.configurationRows[index].ConfigurationName} style={{ marginRight: "18px", fontWeight: '500', fontSize: '15px' }}><span className="fa fa-pencil-alt fa-lg"></span></NavLink></span>
-                        <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificConfiguration(index)}><span className="fa fa-trash-alt fa-lg"></span></a>
+                        <span><NavLink to={'/EditManageConfiguration/' + this.state.configurationRows[index].ConfigurationName} style={{ marginRight: "18px", fontWeight: '500', fontSize: '15px' }}><span className="material-icons">edit</span></NavLink></span>
+                        <a href="javascript:;" className="ml-3" onClick={this.RemoveSpecificConfiguration(index)}><span className="material-icons">delete</span></a>
                     </td>
                 </tr>
             );
@@ -143,8 +141,6 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
                         <div className="p-3">
                             <div className="card rounded-0">
                                 <div className="card-header d-flex justify-content-between pt-1 pb-1">
-                                    <div>
-                                    </div>
                                     <div>
                                         <NavLink to="/AddNewManageConfiguration" style={{ marginRight: "18px", fontWeight: '500', fontSize: '15px' }}><a className="btn btn-primary pl-5 pr-5">Add Profile</a></NavLink>
                                     </div>
@@ -177,7 +173,7 @@ export default class ManageConfigurationsPage extends React.Component<IManageCon
                                     </button>
                                 </div>
                                 <div className="modal-body">
-                                    Do you want to permanently delete "{this.state.configurationName}"?
+                                    Do you want to permanently delete &quot;{this.state.configurationName}&quot;?
                                 </div>
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-primary btn-sm" data-dismiss="modal" onClick={() => this.RemoveRow()}>OK</button>

@@ -1289,8 +1289,7 @@ export default class SvgHtmlIcons extends React.Component {
     <symbol id="zoom-out" viewBox="0 0 24 24">
       <path d="M8 11v2h8v-2H8zM12 3c-5 0-9 4-9 9s4 9 9 9 9-4 9-9S17 3 12 3zM12 19c-3.9 0-7-3.1-7-7s3.1-7 7-7 7 3.1 7 7S15.9 19 12 19z"/>
     </symbol>
-    <symbol id="blank" viewBox="0 0 0 0">
-    </symbol>
+    <symbol id="blank" viewBox="0 0 0 0"/>
     <symbol id="info-16" viewBox="0 0 16 16">
       <path fill-rule="evenodd" d="M7.998,16.003C3.581,16.003,0,12.42,0,8.001S3.581,0,7.998,0
           c4.417,0,7.998,3.582,7.998,8.001S12.415,16.003,7.998,16.003z M8.999,3.02H7.016v1.984h1.983V3.02z M8.999,7.02H7.016v5.984h1.983
@@ -1439,7 +1438,7 @@ export default class SvgHtmlIcons extends React.Component {
       <path d="M6,20v-8h2v8h-2z M10,20V7h2V20h-2z M14,20v-7h2V20h-2z M18,20V5h2V20h-2z"/>
     </symbol>
     <symbol id="settings" viewBox="0 0 24 24">
-      <path d="M19.4 13c0-0.3 0.1-0.6 0.1-1s0-0.7-0.1-1l2.1-1.6c0.2-0.1 0.2-0.4 0.1-0.6l-2-3.5c-0.1-0.2-0.4-0.3-0.6-0.2l-2.5 1c-0.5-0.4-1.1-0.7-1.7-1l-0.4-2.7C14.5 2.2 14.3 2 14 2h-4C9.8 2 9.5 2.2 9.5 2.4L9.1 5.1C8.5 5.3 8 5.7 7.4 6.1l-2.5-1C4.7 5 4.5 5.1 4.3 5.3l-2 3.5C2.2 8.9 2.3 9.2 2.5 9.4L4.6 11c0 0.3-0.1 0.6-0.1 1s0 0.7 0.1 1l-2.1 1.6c-0.2 0.1-0.2 0.4-0.1 0.6l2 3.5C4.5 18.9 4.7 19 5 18.9l2.5-1c0.5 0.4 1.1 0.7 1.7 1l0.4 2.6c0 0.2 0.2 0.4 0.5 0.4h4c0.3 0 0.5-0.2 0.5-0.4l0.4-2.6c0.6-0.3 1.2-0.6 1.7-1l2.5 1c0.2 0.1 0.5 0 0.6-0.2l2-3.5c0.1-0.2 0.1-0.5-0.1-0.6L19.4 13zM12 15.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5S13.9 15.5 12 15.5z"></path>
+      <path d="M19.4 13c0-0.3 0.1-0.6 0.1-1s0-0.7-0.1-1l2.1-1.6c0.2-0.1 0.2-0.4 0.1-0.6l-2-3.5c-0.1-0.2-0.4-0.3-0.6-0.2l-2.5 1c-0.5-0.4-1.1-0.7-1.7-1l-0.4-2.7C14.5 2.2 14.3 2 14 2h-4C9.8 2 9.5 2.2 9.5 2.4L9.1 5.1C8.5 5.3 8 5.7 7.4 6.1l-2.5-1C4.7 5 4.5 5.1 4.3 5.3l-2 3.5C2.2 8.9 2.3 9.2 2.5 9.4L4.6 11c0 0.3-0.1 0.6-0.1 1s0 0.7 0.1 1l-2.1 1.6c-0.2 0.1-0.2 0.4-0.1 0.6l2 3.5C4.5 18.9 4.7 19 5 18.9l2.5-1c0.5 0.4 1.1 0.7 1.7 1l0.4 2.6c0 0.2 0.2 0.4 0.5 0.4h4c0.3 0 0.5-0.2 0.5-0.4l0.4-2.6c0.6-0.3 1.2-0.6 1.7-1l2.5 1c0.2 0.1 0.5 0 0.6-0.2l2-3.5c0.1-0.2 0.1-0.5-0.1-0.6L19.4 13zM12 15.5c-1.9 0-3.5-1.6-3.5-3.5s1.6-3.5 3.5-3.5 3.5 1.6 3.5 3.5S13.9 15.5 12 15.5z"/>
     </symbol>
     <symbol id="plugin" viewBox="0 0 24 24">
       <path d="M21.1,12.066h-1.828V6.999c0-1.282-0.951-2.393-2.229-2.393H11.86V2.917C11.86,1.305,10.493,0,8.895,0
@@ -1879,8 +1878,7 @@ export default class SvgHtmlIcons extends React.Component {
       <path d="M4.1,5.3l6,6.5V12v7.3l3.8,2.5v-10l6-6.5c1-0.7,0.5-2.3-0.7-2.3H4.8C3.6,3,3.1,4.6,4.1,5.3z"/>
     </symbol>
     <symbol id="audit" viewBox="0 0 18 18">
-      <g>
-      </g>
+      <g/>
       <g>
         <g>
           <g>
@@ -1951,7 +1949,7 @@ export default class SvgHtmlIcons extends React.Component {
         C7.6,8.2,8.3,8.5,9,8.5s1.4-0.2,1.9-0.7c1.9,0.6,2.4,2.7,2.5,4.8C13.4,12.8,13.2,13.2,12.8,13.2z"/>
     </symbol>
     <symbol id="device" viewBox="0 0 24 24">
-      <path fill="#555555" d="M7 3v18h10V3H7zM12 18c-0.6 0-1-0.4-1-1 0-0.6 0.4-1 1-1s1 0.4 1 1C13 17.6 12.6 18 12 18zM15 10H9V9h6V10zM15 8H9V7h6V8z"></path>
+      <path fill="#555555" d="M7 3v18h10V3H7zM12 18c-0.6 0-1-0.4-1-1 0-0.6 0.4-1 1-1s1 0.4 1 1C13 17.6 12.6 18 12 18zM15 10H9V9h6V10zM15 8H9V7h6V8z"/>
     </symbol>
     <symbol id="account-lockout" viewBox="0 0 18 18">
       <circle fill="none" stroke="#555555" stroke-miterlimit="10" stroke-width="2" cx="9" cy="9" r="7.9"/>
@@ -1983,13 +1981,13 @@ export default class SvgHtmlIcons extends React.Component {
       <path d="M10,1a9,9,0,1,0,9,9A9,9,0,0,0,10,1ZM5,12a2,2,0,1,1,2-2A2,2,0,0,1,5,12Zm5,0a2,2,0,1,1,2-2A2,2,0,0,1,10,12Zm5,0a2,2,0,1,1,2-2A2,2,0,0,1,15,12Z" transform="translate(-1 -1)"/>
     </symbol>
     <symbol id="summary" viewBox="0 0 24 24">
-      <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" className="style-scope iron-icon"></path>
+      <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" className="style-scope iron-icon"/>
     </symbol>
     <symbol id="Expand-padding" viewBox="0 0 14 18">
-      <path d="M10,4V7H8V4H6L9,0l3,4ZM8,14V11h2v3h2L9,18,6,14Zm8-6H2v2H16Z" transform="translate(-2 0)"></path>
+      <path d="M10,4V7H8V4H6L9,0l3,4ZM8,14V11h2v3h2L9,18,6,14Zm8-6H2v2H16Z" transform="translate(-2 0)"/>
     </symbol>
     <symbol id="Reduce-padding" viewBox="0 0 14 18">
-      <path d ="M8,3V0h2V3h2L9,7,6,3Zm2,12v3H8V15H6l3-4,3,4ZM2,8H16v2H2Z" transform="translate(-2)"></path>
+      <path d ="M8,3V0h2V3h2L9,7,6,3Zm2,12v3H8V15H6l3-4,3,4ZM2,8H16v2H2Z" transform="translate(-2)"/>
     </symbol>
     <symbol id="arrow-left" viewBox ="0 0 16 16">
       <path d="M12.1,17.7c0.4,0.4,1,0.4,1.4,0l0.7-0.7c0.4-0.4,0.4-1.1,0-1.4L7.8,9l6.4-6.5
