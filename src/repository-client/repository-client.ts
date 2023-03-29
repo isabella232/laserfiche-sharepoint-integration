@@ -4,11 +4,13 @@ import {
   RepositoryApiClient,
 } from '@laserfiche/lf-repository-api-client';
 import { IRepositoryApiClientExInternal } from './repository-client-types';
+import { NgElement, WithProperties } from '@angular/elements';
+import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 
 export class RepositoryClientExInternal {
   public repoClient: IRepositoryApiClientExInternal;
 
-  constructor(private loginRef: React.RefObject<any>) {}
+  constructor(private loginRef: React.RefObject<NgElement & WithProperties<LfLoginComponent>>) {}
 
   public addAuthorizationHeader(
     request: RequestInit,

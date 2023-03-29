@@ -102,7 +102,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
   //checking whether the Sign-in Page configured or not
-  public async pageConfigurationCheck(): Promise<any> {
+  public async pageConfigurationCheck() {
     webpartconfigurations = '';
     try {
       const res = await fetch(
@@ -130,7 +130,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
   // getting All Fields from the library and other properties
-  public async GetAllFieldsProperties(libraryUrl): Promise<any> {
+  public async GetAllFieldsProperties(libraryUrl) {
     let dataStatic: object = {};
     let dataDisplay: object = {};
     let dataInternal: object = {};
@@ -170,7 +170,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   }
 
   //getting all the Fields Values for the Selected file
-  public async GetAllFieldsValues(libraryUrl, fileId): Promise<any> {
+  public async GetAllFieldsValues(libraryUrl, fileId) {
     try {
       const res = await fetch(
         this.context.pageContext.web.absoluteUrl +

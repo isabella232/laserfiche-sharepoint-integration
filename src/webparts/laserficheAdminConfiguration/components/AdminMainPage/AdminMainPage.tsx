@@ -9,10 +9,11 @@ import {
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { IAdminPageProps } from './IAdminPageProps';
 import { LfFieldsService } from '@laserfiche/lf-ui-components-services';
-import { LoginState } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
 import { clientId } from '../../../constants';
+import { NgElement, WithProperties } from '@angular/elements';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 
@@ -28,7 +29,7 @@ export default class AdminMainPage extends React.Component<
   IAdminPageProps,
   { region: string }
 > {
-  public loginComponent: React.RefObject<any>;
+  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
   public repoClient: IRepositoryApiClientExInternal;
   public lfFieldsService: LfFieldsService;
 

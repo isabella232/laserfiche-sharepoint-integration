@@ -12,10 +12,11 @@ import {
   FieldToUpdate,
   ValueToUpdate,
 } from '@laserfiche/lf-repository-api-client';
-import { LoginState } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
+import { NgElement, WithProperties } from '@angular/elements';
 
 declare global {
   namespace JSX {
@@ -31,7 +32,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   ISendToLaserficheLoginComponentProps,
   ISendToLaserficheLoginComponentState
 > {
-  public loginComponent: React.RefObject<any>;
+  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
   public repoClient: IRepositoryApiClientExInternal;
 
   constructor(props: ISendToLaserficheLoginComponentProps) {

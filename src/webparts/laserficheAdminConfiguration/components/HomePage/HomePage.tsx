@@ -18,6 +18,7 @@ export default class HomePage extends React.Component {
               <a
                 href='https://doc.laserfiche.com/laserfiche.documentation/11/administration/en-us/Default.htm#../Subsystems/Integrations/Content/SharePoint/SharePoint2022Integration.htm'
                 target='_blank'
+                rel="noreferrer"
               >
                 help documentation.
               </a>{' '}

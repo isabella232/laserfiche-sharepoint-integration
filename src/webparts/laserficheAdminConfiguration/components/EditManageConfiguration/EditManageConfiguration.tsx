@@ -19,10 +19,11 @@ import {
   LfRepoTreeNode,
   LfRepoTreeNodeService,
 } from '@laserfiche/lf-ui-components-services';
-import { LoginState, TreeNode } from '@laserfiche/types-lf-ui-components';
+import { LfLoginComponent, LfRepositoryBrowserComponent, LoginState, TreeNode } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
 import { clientId } from '../../../constants';
+import { NgElement, WithProperties } from '@angular/elements';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -40,8 +41,8 @@ export default class EditManageConfiguration extends React.Component<
   IEditManageConfigurationProps,
   IEditManageConfigurationState
 > {
-  public loginComponent: React.RefObject<any>;
-  public repositoryBrowser: React.RefObject<any>;
+  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
+  public repositoryBrowser: React.RefObject<NgElement & WithProperties<LfRepositoryBrowserComponent>>;
   public divRef: React.RefObject<HTMLDivElement>;
   public repoClient: IRepositoryApiClientExInternal;
   public lfRepoTreeService: LfRepoTreeNodeService;
@@ -364,7 +365,7 @@ export default class EditManageConfiguration extends React.Component<
     }
   };
 
-  public onEntrySelected = (event: any) => {
+  public onEntrySelected = (event: CustomEvent<LfRepoTreeNode[]>) => {
     const treeNodesSelected: LfRepoTreeNode[] = event.detail;
     this.entrySelected =
       treeNodesSelected?.length > 0 ? treeNodesSelected[0] : undefined;
@@ -690,12 +691,13 @@ export default class EditManageConfiguration extends React.Component<
   }
 
   //OnChange functionality on elemnts
-  public handleChange = (idx) => (e) => {
+  public handleChange = (e) => {
     let rowID;
+    const targetElement = e.target as HTMLSelectElement;
     const item = {
-      id: e.target.id,
-      name: e.target.name,
-      value: e.target.value,
+      id: targetElement.id,
+      name: targetElement.name,
+      value: targetElement.value,
     };
     const rowsArray = this.state.mappingList;
     const newRow = rowsArray.map((row) => {
@@ -1049,7 +1051,7 @@ export default class EditManageConfiguration extends React.Component<
                 className='custom-select'
                 value={this.state.mappingList[index].SharePointField}
                 id={this.state.mappingList[index].id}
-                onChange={this.handleChange(index)}
+                onChange={this.handleChange}
               >
                 <option>Select</option>
                 {sharePointFields}
@@ -1062,7 +1064,7 @@ export default class EditManageConfiguration extends React.Component<
                 className='custom-select'
                 value={this.state.mappingList[index].LaserficheField}
                 id={this.state.mappingList[index].id}
-                onChange={this.handleChange(index)}
+                onChange={this.handleChange}
               >
                 <option>Select</option>
                 {laserficheRequiredFields}
@@ -1097,7 +1099,7 @@ export default class EditManageConfiguration extends React.Component<
                 className='custom-select'
                 value={this.state.mappingList[index].SharePointField}
                 id={this.state.mappingList[index].id}
-                onChange={this.handleChange(index)}
+                onChange={this.handleChange}
               >
                 <option>Select</option>
                 {sharePointFields}
@@ -1109,7 +1111,7 @@ export default class EditManageConfiguration extends React.Component<
                 className='custom-select'
                 value={this.state.mappingList[index].LaserficheField}
                 id={this.state.mappingList[index].id}
-                onChange={this.handleChange(index)}
+                onChange={this.handleChange}
               >
                 <option>Select</option>
                 {laserficheFields}
