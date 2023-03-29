@@ -1,5 +1,5 @@
 export interface IListItem {
-    Id:any;
-    Title: string;   
-    JsonValue: string;  
-  }
+  Id: any;
+  Title: string;
+  JsonValue: string;
+}

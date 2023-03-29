@@ -1,57 +1,74 @@
-import * as React from "react";
-import { NavLink } from "react-router-dom";
-import * as $ from "jquery";
+import * as React from 'react';
+import { NavLink } from 'react-router-dom';
+import * as $ from 'jquery';
 import {
   SPHttpClient,
   SPHttpClientResponse,
   ISPHttpClientOptions,
-} from "@microsoft/sp-http";
-import { SPComponentLoader } from "@microsoft/sp-loader";
-import { IAdminPageProps } from "./IAdminPageProps";
-import {
-  LfFieldsService
-} from "@laserfiche/lf-ui-components-services";
-import { LoginState } from "@laserfiche/types-lf-ui-components";
-import { IRepositoryApiClientExInternal } from "../../../../repository-client/repository-client-types";
-import { RepositoryClientExInternal } from "../../../../repository-client/repository-client";
-import { clientId } from "../../../constants";
-require("../../../../Assets/CSS/bootstrap.min.css");
-require("../../../../Assets/CSS/adminConfig.css");
+} from '@microsoft/sp-http';
+import { SPComponentLoader } from '@microsoft/sp-loader';
+import { IAdminPageProps } from './IAdminPageProps';
+import { LfFieldsService } from '@laserfiche/lf-ui-components-services';
+import { LoginState } from '@laserfiche/types-lf-ui-components';
+import { IRepositoryApiClientExInternal } from '../../../../repository-client/repository-client-types';
+import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
+import { clientId } from '../../../constants';
+require('../../../../Assets/CSS/bootstrap.min.css');
+require('../../../../Assets/CSS/adminConfig.css');
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      ["lf-login"]: any;
+      ['lf-login']: any;
     }
   }
 }
 
-export default class AdminMainPage extends React.Component<IAdminPageProps, {region: string;}> {
+export default class AdminMainPage extends React.Component<
+  IAdminPageProps,
+  { region: string }
+> {
   public loginComponent: React.RefObject<any>;
   public repoClient: IRepositoryApiClientExInternal;
   public lfFieldsService: LfFieldsService;
 
   constructor(props: IAdminPageProps) {
     super(props);
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css');
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css');
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
+    );
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
+    );
     this.loginComponent = React.createRef();
 
-    this.state = {region: this.props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com'};
+    this.state = {
+      region: this.props.devMode
+        ? 'a.clouddev.laserfiche.com'
+        : 'laserfiche.com',
+    };
   }
   public async componentDidMount(): Promise<void> {
-    await SPComponentLoader.loadScript('https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js');
-    await SPComponentLoader.loadScript('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js');
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css');
-    SPComponentLoader.loadCss('https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css');
+    await SPComponentLoader.loadScript(
+      'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+    );
+    await SPComponentLoader.loadScript(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js'
+    );
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
+    );
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
+    );
 
     //Add event listener to lf login component
     this.loginComponent.current.addEventListener(
-      "loginCompleted",
+      'loginCompleted',
       this.loginCompleted
     );
     this.loginComponent.current.addEventListener(
-      "logoutCompleted",
+      'logoutCompleted',
       this.logoutCompleted
     );
 
@@ -59,13 +76,13 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
     const loggedOut: boolean =
       this.loginComponent.current.state === LoginState.LoggedOut;
     if (loggedOut) {
-      $(".ManageConfigurationLink").hide();
-      $(".ManageMappingLink").hide();
-      $(".HomeLink").hide();
+      $('.ManageConfigurationLink').hide();
+      $('.ManageMappingLink').hide();
+      $('.HomeLink').hide();
     } else {
-      $(".ManageConfigurationLink").show();
-      $(".ManageMappingLink").show();
-      $(".HomeLink").show();
+      $('.ManageConfigurationLink').show();
+      $('.ManageMappingLink').show();
+      $('.HomeLink').show();
     }
     //await this.getAndInitializeRepositoryClientAndServicesAsync();
     //Create AdminConfiguration list in SharePoint site
@@ -86,10 +103,10 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
         }
         if (response.status === 404) {
           const url: string =
-            this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists";
+            this.props.context.pageContext.web.absoluteUrl + '/_api/web/lists';
           const listDefinition = {
-            Title: "DocumentNameConfigList",
-            Description: "My description",
+            Title: 'DocumentNameConfigList',
+            Description: 'My description',
             BaseTemplate: 100,
           };
           const spHttpClientOptions: ISPHttpClientOptions = {
@@ -102,7 +119,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
             })
             .then((responses: { value: [] }): void => {
               console.log(responses);
-              const documentlist = responses["Title"];
+              const documentlist = responses['Title'];
               this.AddItemsInDocumentConfigList(documentlist);
             });
         }
@@ -111,20 +128,20 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
   //Adding items in newly created document configuration list
   public AddItemsInDocumentConfigList(documentlist) {
     const arary = [
-      "%(count)",
-      "%(date)",
-      "%(datetime)",
-      "%(gcount)",
-      "%(id)",
-      "%(name)",
-      "%(parent)",
-      "%(parentid)",
-      "%(parentname)",
-      "%(parentuuid)",
-      "%(time)",
-      "%(username)",
-      "%(usersid)",
-      "%(uuid)",
+      '%(count)',
+      '%(date)',
+      '%(datetime)',
+      '%(gcount)',
+      '%(id)',
+      '%(name)',
+      '%(parent)',
+      '%(parentid)',
+      '%(parentname)',
+      '%(parentuuid)',
+      '%(time)',
+      '%(username)',
+      '%(usersid)',
+      '%(uuid)',
     ];
     for (let i = 0; i < arary.length; i++) {
       const restApiUrl: string =
@@ -135,9 +152,9 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
       const body: string = JSON.stringify({ Title: arary[i] });
       const options: ISPHttpClientOptions = {
         headers: {
-          Accept: "application/json;odata=nometadata",
-          "content-type": "application/json;odata=nometadata",
-          "odata-version": "",
+          Accept: 'application/json;odata=nometadata',
+          'content-type': 'application/json;odata=nometadata',
+          'odata-version': '',
         },
         body: body,
       };
@@ -161,10 +178,10 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
         }
         if (response.status === 404) {
           const url: string =
-            this.props.context.pageContext.web.absoluteUrl + "/_api/web/lists";
+            this.props.context.pageContext.web.absoluteUrl + '/_api/web/lists';
           const listDefinition = {
-            Title: "AdminConfigurationList",
-            Description: "My description",
+            Title: 'AdminConfigurationList',
+            Description: 'My description',
             BaseTemplate: 100,
           };
           const spHttpClientOptions: ISPHttpClientOptions = {
@@ -176,7 +193,7 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
               return responses.json();
             })
             .then((responses: { value: [] }): void => {
-              const listtitle = responses["Title"];
+              const listtitle = responses['Title'];
               this.GetFormDigestValue(listtitle);
             });
         }
@@ -185,16 +202,16 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
   //Get Form Digest Value from the context information
   public GetFormDigestValue(listtitle) {
     $.ajax({
-      url: this.props.context.pageContext.web.absoluteUrl + "/_api/contextinfo",
-      type: "POST",
+      url: this.props.context.pageContext.web.absoluteUrl + '/_api/contextinfo',
+      type: 'POST',
       async: false,
-      headers: { accept: "application/json;odata=verbose" },
+      headers: { accept: 'application/json;odata=verbose' },
       success: (data) => {
         const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
         this.CreateColumns(listtitle, FormDigestValue);
       },
       error: () => {
-        console.log("Failed");
+        console.log('Failed');
       },
     });
   }
@@ -207,41 +224,41 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
       "')/fields";
     $.ajax({
       url: siteUrl,
-      type: "POST",
+      type: 'POST',
       data: JSON.stringify({
-        __metadata: { type: "SP.Field" },
-        Title: "JsonValue",
+        __metadata: { type: 'SP.Field' },
+        Title: 'JsonValue',
         FieldTypeKind: 3,
       }),
       headers: {
-        accept: "application/json;odata=verbose",
-        "content-type": "application/json;odata=verbose",
-        "X-RequestDigest": FormDigestValue,
+        accept: 'application/json;odata=verbose',
+        'content-type': 'application/json;odata=verbose',
+        'X-RequestDigest': FormDigestValue,
       },
       success: this.onQuerySucceeded,
       error: this.onQueryFailed,
     });
   }
   public onQuerySucceeded() {
-    console.log("Fields created");
+    console.log('Fields created');
   }
   public onQueryFailed() {
-    console.log("Error!");
+    console.log('Error!');
   }
   public loginCompleted = async () => {
     await this.getAndInitializeRepositoryClientAndServicesAsync();
-    $(".ManageConfigurationLink").show();
-    $(".ManageMappingLink").show();
-    $(".HomeLink").show();
-  }
+    $('.ManageConfigurationLink').show();
+    $('.ManageMappingLink').show();
+    $('.HomeLink').show();
+  };
   public logoutCompleted = async () => {
-    $(".ManageConfigurationLink").hide();
-    $(".ManageMappingLink").hide();
-    $(".HomeLink").hide();
+    $('.ManageConfigurationLink').hide();
+    $('.ManageMappingLink').hide();
+    $('.HomeLink').hide();
     window.location.href =
       this.props.context.pageContext.web.absoluteUrl +
       this.props.laserficheRedirectPage;
-  }
+  };
 
   private async getAndInitializeRepositoryClientAndServicesAsync() {
     const accessToken =
@@ -249,7 +266,6 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
     if (accessToken) {
       await this.ensureRepoClientInitializedAsync();
       this.lfFieldsService = new LfFieldsService(this.repoClient);
-
     } else {
       // user is not logged in
     }
@@ -257,7 +273,9 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
 
   public async ensureRepoClientInitializedAsync(): Promise<void> {
     if (!this.repoClient) {
-      const repoClientCreator = new RepositoryClientExInternal(this.loginComponent);
+      const repoClientCreator = new RepositoryClientExInternal(
+        this.loginComponent
+      );
       this.repoClient = await repoClientCreator.createRepositoryClientAsync();
     }
   }
@@ -267,12 +285,12 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
       this.props.context.pageContext.web.absoluteUrl +
       this.props.laserficheRedirectPage;
     return (
-      <div style={{ borderBottom: "3px solid #CE7A14", width: "80%" }}>
-        <div className="btnSignOut">
+      <div style={{ borderBottom: '3px solid #CE7A14', width: '80%' }}>
+        <div className='btnSignOut'>
           <lf-login
             redirect_uri={redirectPage}
             authorize_url_host_name={this.state.region}
-            redirect_behavior="Replace"
+            redirect_behavior='Replace'
             client_id={clientId}
             ref={this.loginComponent}
           />
@@ -280,47 +298,47 @@ export default class AdminMainPage extends React.Component<IAdminPageProps, {reg
         <div>
           <span
             style={{
-              marginRight: "450px",
-              fontSize: "18px",
-              fontWeight: "500",
+              marginRight: '450px',
+              fontSize: '18px',
+              fontWeight: '500',
             }}
           >
             Profile Editor{/* {this.props.webPartTitle} */}
           </span>
-          <span className="HomeLink">
+          <span className='HomeLink'>
             <NavLink
-              to="/HomePage"
-              activeStyle={{ fontWeight: "bold", color: "red" }}
+              to='/HomePage'
+              activeStyle={{ fontWeight: 'bold', color: 'red' }}
               style={{
-                marginRight: "25px",
-                fontWeight: "500",
-                fontSize: "15px",
+                marginRight: '25px',
+                fontWeight: '500',
+                fontSize: '15px',
               }}
             >
               About
             </NavLink>
           </span>
-          <span className="ManageConfigurationLink">
+          <span className='ManageConfigurationLink'>
             <NavLink
-              to="/ManageConfigurationsPage"
-              activeStyle={{ fontWeight: "bold", color: "red" }}
+              to='/ManageConfigurationsPage'
+              activeStyle={{ fontWeight: 'bold', color: 'red' }}
               style={{
-                marginRight: "25px",
-                fontWeight: "500",
-                fontSize: "15px",
+                marginRight: '25px',
+                fontWeight: '500',
+                fontSize: '15px',
               }}
             >
               Profiles
             </NavLink>
           </span>
-          <span className="ManageMappingLink">
+          <span className='ManageMappingLink'>
             <NavLink
-              to="/ManageMappingsPage"
-              activeStyle={{ fontWeight: "bold", color: "red" }}
+              to='/ManageMappingsPage'
+              activeStyle={{ fontWeight: 'bold', color: 'red' }}
               style={{
-                marginRight: "25px",
-                fontWeight: "500",
-                fontSize: "15px",
+                marginRight: '25px',
+                fontWeight: '500',
+                fontSize: '15px',
               }}
             >
               Profile Mapping

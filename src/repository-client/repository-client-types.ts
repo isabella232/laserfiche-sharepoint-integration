@@ -1,4 +1,4 @@
-import { IRepositoryApiClientEx } from "@laserfiche/lf-ui-components-services";
+import { IRepositoryApiClientEx } from '@laserfiche/lf-ui-components-services';
 
 export interface IRepositoryApiClientExInternal extends IRepositoryApiClientEx {
   clearCurrentRepo: () => void;

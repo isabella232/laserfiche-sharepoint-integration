@@ -20,14 +20,12 @@ export interface ISendToLaserficheLoginComponentWebPartProps {
 
 export default class SendToLaserficheLoginComponentWebPart extends BaseClientSideWebPart<ISendToLaserficheLoginComponentWebPartProps> {
   public render(): void {
-    const element: React.ReactElement<ISendToLaserficheLoginComponentProps> = React.createElement(
-      SendToLaserficheLoginComponent,
-      {
+    const element: React.ReactElement<ISendToLaserficheLoginComponentProps> =
+      React.createElement(SendToLaserficheLoginComponent, {
         laserficheRedirectPage: this.properties.LaserficheRedirectPage,
         context: this.context,
         devMode: this.properties.devMode,
-      }
-    );
+      });
 
     ReactDom.render(element, this.domElement);
   }

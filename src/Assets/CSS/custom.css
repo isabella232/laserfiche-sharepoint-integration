@@ -1,200 +1,196 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:500');
 
-
 body {
-    font-size: .875rem;
-    background-color: #F1F6F9;
-    font-family: "Roboto", sans-serif;
-    color:#22282F;
+  font-size: 0.875rem;
+  background-color: #f1f6f9;
+  font-family: 'Roboto', sans-serif;
+  color: #22282f;
 }
-.validationIcon{
-    color: red !important;
+.validationIcon {
+  color: red !important;
 }
-.form-validation{
-    display: none !important;
+.form-validation {
+  display: none !important;
 }
-.btnSignOut
-{
-    margin: 10px;
-    text-align: right;
+.btnSignOut {
+  margin: 10px;
+  text-align: right;
 }
-button.lf-button
-{
-    font:700 14px "Open Sans" !important;  
+button.lf-button {
+  font: 700 14px 'Open Sans' !important;
 }
 .lf-button.login-button {
-    width: 243px !important;
+  width: 243px !important;
 }
-.spinloader{
-    margin-top: 15px;
-    height: 35px;
+.spinloader {
+  margin-top: 15px;
+  height: 35px;
 }
-.parentdiv
-{
-    display: flex;
-    flex-direction: row;
+.parentdiv {
+  display: flex;
+  flex-direction: row;
 }
-.root-218
-{
-    font-size: 14px !important;
+.root-218 {
+  font-size: 14px !important;
 }
 a {
-    text-decoration: none;
-    color: #177d93;
+  text-decoration: none;
+  color: #177d93;
 }
 a:hover {
-    text-decoration: none;
-    color:#177d93;
+  text-decoration: none;
+  color: #177d93;
 }
 .navbar-brand img {
-    height:40px;
-    width:40px;
+  height: 40px;
+  width: 40px;
 }
 a.navbar-brand {
-    color:#22282F !important; 
+  color: #22282f !important;
 }
 .navbar {
-    border-bottom:2px solid #ccc;
+  border-bottom: 2px solid #ccc;
 }
-.form-control, .btn, .dropdown-menu, .custom-select {
-    font-size: .875rem
+.form-control,
+.btn,
+.dropdown-menu,
+.custom-select {
+  font-size: 0.875rem;
 }
 
 span.fa {
-    /*color:#8B8B8B*/
-    columns: #d25f28 !important;
+  /*color:#8B8B8B*/
+  columns: #d25f28 !important;
 }
 a:hover span.fa {
-    color:#c5bab5 
+  color: #c5bab5;
 }
 .truncate {
-    white-space: nowrap;
-    overflow: hidden;         
-    text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .btn-primary {
-    background-color: #D25F28;
-    border-color:#D25F28
+  background-color: #d25f28;
+  border-color: #d25f28;
 }
-.btn-primary:hover, .btn-primary:focus {
-    background-color: #e53825;
-    border-color:#e53825
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: #e53825;
+  border-color: #e53825;
 }
-.dropdown-item.active, .dropdown-item:active {
-    color: #fff;
-    text-decoration: none;
-    background-color: #D25F28;
+.dropdown-item.active,
+.dropdown-item:active {
+  color: #fff;
+  text-decoration: none;
+  background-color: #d25f28;
 }
 .btn-primary.dropdown-toggle {
-    background-color: #8B8B8B;
-    border-color:#8B8B8B  
+  background-color: #8b8b8b;
+  border-color: #8b8b8b;
 }
-.show>.btn-primary.dropdown-toggle {
-    background-color: #D25F28;
-    border-color:#D25F28  
+.show > .btn-primary.dropdown-toggle {
+  background-color: #d25f28;
+  border-color: #d25f28;
 }
 .btn-primary:not(:disabled):not(.disabled):active {
-    background-color: #D25F28;
-    border-color:#D25F28  
+  background-color: #d25f28;
+  border-color: #d25f28;
 }
-ol.breadcrumb li{
-    font-size: 18px !important;
+ol.breadcrumb li {
+  font-size: 18px !important;
 }
-.breadcrumb .breadcrumb-item a {     
-    color:#22282F;
+.breadcrumb .breadcrumb-item a {
+  color: #22282f;
 }
 .breadcrumb .breadcrumb-item a:hover {
-    color:#D25F28
+  color: #d25f28;
 }
-.table  a {
-    color:#22282F 
+.table a {
+  color: #22282f;
 }
-.table  a:hover {
-    color:#D25F28 
+.table a:hover {
+  color: #d25f28;
 }
 
 .table-bordered.file-explorer tbody tr td {
-    border:0;
+  border: 0;
 }
 .table-bordered.file-explorer thead tr th {
-    background-color:#ccc;
-    font-weight: normal;
+  background-color: #ccc;
+  font-weight: normal;
 }
 .table-bordered.file-explorer {
-    border: 0;
+  border: 0;
 }
 .table thead tr th {
-    background-color: #ccc;
-    font-weight: normal;
+  background-color: #ccc;
+  font-weight: normal;
 }
 table.dataTable {
-    margin-top: 0 !important;
-    margin-bottom:  0 !important;
-    border-spacing: 2px;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  border-spacing: 2px;
 }
-#custom-dropdown-menu  {
-    width: 225px;
+#custom-dropdown-menu {
+  width: 225px;
 }
 #custom-dropdown-menu a.selected::before {
-    font-family: 'Font Awesome 5 Free';
-    font-weight: 900;
-    font-style: normal;
-    content: "\f00c";
-    float:right;
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  font-style: normal;
+  content: '\f00c';
+  float: right;
 }
 .table-scroll {
-    height:200px;
-    overflow: auto;
+  height: 200px;
+  overflow: auto;
 }
 
 /* Admin */
 .navbar-light .navbar-nav .nav-link.active {
-    background-color: #D25F28;
-    color: #fff;
+  background-color: #d25f28;
+  color: #fff;
 }
 .navbar-light .navbar-nav .nav-link:hover.active {
-    color: #fff;
-    background-color: #e53825;
-    
+  color: #fff;
+  background-color: #e53825;
 }
 .navbar-light .navbar-nav .nav-link:hover {
-    color: #D25F28;
+  color: #d25f28;
 }
 .navbar-light .navbar-nav .nav-link {
-    color: #22282f;
+  color: #22282f;
 }
 .navbar-expand-lg .navbar-nav .nav-link {
-    padding-right: 1rem;
-    padding-left: 1rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
 }
 .detailsListScrollpane {
-    height: 456px !important;
-    position:relative !important;
+  height: 456px !important;
+  position: relative !important;
 }
 .ms-ScrollablePane {
-    height: 468px !important;
+  height: 468px !important;
 }
 .modal {
-    position: fixed;
-    left: 0;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: fixed;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-content {
-    width: 500px;
-    background-color: #fff;
-    overflow: auto;
-    max-height: -webkit-fill-available;
-    margin: 30px 0px;
-    overflow-y: auto;
-    overflow-x: hidden;
+  width: 500px;
+  background-color: #fff;
+  overflow: auto;
+  max-height: -webkit-fill-available;
+  margin: 30px 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
-
-
-

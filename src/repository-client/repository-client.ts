@@ -1,38 +1,41 @@
-import * as React from "react";
+import * as React from 'react';
 import {
   IRepositoryApiClient,
   RepositoryApiClient,
-} from "@laserfiche/lf-repository-api-client";
-import { IRepositoryApiClientExInternal } from "./repository-client-types";
+} from '@laserfiche/lf-repository-api-client';
+import { IRepositoryApiClientExInternal } from './repository-client-types';
 
 export class RepositoryClientExInternal {
   public repoClient: IRepositoryApiClientExInternal;
 
-  constructor(private loginRef: React.RefObject<any>) {
-
-  }
+  constructor(private loginRef: React.RefObject<any>) {}
 
   public addAuthorizationHeader(
     request: RequestInit,
     accessToken: string | undefined
   ) {
     const headers: Headers | undefined = new Headers(request.headers);
-    const AUTH = "Authorization";
-    headers.set(AUTH, "Bearer " + accessToken);
+    const AUTH = 'Authorization';
+    headers.set(AUTH, 'Bearer ' + accessToken);
     request.headers = headers;
   }
 
-  public beforeFetchRequestAsync = async (url: string, request: RequestInit) => {
+  public beforeFetchRequestAsync = async (
+    url: string,
+    request: RequestInit
+  ) => {
     // TODO trigger authorization flow if no accessToken
     const accessToken =
       this.loginRef.current?.authorization_credentials?.accessToken;
     if (accessToken) {
       this.addAuthorizationHeader(request, accessToken);
-      return { regionalDomain: this.loginRef.current.account_endpoints.regionalDomain }; // update this if you are using a different region
+      return {
+        regionalDomain: this.loginRef.current.account_endpoints.regionalDomain,
+      }; // update this if you are using a different region
     } else {
-      throw new Error("No access token");
+      throw new Error('No access token');
     }
-  }
+  };
 
   public afterFetchResponseAsync = async (
     url: string,
@@ -40,12 +43,10 @@ export class RepositoryClientExInternal {
     request: RequestInit
   ) => {
     if (response.status === 401) {
-      const refresh = await this.loginRef.current?.refreshTokenAsync(
-        true
-      );
+      const refresh = await this.loginRef.current?.refreshTokenAsync(true);
       if (refresh) {
         const accessToken =
-        this.loginRef.current?.authorization_credentials?.accessToken;
+          this.loginRef.current?.authorization_credentials?.accessToken;
         this.addAuthorizationHeader(request, accessToken);
         return true;
       } else {
@@ -54,7 +55,7 @@ export class RepositoryClientExInternal {
       }
     }
     return false;
-  }
+  };
 
   public getCurrentRepo = async () => {
     if (this.repoClient) {
@@ -64,15 +65,13 @@ export class RepositoryClientExInternal {
       const repo = repos[0];
       if (repo.repoId && repo.repoName) {
         return { repoId: repo.repoId, repoName: repo.repoName };
+      } else {
+        throw new Error('Current repoId undefined.');
       }
-      else {
-        throw new Error("Current repoId undefined.");
-      }
+    } else {
+      throw new Error('repoClient undefined.');
     }
-    else {
-      throw new Error("repoClient undefined.");
-    }
-  }
+  };
 
   public async createRepositoryClientAsync(): Promise<IRepositoryApiClientExInternal> {
     const partialRepoClient: IRepositoryApiClient =
@@ -92,10 +91,10 @@ export class RepositoryClientExInternal {
       _repoName: undefined,
       getCurrentRepoId: async () => {
         if (this.repoClient?._repoId) {
-          console.log("getting id from cache");
+          console.log('getting id from cache');
           return this.repoClient._repoId;
         } else {
-          console.log("getting id from api");
+          console.log('getting id from api');
           const repo = (await this.getCurrentRepo()).repoId;
           if (this.repoClient) {
             this.repoClient._repoId = repo;
@@ -110,8 +109,7 @@ export class RepositoryClientExInternal {
           const repo = (await this.getCurrentRepo()).repoName;
           if (this.repoClient) {
             this.repoClient._repoName = repo;
-          }
-          else {
+          } else {
             console.debug('Cannot set repoName, repoClient does not exist');
           }
           return repo;

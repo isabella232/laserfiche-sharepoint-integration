@@ -1,8 +1,8 @@
-import { IListItem } from "./IListItem";
+import { IListItem } from './IListItem';
 
-export interface IManageConfigurationPageState{
-    configurationRows:any;
-    listItem:IListItem[];
-    showDeleteModal:boolean;
-    configurationName:string;
+export interface IManageConfigurationPageState {
+  configurationRows: any;
+  listItem: IListItem[];
+  showDeleteModal: boolean;
+  configurationName: string;
 }

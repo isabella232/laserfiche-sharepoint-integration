@@ -21,15 +21,13 @@ export interface ILaserficheAdminConfigurationWebPartProps {
 
 export default class LaserficheAdminConfigurationWebPart extends BaseClientSideWebPart<ILaserficheAdminConfigurationWebPartProps> {
   public render(): void {
-    const element: React.ReactElement<ILaserficheAdminConfigurationProps> = React.createElement(
-      LaserficheAdminConfiguration,
-      {
+    const element: React.ReactElement<ILaserficheAdminConfigurationProps> =
+      React.createElement(LaserficheAdminConfiguration, {
         webPartTitle: this.properties.WebPartTitle,
         laserficheRedirectPage: this.properties.LaserficheRedirectPage,
         context: this.context,
         devMode: this.properties.devMode,
-      }
-    );
+      });
 
     ReactDom.render(element, this.domElement);
   }

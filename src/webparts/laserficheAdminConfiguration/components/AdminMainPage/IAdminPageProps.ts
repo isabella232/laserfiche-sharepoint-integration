@@ -1,9 +1,8 @@
-import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
 export interface IAdminPageProps {
-    context:WebPartContext;
-    webPartTitle:string;
-    laserficheRedirectPage:string;
-    devMode: boolean;
-  }
-  
+  context: WebPartContext;
+  webPartTitle: string;
+  laserficheRedirectPage: string;
+  devMode: boolean;
+}

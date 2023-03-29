@@ -1,5 +1,5 @@
-import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 
-export interface IManageConfigurationPageProps{
-    context:WebPartContext;
+export interface IManageConfigurationPageProps {
+  context: WebPartContext;
 }
