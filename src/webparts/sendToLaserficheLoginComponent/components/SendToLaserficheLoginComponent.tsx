@@ -6,7 +6,7 @@ import CustomDailog from './SendToLaserficheCustomDialog';
 import { Navigation } from 'spfx-navigation';
 import {
   CreateEntryResult,
-  PostEntryWithEdocMetadataRequest,
+  PostEntryWithEdocMetadataRequest, 
   PutFieldValsRequest,
   FileParameter,
   FieldToUpdate,
