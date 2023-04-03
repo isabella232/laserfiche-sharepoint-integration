@@ -24,5 +24,4 @@ export interface IAddNewManageConfigurationState {
   shouldShowOpen: boolean;
   shouldShowSelect: boolean;
   shouldDisableSelect: boolean;
-  region: string;
 }

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { NavLink } from 'react-router-dom';
-import * as $ from 'jquery';
+import { useEffect } from 'react';
 import {
   SPHttpClient,
   SPHttpClientResponse,
@@ -8,12 +8,6 @@ import {
 } from '@microsoft/sp-http';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { IAdminPageProps } from './IAdminPageProps';
-import { LfFieldsService } from '@laserfiche/lf-ui-components-services';
-import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
-import { IRepositoryApiClientExInternal } from '../../../../repository-client/repository-client-types';
-import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
-import { clientId } from '../../../constants';
-import { NgElement, WithProperties } from '@angular/elements';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 
@@ -25,78 +19,83 @@ declare global {
   }
 }
 
-export default class AdminMainPage extends React.Component<
-  IAdminPageProps,
-  { region: string }
-> {
-  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
-  public repoClient: IRepositoryApiClientExInternal;
-  public lfFieldsService: LfFieldsService;
-
-  constructor(props: IAdminPageProps) {
-    super(props);
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
-    );
-    this.loginComponent = React.createRef();
-
-    this.state = {
-      region: this.props.devMode
-        ? 'a.clouddev.laserfiche.com'
-        : 'laserfiche.com',
-    };
-  }
-  public async componentDidMount(): Promise<void> {
-    await SPComponentLoader.loadScript(
+export default function AdminMainPage(props: IAdminPageProps) {
+  useEffect(() => {
+    SPComponentLoader.loadScript(
       'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    );
-    await SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
-    );
+    )
+      .then(() => {
+        SPComponentLoader.loadScript(
+          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js'
+        );
+      })
+      .then(() => {
+        SPComponentLoader.loadCss(
+          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
+        );
+        SPComponentLoader.loadCss(
+          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
+        );
 
-    //Add event listener to lf login component
-    this.loginComponent.current.addEventListener(
-      'loginCompleted',
-      this.loginCompleted
-    );
-    this.loginComponent.current.addEventListener(
-      'logoutCompleted',
-      this.logoutCompleted
-    );
+        CreateConfigurations.CreateAdminConfigList(props.context);
+        CreateConfigurations.CreateDocumentConfigList(props.context);
+      });
+  });
 
-    //Check the status of lf login state and based on that we are hiding navigation links
-    const loggedOut: boolean =
-      this.loginComponent.current.state === LoginState.LoggedOut;
-    if (loggedOut) {
-      $('.ManageConfigurationLink').hide();
-      $('.ManageMappingLink').hide();
-      $('.HomeLink').hide();
-    } else {
-      $('.ManageConfigurationLink').show();
-      $('.ManageMappingLink').show();
-      $('.HomeLink').show();
-    }
-    //await this.getAndInitializeRepositoryClientAndServicesAsync();
-    //Create AdminConfiguration list in SharePoint site
-    this.CreateAdminConfigList();
-    //Create DocumentConfiguration list in SharePoint site
-    this.CreateDocumentConfigList();
-  }
-  //Create a documentconfiguration list in SharePoint
-  public CreateDocumentConfigList() {
+  const linkData: LinkInfo[] = [
+    { route: '/HomePage', name: 'About' },
+    { route: '/ManageConfigurationsPage', name: 'Profiles' },
+    { route: '/ManageMappingsPage', name: 'Profile Mapping' },
+  ];
+
+  return (
+    <div style={{ borderBottom: '3px solid #CE7A14', width: '80%' }}>
+      <div>
+        <span
+          style={{
+            marginRight: '450px',
+            fontSize: '18px',
+            fontWeight: '500',
+          }}
+        >
+          Profile Editor
+        </span>
+        {props.loggedIn && <Links linkData={linkData} />}
+      </div>
+    </div>
+  );
+}
+
+interface LinkInfo {
+  route: string;
+  name: string;
+}
+
+function Links(props: { linkData: LinkInfo[] }) {
+  const linkEls = props.linkData.map((link: LinkInfo) => (
+    <span key={link.name}>
+      <NavLink
+        to={link.route}
+        activeStyle={{ fontWeight: 'bold', color: 'red' }}
+        style={{
+          marginRight: '25px',
+          fontWeight: '500',
+          fontSize: '15px',
+        }}
+      >
+        {link.name}
+      </NavLink>
+    </span>
+  ));
+  return <div>{linkEls}</div>;
+}
+
+class CreateConfigurations {
+  public static CreateDocumentConfigList(context: any) {
     const listUrl: string =
-      this.props.context.pageContext.web.absoluteUrl +
+      context.pageContext.web.absoluteUrl +
       "/_api/web/lists/GetByTitle('DocumentNameConfigList')";
-    this.props.context.spHttpClient
+    context.spHttpClient
       .get(listUrl, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => {
         if (response.status === 200) {
@@ -104,7 +103,7 @@ export default class AdminMainPage extends React.Component<
         }
         if (response.status === 404) {
           const url: string =
-            this.props.context.pageContext.web.absoluteUrl + '/_api/web/lists';
+            context.pageContext.web.absoluteUrl + '/_api/web/lists';
           const listDefinition = {
             Title: 'DocumentNameConfigList',
             Description: 'My description',
@@ -113,7 +112,7 @@ export default class AdminMainPage extends React.Component<
           const spHttpClientOptions: ISPHttpClientOptions = {
             body: JSON.stringify(listDefinition),
           };
-          this.props.context.spHttpClient
+          context.spHttpClient
             .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
             .then((responses: SPHttpClientResponse) => {
               return responses.json();
@@ -121,13 +120,13 @@ export default class AdminMainPage extends React.Component<
             .then((responses: { value: [] }): void => {
               console.log(responses);
               const documentlist = responses['Title'];
-              this.AddItemsInDocumentConfigList(documentlist);
+              this.AddItemsInDocumentConfigList(context, documentlist);
             });
         }
       });
   }
   //Adding items in newly created document configuration list
-  public AddItemsInDocumentConfigList(documentlist) {
+  private static AddItemsInDocumentConfigList(context: any, documentlist) {
     const arary = [
       '%(count)',
       '%(date)',
@@ -146,7 +145,7 @@ export default class AdminMainPage extends React.Component<
     ];
     for (let i = 0; i < arary.length; i++) {
       const restApiUrl: string =
-        this.props.context.pageContext.web.absoluteUrl +
+        context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getByTitle('" +
         documentlist +
         "')/items";
@@ -159,7 +158,7 @@ export default class AdminMainPage extends React.Component<
         },
         body: body,
       };
-      this.props.context.spHttpClient.post(
+      context.spHttpClient.post(
         restApiUrl,
         SPHttpClient.configurations.v1,
         options
@@ -167,11 +166,11 @@ export default class AdminMainPage extends React.Component<
     }
   }
   //Creating AdminConfigurationList to store admin config values
-  public CreateAdminConfigList() {
+  public static CreateAdminConfigList(context: any) {
     const listUrl: string =
-      this.props.context.pageContext.web.absoluteUrl +
+      context.pageContext.web.absoluteUrl +
       "/_api/web/lists/GetByTitle('AdminConfigurationList')";
-    this.props.context.spHttpClient
+    context.spHttpClient
       .get(listUrl, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => {
         if (response.status === 200) {
@@ -179,7 +178,7 @@ export default class AdminMainPage extends React.Component<
         }
         if (response.status === 404) {
           const url: string =
-            this.props.context.pageContext.web.absoluteUrl + '/_api/web/lists';
+            context.pageContext.web.absoluteUrl + '/_api/web/lists';
           const listDefinition = {
             Title: 'AdminConfigurationList',
             Description: 'My description',
@@ -188,165 +187,61 @@ export default class AdminMainPage extends React.Component<
           const spHttpClientOptions: ISPHttpClientOptions = {
             body: JSON.stringify(listDefinition),
           };
-          this.props.context.spHttpClient
+          context.spHttpClient
             .post(url, SPHttpClient.configurations.v1, spHttpClientOptions)
             .then((responses: SPHttpClientResponse) => {
               return responses.json();
             })
-            .then((responses: { value: [] }): void => {
+            .then(async (responses: { value: [] }): Promise<void> => {
               const listtitle = responses['Title'];
-              this.GetFormDigestValue(listtitle);
+              await this.GetFormDigestValue(context, listtitle);
             });
         }
       });
   }
   //Get Form Digest Value from the context information
-  public GetFormDigestValue(listtitle) {
-    $.ajax({
-      url: this.props.context.pageContext.web.absoluteUrl + '/_api/contextinfo',
-      type: 'POST',
-      async: false,
-      headers: { accept: 'application/json;odata=verbose' },
-      success: (data) => {
-        const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
-        this.CreateColumns(listtitle, FormDigestValue);
-      },
-      error: () => {
-        console.log('Failed');
-      },
-    });
+  private static async GetFormDigestValue(context, listtitle) {
+    try {
+      const res = await fetch(
+        context.pageContext.web.absoluteUrl + '/_api/contextinfo',
+        {
+          method: 'POST',
+          headers: { accept: 'application/json;odata=verbose' },
+        }
+      );
+      const contextInfo = await res.json();
+      const FormDigestValue =
+        contextInfo.GetContextWebInformation.FormDigestValue;
+      this.CreateColumns(context, listtitle, FormDigestValue);
+    } catch {
+      // TODO handle
+    }
   }
+
   //Create columns in the newly created admin list
-  public CreateColumns(listtitle, FormDigestValue) {
+  private static async CreateColumns(context: any, listtitle, FormDigestValue) {
     const siteUrl: string =
-      this.props.context.pageContext.web.absoluteUrl +
+      context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('" +
       listtitle +
       "')/fields";
-    $.ajax({
-      url: siteUrl,
-      type: 'POST',
-      data: JSON.stringify({
-        __metadata: { type: 'SP.Field' },
-        Title: 'JsonValue',
-        FieldTypeKind: 3,
-      }),
-      headers: {
-        accept: 'application/json;odata=verbose',
-        'content-type': 'application/json;odata=verbose',
-        'X-RequestDigest': FormDigestValue,
-      },
-      success: this.onQuerySucceeded,
-      error: this.onQueryFailed,
-    });
-  }
-  public onQuerySucceeded() {
-    console.log('Fields created');
-  }
-  public onQueryFailed() {
-    console.log('Error!');
-  }
-  public loginCompleted = async () => {
-    await this.getAndInitializeRepositoryClientAndServicesAsync();
-    $('.ManageConfigurationLink').show();
-    $('.ManageMappingLink').show();
-    $('.HomeLink').show();
-  };
-  public logoutCompleted = async () => {
-    $('.ManageConfigurationLink').hide();
-    $('.ManageMappingLink').hide();
-    $('.HomeLink').hide();
-    window.location.href =
-      this.props.context.pageContext.web.absoluteUrl +
-      this.props.laserficheRedirectPage;
-  };
-
-  private async getAndInitializeRepositoryClientAndServicesAsync() {
-    const accessToken =
-      this.loginComponent?.current?.authorization_credentials?.accessToken;
-    if (accessToken) {
-      await this.ensureRepoClientInitializedAsync();
-      this.lfFieldsService = new LfFieldsService(this.repoClient);
-    } else {
-      // user is not logged in
+    try {
+      await fetch(siteUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          __metadata: { type: 'SP.Field' },
+          Title: 'JsonValue',
+          FieldTypeKind: 3,
+        }),
+        headers: {
+          accept: 'application/json;odata=verbose',
+          'content-type': 'application/json;odata=verbose',
+          'X-RequestDigest': FormDigestValue,
+        },
+      });
+      console.log('Fields created');
+    } catch {
+      console.log('Error!');
     }
-  }
-
-  public async ensureRepoClientInitializedAsync(): Promise<void> {
-    if (!this.repoClient) {
-      const repoClientCreator = new RepositoryClientExInternal(
-        this.loginComponent
-      );
-      this.repoClient = await repoClientCreator.createRepositoryClientAsync();
-    }
-  }
-
-  public render(): React.ReactElement {
-    const redirectPage =
-      this.props.context.pageContext.web.absoluteUrl +
-      this.props.laserficheRedirectPage;
-    return (
-      <div style={{ borderBottom: '3px solid #CE7A14', width: '80%' }}>
-        <div className='btnSignOut'>
-          <lf-login
-            redirect_uri={redirectPage}
-            authorize_url_host_name={this.state.region}
-            redirect_behavior='Replace'
-            client_id={clientId}
-            ref={this.loginComponent}
-          />
-        </div>
-        <div>
-          <span
-            style={{
-              marginRight: '450px',
-              fontSize: '18px',
-              fontWeight: '500',
-            }}
-          >
-            Profile Editor{/* {this.props.webPartTitle} */}
-          </span>
-          <span className='HomeLink'>
-            <NavLink
-              to='/HomePage'
-              activeStyle={{ fontWeight: 'bold', color: 'red' }}
-              style={{
-                marginRight: '25px',
-                fontWeight: '500',
-                fontSize: '15px',
-              }}
-            >
-              About
-            </NavLink>
-          </span>
-          <span className='ManageConfigurationLink'>
-            <NavLink
-              to='/ManageConfigurationsPage'
-              activeStyle={{ fontWeight: 'bold', color: 'red' }}
-              style={{
-                marginRight: '25px',
-                fontWeight: '500',
-                fontSize: '15px',
-              }}
-            >
-              Profiles
-            </NavLink>
-          </span>
-          <span className='ManageMappingLink'>
-            <NavLink
-              to='/ManageMappingsPage'
-              activeStyle={{ fontWeight: 'bold', color: 'red' }}
-              style={{
-                marginRight: '25px',
-                fontWeight: '500',
-                fontSize: '15px',
-              }}
-            >
-              Profile Mapping
-            </NavLink>
-          </span>
-        </div>
-      </div>
-    );
   }
 }

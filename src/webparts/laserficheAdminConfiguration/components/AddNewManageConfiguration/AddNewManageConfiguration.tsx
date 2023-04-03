@@ -3,7 +3,6 @@ import * as $ from 'jquery';
 import * as bootstrap from 'bootstrap';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
-  LfFieldsService,
   LfRepoTreeNode,
   LfRepoTreeNodeService,
 } from '@laserfiche/lf-ui-components-services';
@@ -13,16 +12,16 @@ import { IListItem } from './IListItem';
 import { IAddNewManageConfigurationProps } from './IAddNewManageConfigurationProps';
 import { IAddNewManageConfigurationState } from './IAddNewManageConfigurationState';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react';
-import { LfLoginComponent, LfRepositoryBrowserComponent, LoginState, TreeNode } from '@laserfiche/types-lf-ui-components';
+import {
+  LfRepositoryBrowserComponent,
+  TreeNode,
+} from '@laserfiche/types-lf-ui-components';
 import {
   ODataValueContextOfIListOfWTemplateInfo,
   ODataValueOfIListOfTemplateFieldInfo,
   WTemplateInfo,
   EntryType,
 } from '@laserfiche/lf-repository-api-client';
-import { IRepositoryApiClientExInternal } from '../../../../repository-client/repository-client-types';
-import { RepositoryClientExInternal } from '../../../../repository-client/repository-client';
-import { clientId } from '../../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
@@ -31,7 +30,6 @@ require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      ['lf-login']: any;
       ['lf-repository-browser']: any;
     }
   }
@@ -41,12 +39,11 @@ export default class AddNewManageConfiguration extends React.Component<
   IAddNewManageConfigurationProps,
   IAddNewManageConfigurationState
 > {
-  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
-  public repositoryBrowser: React.RefObject<NgElement & WithProperties<LfRepositoryBrowserComponent>>;
+  public repositoryBrowser: React.RefObject<
+    NgElement & WithProperties<LfRepositoryBrowserComponent>
+  >;
   public divRef: React.RefObject<HTMLDivElement>;
-  public repoClient: IRepositoryApiClientExInternal;
   public lfRepoTreeService: LfRepoTreeNodeService;
-  public lfFieldsService: LfFieldsService;
   public showTree = false;
   public selectedFolder: LfRepoTreeNode;
   public entrySelected: LfRepoTreeNode | undefined;
@@ -59,7 +56,6 @@ export default class AddNewManageConfiguration extends React.Component<
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
     );
-    this.loginComponent = React.createRef();
     this.repositoryBrowser = React.createRef();
     this.divRef = React.createRef();
     this.state = {
@@ -84,9 +80,6 @@ export default class AddNewManageConfiguration extends React.Component<
       shouldShowOpen: false,
       shouldShowSelect: false,
       shouldDisableSelect: false,
-      region: this.props.devMode
-        ? 'a.clouddev.laserfiche.com'
-        : 'laserfiche.com',
     };
   }
   //On component load get content types from SharePoint and laserfiche templates
@@ -106,7 +99,6 @@ export default class AddNewManageConfiguration extends React.Component<
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
     );
-    $('#tokens').css('margin-top', '4px !important');
     $('#validation_Configuration').hide();
     $('#validationConfiguration').hide();
     $('#configurationExists').hide();
@@ -122,15 +114,7 @@ export default class AddNewManageConfiguration extends React.Component<
       title:
         "<div class='toolTipCustom'>Replace - SharePoint file replaced with Link to Laserfiche File</div><div class='toolTipCustom'>Copy - Keep File in Laserfiche and SharePoint</div><div class='toolTipCustom'>Move and Delete - SharePoint file deleted after Import to Laserfiche</div>",
     });
-    //Adding event listener to LF login ans folder browser html element
-    this.loginComponent.current.addEventListener(
-      'loginCompleted',
-      this.loginCompleted
-    );
-    this.loginComponent.current.addEventListener(
-      'logoutCompleted',
-      this.logoutCompleted
-    );
+
     //this.folderbrowser.current.addEventListener('okClick', this.onOkClick);
     //this.folderbrowser.current.addEventListener('cancelClick', this.onCancelClick);
     this.setState(() => {
@@ -150,17 +134,6 @@ export default class AddNewManageConfiguration extends React.Component<
       });
     });
     //Checking Lf login state and based on that we are hiding navigation links in admin page
-    const loggedOut: boolean =
-      this.loginComponent.current.state === LoginState.LoggedOut;
-    if (loggedOut) {
-      $('.ManageConfigurationLink').hide();
-      $('.ManageMappingLink').hide();
-      $('.HomeLink').hide();
-    } else {
-      $('.ManageConfigurationLink').show();
-      $('.ManageMappingLink').show();
-      $('.HomeLink').show();
-    }
     //Getting access token and repoClient for api calls
     await this.getAndInitializeRepositoryClientAndServicesAsync();
     //Get document name from the DocumentNameConfigList and adding under token modal dialog box
@@ -193,29 +166,19 @@ export default class AddNewManageConfiguration extends React.Component<
   //Laserfiche LF loginCompleted
   public loginCompleted = async () => {
     await this.getAndInitializeRepositoryClientAndServicesAsync();
-    $('.ManageConfigurationLink').show();
-    $('.ManageMappingLink').show();
-    $('.HomeLink').show();
   };
 
   //Laserfiche LF logoutCompleted
   public logoutCompleted = async () => {
-    $('.ManageConfigurationLink').hide();
-    $('.ManageMappingLink').hide();
-    $('.HomeLink').hide();
     window.location.href =
       this.props.context.pageContext.web.absoluteUrl +
       this.props.laserficheRedirectPage;
   };
 
   private async getAndInitializeRepositoryClientAndServicesAsync() {
-    const accessToken =
-      this.loginComponent?.current?.authorization_credentials?.accessToken;
-    if (accessToken) {
-      await this.ensureRepoClientInitializedAsync();
-
+    if (this.props.loggedIn) {
       // create the tree service to interact with the LF Api
-      this.lfRepoTreeService = new LfRepoTreeNodeService(this.repoClient);
+      this.lfRepoTreeService = new LfRepoTreeNodeService(this.props.repoClient);
       // by default all entries are viewable
       this.lfRepoTreeService.viewableEntryTypes = [
         EntryType.Folder,
@@ -232,37 +195,25 @@ export default class AddNewManageConfiguration extends React.Component<
     }
   }
 
-  public async ensureRepoClientInitializedAsync(): Promise<void> {
-    if (!this.repoClient) {
-      const repoClientCreator = new RepositoryClientExInternal(
-        this.loginComponent
-      );
-      this.repoClient = await repoClientCreator.createRepositoryClientAsync();
-    }
-  }
-
   //Get folder tree structure in Folder button
   public async initializeTreeAsync() {
     /* this.showTree = true;
     await this.folderbrowser.current.initAsync({
       treeService: this.lfRepoTreeService
     }); */
-    if (!this.repoClient) {
-      throw new Error('RepoId is undefined');
-    }
     this.repositoryBrowser.current?.addEventListener(
       'entrySelected',
       this.onEntrySelected
     );
     let focusedNode: LfRepoTreeNode | undefined;
     if (this.state.lfSelectedFolder.selectedFolderPath != '') {
-      const repoId = await this.repoClient.getCurrentRepoId();
+      const repoId = await this.props.repoClient.getCurrentRepoId();
       const focusedNodeByPath =
-        await this.repoClient.entriesClient.getEntryByPath({
+        await this.props.repoClient.entriesClient.getEntryByPath({
           repoId: repoId,
           fullPath: this.state?.lfSelectedFolder.selectedFolderPath,
         });
-      const repoName = await this.repoClient.getCurrentRepoName();
+      const repoName = await this.props.repoClient.getCurrentRepoName();
       const focusedNodeEntry = focusedNodeByPath?.entry;
       if (focusedNodeEntry) {
         focusedNode = this.lfRepoTreeService?.createLfRepoTreeNode(
@@ -284,12 +235,6 @@ export default class AddNewManageConfiguration extends React.Component<
   }
 
   public onSelectFolder = async () => {
-    if (!this.repoClient) {
-      throw new Error('Repo Client is undefined.');
-    }
-    if (!this.loginComponent.current?.account_endpoints) {
-      throw new Error('LfLoginComponent is not found.');
-    }
     const selectedNode = this.repositoryBrowser.current
       ?.currentFolder as LfRepoTreeNode;
     const selectedFolderPath = selectedNode.path;
@@ -396,9 +341,9 @@ export default class AddNewManageConfiguration extends React.Component<
   public async GetTemplateDefinitions(): Promise<string[]> {
     let array = [];
 
-    const repoId = await this.repoClient.getCurrentRepoId();
+    const repoId = await this.props.repoClient.getCurrentRepoId();
     const templateInfo: WTemplateInfo[] = [];
-    await this.repoClient.templateDefinitionsClient.getTemplateDefinitionsForEach(
+    await this.props.repoClient.templateDefinitionsClient.getTemplateDefinitionsForEach(
       {
         callback: async (response: ODataValueContextOfIListOfWTemplateInfo) => {
           if (response.value) {
@@ -485,9 +430,9 @@ export default class AddNewManageConfiguration extends React.Component<
   public async GetLaserficheFields(templatename): Promise<string[]> {
     if (templatename != 'None') {
       const array = [];
-      const repoId = await this.repoClient.getCurrentRepoId();
+      const repoId = await this.props.repoClient.getCurrentRepoId();
       const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo =
-        await this.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
+        await this.props.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(
           { repoId, templateName: templatename }
         );
 
@@ -1154,18 +1099,6 @@ export default class AddNewManageConfiguration extends React.Component<
     ));
     return (
       <div>
-        <div style={{ display: 'none' }}>
-          <lf-login
-            redirect_uri={
-              this.props.context.pageContext.web.absoluteUrl +
-              this.props.laserficheRedirectPage
-            }
-            authorize_url_host_name={this.state.region}
-            redirect_behavior='Replace'
-            client_id={clientId}
-            ref={this.loginComponent}
-          />
-        </div>
         <div
           className='container-fluid p-3'
           style={{ maxWidth: '85%', marginLeft: '-26px' }}
@@ -1358,11 +1291,13 @@ export default class AddNewManageConfiguration extends React.Component<
                   </span>
                 </div>
                 <div className='card-footer bg-transparent'>
-                  <NavLink id='navid' to='/ManageConfigurationsPage'>
-                    <a className='btn btn-primary pl-5 pr-5 float-right ml-2'>
-                      Back
-                    </a>
-                  </NavLink>
+                  {this.props.loggedIn && (
+                    <NavLink id='navid' to='/ManageConfigurationsPage'>
+                      <a className='btn btn-primary pl-5 pr-5 float-right ml-2'>
+                        Back
+                      </a>
+                    </NavLink>
+                  )}
                   <a
                     onClick={() => this.AddNewMappingFields()}
                     className='btn btn-primary pl-5 pr-5 float-right ml-2'
