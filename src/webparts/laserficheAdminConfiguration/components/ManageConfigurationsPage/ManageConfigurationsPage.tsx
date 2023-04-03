@@ -1,49 +1,36 @@
 import * as React from 'react';
-import * as $ from 'jquery';
+import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
-import { IManageConfigurationPageState } from './IManageConfigurationPageState';
 import { IListItem } from './IListItem';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
-export default class ManageConfigurationsPage extends React.Component<
-  IManageConfigurationPageProps,
-  IManageConfigurationPageState
-> {
-  constructor(props: IManageConfigurationPageProps) {
-    super(props);
-    this.state = {
-      configurationRows: [],
-      listItem: [],
-      showDeleteModal: false,
-      configurationName: '',
-    };
-  }
-  //On load get list of configurations created from the Admin Configuration list
-  public componentDidMount(): void {
-    this.setState(() => {
-      return { showDeleteModal: false };
-    });
-    this.GetItemIdByTitle().then((results: IListItem[]) => {
-      this.setState({ listItem: results });
-      if (this.state.listItem != null) {
-        const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
+export default function ManageConfigurationsPage(
+  props: IManageConfigurationPageProps
+) {
+  const [configRows, setConfigRows] = useState([]);
+  const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    GetItemIdByTitle().then((results: IListItem[]) => {
+      if (results != null) {
+        const jsonValue = JSON.parse(results[0].JsonValue);
         if (jsonValue.length > 0) {
-          this.setState({
-            configurationRows: this.state.configurationRows.concat(jsonValue),
-          });
+          setConfigRows(configRows.concat(...jsonValue));
         }
       }
     });
-  }
-  //Get items from the AdminConfiguratiion list based on Title 'ManageConfiguration'
-  public async GetItemIdByTitle(): Promise<IListItem[]> {
+  }, []);
+
+  async function GetItemIdByTitle(): Promise<IListItem[]> {
     const array: IListItem[] = [];
     const restApiUrl: string =
-      this.props.context.pageContext.web.absoluteUrl +
+      props.context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
     try {
       const res = await fetch(restApiUrl, {
@@ -67,53 +54,48 @@ export default class ManageConfigurationsPage extends React.Component<
     }
   }
 
-  //Remove specific configuration from the list
-  public RemoveSpecificConfiguration = (idx) => () => {
-    $('#deleteModal').data('id', idx);
-    const rows = [...this.state.configurationRows];
-    this.setState({ configurationName: rows[idx].ConfigurationName });
-    this.setState(() => {
-      return { showDeleteModal: true };
-    });
-  };
-
-  //Remove row on click on delete button
-  public RemoveRow() {
-    const id = $('#deleteModal').data('id');
-    const rows = [...this.state.configurationRows];
-    const deleteRows = [...this.state.configurationRows];
-    rows.splice(id, 1);
-    this.setState({ configurationRows: rows });
-    this.DeleteMapping(deleteRows, id);
-    this.setState(() => {
-      return { showDeleteModal: false };
-    });
+  function RemoveSpecificConfiguration(idx: number) {
+    const rows = [...configRows];
+    const configName = rows[idx].ConfigurationName;
+    const deleteModal = (
+      <DeleteModal
+        configurationName={configName}
+        onConfirmDelete={() => RemoveRow(idx)}
+        onCancel={CloseModalUp}
+      ></DeleteModal>
+    );
+    setDeleteModal(deleteModal);
   }
 
-  //Close Modal dialog box
-  public CloseModalUp() {
-    this.setState(() => {
-      return { showDeleteModal: false };
-    });
+  function RemoveRow(id: number) {
+    const rows = [...configRows];
+    const deleteRows = [...configRows];
+    rows.splice(id, 1);
+    DeleteMapping(deleteRows, id);
+    setDeleteModal(undefined);
+  }
+
+  function CloseModalUp() {
+    setDeleteModal(undefined);
   }
 
   //Delete the selected configuration from the list
-  public DeleteMapping(rows, idx) {
-    this.GetItemIdByTitle().then((results: IListItem[]) => {
-      this.setState({ listItem: results });
-      if (this.state.listItem != null) {
-        const itemId = this.state.listItem[0].Id;
-        const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
-        for (let i = 0; i < jsonValue.length; i++) {
-          if (jsonValue[i].ConfigurationName == rows[idx].ConfigurationName) {
-            jsonValue.splice(i, 1);
+  function DeleteMapping(rows, idx) {
+    GetItemIdByTitle().then((results: IListItem[]) => {
+      if (results != null) {
+        const itemId = results[0].Id;
+        const profileConfigurations = JSON.parse(results[0].JsonValue);
+        const profileToRemove = rows[idx].ConfigurationName;
+        for (let i = 0; i < profileConfigurations.length; i++) {
+          if (profileConfigurations[i].ConfigurationName == profileToRemove) {
+            profileConfigurations.splice(i, 1);
+            setConfigRows(profileConfigurations);
             const restApiUrl: string =
-              this.props.context.pageContext.web.absoluteUrl +
+              props.context.pageContext.web.absoluteUrl +
               "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
               itemId +
               ')';
-            const newJsonValue = [...jsonValue];
-            const jsonObject = JSON.stringify(newJsonValue);
+            const jsonObject = JSON.stringify(profileConfigurations);
             const body: string = JSON.stringify({
               Title: 'ManageConfigurations',
               JsonValue: jsonObject,
@@ -128,7 +110,7 @@ export default class ManageConfigurationsPage extends React.Component<
               },
               body: body,
             };
-            this.props.context.spHttpClient.post(
+            props.context.spHttpClient.post(
               restApiUrl,
               SPHttpClient.configurations.v1,
               options
@@ -141,132 +123,136 @@ export default class ManageConfigurationsPage extends React.Component<
   }
 
   //Dynamically render list of configurations created in the table format
-  public renderTableData() {
-    return this.state.configurationRows.map((item, index) => {
-      return (
-        <tr id='addr0' key={index}>
-          <td>{this.state.configurationRows[index].ConfigurationName}</td>
-          <td className='text-center'>
-            <span>
-              <NavLink
-                to={
-                  '/EditManageConfiguration/' +
-                  this.state.configurationRows[index].ConfigurationName
-                }
-                style={{
-                  marginRight: '18px',
-                  fontWeight: '500',
-                  fontSize: '15px',
-                }}
-              >
-                <span className='material-icons'>edit</span>
-              </NavLink>
-            </span>
-            <a
-              href='javascript:;'
-              className='ml-3'
-              onClick={this.RemoveSpecificConfiguration(index)}
-            >
-              <span className='material-icons'>delete</span>
-            </a>
-          </td>
-        </tr>
-      );
-    });
-  }
-
-  public render(): React.ReactElement {
+  const tableData = configRows.map((item, index) => {
     return (
-      <div>
-        <div
-          className='container-fluid p-3'
-          style={{ maxWidth: '85%', marginLeft: '-26px' }}
-        >
-          <main className='bg-white shadow-sm'>
-            <div className='p-3'>
-              <div className='card rounded-0'>
-                <div className='card-header d-flex justify-content-between pt-1 pb-1'>
-                  <div>
-                    <NavLink
-                      to='/AddNewManageConfiguration'
-                      style={{
-                        marginRight: '18px',
-                        fontWeight: '500',
-                        fontSize: '15px',
-                      }}
-                    >
-                      <a className='btn btn-primary pl-5 pr-5'>Add Profile</a>
-                    </NavLink>
-                  </div>
-                </div>
-                <div className='card-body'>
-                  <table className='table table-bordered table-striped table-hover'>
-                    <thead>
-                      <tr>
-                        <th className='text-center'>Profile Name</th>
-                        <th className='text-center' style={{ width: '30%' }}>
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>{this.renderTableData()}</tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </main>
-        </div>
-        <div>
-          <div
-            className='modal'
-            id='deleteModal'
-            hidden={!this.state.showDeleteModal}
-            data-backdrop='static'
-            data-keyboard='false'
+      <tr id='addr0' key={index}>
+        <td>{item.ConfigurationName}</td>
+        <td className='text-center'>
+          <span>
+            <NavLink
+              to={
+                '/EditManageConfiguration/' +
+                item.ConfigurationName
+              }
+              style={{
+                marginRight: '18px',
+                fontWeight: '500',
+                fontSize: '15px',
+              }}
+            >
+              <span className='material-icons'>edit</span>
+            </NavLink>
+          </span>
+          <a
+            href='javascript:;'
+            className='ml-3'
+            onClick={() => RemoveSpecificConfiguration(index)}
           >
-            <div className='modal-dialog modal-dialog-centered'>
-              <div className='modal-content'>
-                <div className='modal-header'>
-                  <h5 className='modal-title' id='ModalLabel'>
-                    Delete Confirmation
-                  </h5>
-                  <button
-                    type='button'
-                    className='close'
-                    data-dismiss='modal'
-                    aria-label='Close'
-                    onClick={() => this.CloseModalUp()}
-                  >
-                    <span aria-hidden='true'>&times;</span>
-                  </button>
-                </div>
-                <div className='modal-body'>
-                  Do you want to permanently delete &quot;
-                  {this.state.configurationName}&quot;?
-                </div>
-                <div className='modal-footer'>
-                  <button
-                    type='button'
-                    className='btn btn-primary btn-sm'
-                    data-dismiss='modal'
-                    onClick={() => this.RemoveRow()}
-                  >
-                    OK
-                  </button>
-                  <button
-                    type='button'
-                    className='btn btn-secondary btn-sm'
-                    data-dismiss='modal'
-                    onClick={() => this.CloseModalUp()}
-                  >
-                    Cancel
-                  </button>
-                </div>
+            <span className='material-icons'>delete</span>
+          </a>
+        </td>
+      </tr>
+    );
+  });
+
+  return (
+    <div>
+      <div
+        className='container-fluid p-3'
+        style={{ maxWidth: '85%', marginLeft: '-26px' }}
+      >
+        <main className='bg-white shadow-sm'>
+          <div className='p-3'>
+            <div className='card rounded-0'>
+              <div className='card-header d-flex justify-content-between pt-1 pb-1'>
+                <NavLink
+                  to='/AddNewManageConfiguration'
+                  style={{
+                    marginRight: '18px',
+                    fontWeight: '500',
+                    fontSize: '15px',
+                  }}
+                >
+                  <a className='btn btn-primary pl-5 pr-5'>Add Profile</a>
+                </NavLink>
+              </div>
+              <div className='card-body'>
+                <table className='table table-bordered table-striped table-hover'>
+                  <thead>
+                    <tr>
+                      <th className='text-center'>Profile Name</th>
+                      <th className='text-center' style={{ width: '30%' }}>
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>{tableData}</tbody>
+                </table>
               </div>
             </div>
           </div>
+        </main>
+      </div>
+      <div>
+        <div
+          className='modal'
+          id='deleteModal'
+          hidden={!deleteModal}
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          {deleteModal}
         </div>
       </div>
-    );
-  }
+    </div>
+  );
+}
+
+function DeleteModal(props: {
+  configurationName: string;
+  onConfirmDelete: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <div className='modal-dialog modal-dialog-centered'>
+      <div className='modal-content'>
+        <div className='modal-header'>
+          <h5 className='modal-title' id='ModalLabel'>
+            Delete Confirmation
+          </h5>
+          <button
+            type='button'
+            className='close'
+            data-dismiss='modal'
+            aria-label='Close'
+            onClick={props.onCancel}
+          >
+            <span aria-hidden='true'>&times;</span>
+          </button>
+        </div>
+        <div className='modal-body'>
+          Do you want to permanently delete &quot;
+          {props.configurationName}&quot;?
+        </div>
+        <div className='modal-footer'>
+          <button
+            type='button'
+            className='btn btn-primary btn-sm'
+            data-dismiss='modal'
+            onClick={props.onConfirmDelete}
+          >
+            OK
+          </button>
+          <button
+            type='button'
+            className='btn btn-secondary btn-sm'
+            data-dismiss='modal'
+            onClick={props.onCancel}
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
