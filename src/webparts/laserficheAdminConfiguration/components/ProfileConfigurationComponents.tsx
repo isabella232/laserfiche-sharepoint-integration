@@ -1,7 +1,13 @@
+import {
+  FieldMappingError,
+  MappedFields,
+  SPFieldData,
+} from './EditManageConfiguration/IEditManageConfigurationState';
 import { NgElement, WithProperties } from '@angular/elements';
 import {
   EntryType,
   TemplateFieldInfo,
+  WTemplateInfo,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfRepoTreeNode,
@@ -9,14 +15,22 @@ import {
 } from '@laserfiche/lf-ui-components-services';
 import { LfRepositoryBrowserComponent } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import {
-  SPFieldData,
-  MappedFields,
-  FieldMappingError,
-  ProfileConfiguration,
-} from './EditManageConfiguration/IEditManageConfigurationState';
+
+export interface ProfileConfiguration {
+  ConfigurationName: string;
+  DocumentName: string;
+  selectedTemplateName?: string;
+  selectedFolder?: LfFolder;
+  Action: string;
+  mappedFields: MappedFields[];
+}
+
+export interface LfFolder {
+  path: string;
+  id: string;
+}
 
 export function ProfileHeader(props: { configurationName: string }) {
   return (
@@ -30,7 +44,7 @@ export function ProfileHeader(props: { configurationName: string }) {
 }
 
 export function ConfigurationBody(props: {
-  laserficheTemplate: JSX.Element[];
+  availableLfTemplates: WTemplateInfo[];
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
   profileConfig: ProfileConfiguration;
@@ -38,32 +52,36 @@ export function ConfigurationBody(props: {
   handleTemplateChange: (templateName: string) => void;
 }) {
   const [showFolderModal, setShowFolderModal] = useState(false);
-  const selectedEntryNodePath = props.profileConfig?.DestinationPath;
+
+  const selectedEntryNodePath = props.profileConfig.selectedFolder?.path;
 
   const onSelectFolder = async (selectedNode: LfRepoTreeNode | undefined) => {
     if (!props.repoClient) {
       throw new Error('Repo Client is undefined.');
     }
     const config = { ...props.profileConfig };
-    config.DestinationPath = selectedNode.path;
-    config.EntryId = selectedNode.id;
+    const lfFolder: LfFolder = {
+      path: selectedNode.path,
+      id: selectedNode.id,
+    };
+    config.selectedFolder = lfFolder;
     props.handleProfileConfigUpdate(config);
     setShowFolderModal(false);
   };
 
-  const handleTemplateChange = (event) => {
+  const handleTemplateChange = async (event) => {
     const value = (event.target as HTMLSelectElement).value;
-    const templatename = value;
+    const templateName = value;
     const profileConfig = { ...props.profileConfig };
-    profileConfig.DocumentTemplate = templatename;
+    profileConfig.selectedTemplateName = templateName;
     props.handleProfileConfigUpdate(profileConfig);
-    props.handleTemplateChange(templatename);
+    props.handleTemplateChange(templateName);
   };
 
   function CloseFolderModalUp() {
     setShowFolderModal(false);
   }
-  
+
   async function OpenFoldersModal() {
     setShowFolderModal(true);
   }
@@ -76,8 +94,8 @@ export function ConfigurationBody(props: {
       </div>
       <div className='form-group row'>
         <TemplateSelector
-          laserficheTemplate={props.laserficheTemplate}
-          selectedTemplate={props.profileConfig?.DocumentTemplate}
+          availableLfTemplates={props.availableLfTemplates}
+          selectedTemplateName={props.profileConfig?.selectedTemplateName}
           repoClient={props.repoClient}
           onChangeTemplate={handleTemplateChange}
         ></TemplateSelector>
@@ -93,7 +111,7 @@ export function ConfigurationBody(props: {
             id='destinationPath'
             placeholder='(Path in Laserfiche) Example: \folder\subfolder'
             disabled
-            value={props.profileConfig?.DestinationPath}
+            value={props.profileConfig.selectedFolder?.path}
           />
           <div>
             <span>Use the Browse button to select a path</span>
@@ -290,7 +308,6 @@ export function RepositoryBrowserModal(props: {
               className='lf-folder-browser-sample-container'
               style={{ height: '400px' }}
             >
-              {/* <lf-folder-browser ref={this.folderbrowser} ok_button_text="Okay" cancel_button_text="Cancel"></lf-folder-browser> */}
               <div className='repository-browser'>
                 <lf-repository-browser
                   ref={repositoryBrowser}
@@ -355,11 +372,14 @@ export function DocumentName(props: { documentName: string }) {
 }
 
 export function TemplateSelector(props: {
-  laserficheTemplate: JSX.Element[];
-  selectedTemplate: any;
+  availableLfTemplates: WTemplateInfo[];
+  selectedTemplateName: string;
   repoClient: IRepositoryApiClientExInternal;
   onChangeTemplate: (event: any) => void;
 }) {
+  const laserficheTemplateOptions = props.availableLfTemplates?.map((item) => (
+    <option value={item.displayName}>{item.displayName}</option>
+  ));
   return (
     <>
       <label htmlFor='dwl2' className='col-sm-2 col-form-label'>
@@ -370,144 +390,230 @@ export function TemplateSelector(props: {
           className='custom-select'
           id='documentTemplate'
           onChange={(e) => props.onChangeTemplate(e)}
-          value={props.selectedTemplate}
+          value={props.selectedTemplateName}
         >
           <option>None</option>
-          {props.laserficheTemplate}
+          {laserficheTemplateOptions}
         </select>
       </div>
     </>
   );
 }
 export function SharePointLaserficheColumnMatching(props: {
-  sharePointFields: SPFieldData[];
-  laserficheFields: TemplateFieldInfo[];
-  mappingList: MappedFields[];
-  handleChange: (e: any) => void;
-  RemoveSpecificMapping: (index: number) => void;
-  AddNewMappingFields: () => void;
-  ColumnMatchingError: FieldMappingError | undefined;
+  profileConfig: ProfileConfiguration;
+  availableSPFields: SPFieldData[];
+  lfFieldsForSelectedTemplate: TemplateFieldInfo[];
+  validate: boolean;
+  handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
 }) {
-  const displayError = getErrorMessage(props.ColumnMatchingError);
+  const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
+    undefined
+  );
+  const handleSpFieldChange = (
+    e: ChangeEvent<HTMLSelectElement>,
+    mapping: MappedFields
+  ) => {
+    const targetElement = e.target as HTMLSelectElement;
+    const newConfig = { ...props.profileConfig };
+    const rowsArray = [...newConfig.mappedFields];
+    const currentRow = rowsArray.findIndex((row) => {
+      return mapping === row;
+    });
+    const spField = props.availableSPFields.find(
+      (data) => data.InternalName === targetElement.value
+    );
+    if (spField) {
+      rowsArray[currentRow].spField = spField;
+    }
+    newConfig.mappedFields = rowsArray;
+    props.handleProfileConfigUpdate(newConfig);
+  };
+  const handleLfFieldChange = (
+    e: ChangeEvent<HTMLSelectElement>,
+    mapping: MappedFields
+  ) => {
+    const targetElement = e.target as HTMLSelectElement;
+    const newConfig = { ...props.profileConfig };
+    const rowsArray = [...newConfig.mappedFields];
+    const currentRow = rowsArray.findIndex((row) => {
+      return mapping === row;
+    });
+    const lfField = props.lfFieldsForSelectedTemplate?.find(
+      (data) => data.id.toString() === targetElement.value
+    );
+    if (lfField) {
+      rowsArray[currentRow].lfField = lfField;
+    }
+    newConfig.mappedFields = rowsArray;
+    props.handleProfileConfigUpdate(newConfig);
+  };
 
-  function getErrorMessage(error: FieldMappingError): JSX.Element | undefined {
-    let errorMessage: string | undefined;
-    switch (error) {
-      case FieldMappingError.CONTENT_TYPE:
-        errorMessage =
-          'Cannot save configuration. Please select a Content Type';
-        break;
-      case FieldMappingError.SELECT_TEMPLATE:
-        errorMessage =
-          'Please select any template from Laserfiche Template to add new mapping';
-        break;
-    }
-    if (errorMessage) {
-      return (
-        <div style={{ color: 'red' }}>
-          <span>{errorMessage}</span>
-        </div>
-      );
-    } else {
-      return undefined;
-    }
+  function CloseModalUp() {
+    setDeleteModal(undefined);
+  }
+  const RemoveSpecificMapping = (idx) => {
+    // set error undefined
+    const del = (
+      <DeleteModal
+        configurationName='the field mapping'
+        onCancel={CloseModalUp}
+        onConfirmDelete={() => DeleteMapping(idx)}
+      ></DeleteModal>
+    );
+    setDeleteModal(del);
+  };
+  function DeleteMapping(id: number) {
+    const newConfig = { ...props.profileConfig };
+    const rows = [...props.profileConfig.mappedFields];
+    rows.splice(id, 1);
+    newConfig.mappedFields = rows;
+    props.handleProfileConfigUpdate(newConfig);
+    setDeleteModal(undefined);
   }
 
-  const spFields = props.sharePointFields.slice()?.map((field) => (
+  const AddNewMappingFields = () => {
+    if (props.profileConfig.selectedTemplateName) {
+      const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(
+        36
+      );
+      const item = {
+        id: id,
+        spField: undefined,
+        lfField: undefined,
+      };
+      const profileConfig = { ...props.profileConfig };
+      profileConfig.mappedFields = [...profileConfig.mappedFields, item];
+      props.handleProfileConfigUpdate(profileConfig);
+    } else {
+      // set error select template
+    }
+  };
+  const spFields = props.availableSPFields?.slice()?.map((field) => (
     <option value={field.InternalName}>
       {field.Title} ({field.TypeAsString})
     </option>
   ));
-  const laserficheFields = props.laserficheFields.map((items) => {
+  const laserficheFields = props.lfFieldsForSelectedTemplate?.map((items) => {
     return (
       <option value={items.id}>
         {items.name} ({items.fieldType})
       </option>
-    );
-  });
-  // TODO also filter for ones that are already mapped
-  const optionalFields = props.laserficheFields.filter((field) => !field.isRequired).map((items) => {
-    return (
-      <option value={items.id}>
-        {items.name} ({items.fieldType})
-      </option>
-    );
-  });
-  const handleFieldChange = (e) => {
-    props.handleChange(e);
-  };
-  const mappedList = props.mappingList.map((fieldMapping, index) => {
-    const errorMessageMapping: JSX.Element | undefined =
-      getMappingErrorMessage(fieldMapping);
-    return (
-      <tr id={index.toString()} key={index}>
-        <td>
-          <select
-            name='SharePointField'
-            className='custom-select'
-            value={fieldMapping.spField?.InternalName ?? 'Select'}
-            id={fieldMapping.id}
-            onChange={(e) => handleFieldChange(e)}
-          >
-            <option>Select</option>
-            {spFields}
-          </select>
-        </td>
-        <td>
-          <select
-            name='LaserficheField'
-            className='custom-select'
-            value={fieldMapping.lfField?.id ?? 'Select'}
-            id={fieldMapping.id}
-            disabled={fieldMapping.lfField?.isRequired}
-            onChange={(e) => handleFieldChange(e)}
-          >
-            <option>Select</option>
-            {fieldMapping.lfField?.isRequired ? laserficheFields : optionalFields}
-          </select>
-        </td>
-        <td>
-          {fieldMapping.lfField?.isRequired ? (
-            <span style={{ fontSize: '13px', color: 'red' }}>
-              *Required field in Laserfiche
-            </span>
-          ) : (
-            <a
-              href='javascript:;'
-              className='ml-3'
-              onClick={() => props.RemoveSpecificMapping(index)}
-            >
-              <span className='material-icons'>delete</span>
-            </a>
-          )}
-          {errorMessageMapping}
-        </td>
-      </tr>
     );
   });
 
+  let fullValidationError = undefined;
+  if (props.validate) {
+    if (
+      (props.profileConfig.mappedFields.some((item) => !item.spField) ||
+        props.profileConfig.mappedFields.some((items) => !items.lfField)) &&
+      props.profileConfig.selectedTemplateName
+    ) {
+      fullValidationError = (
+        <span>Please ensure all fields are correctly mapped</span>
+      );
+    }
+  }
+  // TODO also filter for ones that are already mapped
+  const optionalFields = props.lfFieldsForSelectedTemplate
+    ?.filter((field) => !field.isRequired)
+    ?.map((items) => {
+      return (
+        <option value={items.id}>
+          {items.name} ({items.fieldType})
+        </option>
+      );
+    });
+  const mappedList = props.profileConfig.mappedFields?.map(
+    (fieldMapping, index) => {
+      const errorMessageMapping: JSX.Element | undefined =
+        getMappingErrorMessage(fieldMapping);
+      return (
+        <tr id={index.toString()} key={index}>
+          <td>
+            <select
+              name='SharePointField'
+              className='custom-select'
+              value={fieldMapping.spField?.InternalName ?? 'Select'}
+              id={fieldMapping.id}
+              onChange={(e) => handleSpFieldChange(e, fieldMapping)}
+            >
+              <option>Select</option>
+              {spFields}
+            </select>
+          </td>
+          <td>
+            <select
+              name='LaserficheField'
+              className='custom-select'
+              value={fieldMapping.lfField?.id ?? 'Select'}
+              id={fieldMapping.id}
+              disabled={fieldMapping.lfField?.isRequired}
+              onChange={(e) => handleLfFieldChange(e, fieldMapping)}
+            >
+              <option>Select</option>
+              {fieldMapping.lfField?.isRequired
+                ? laserficheFields
+                : optionalFields}
+            </select>
+          </td>
+          <td>
+            {fieldMapping.lfField?.isRequired ? (
+              <span style={{ fontSize: '13px', color: 'red' }}>
+                *Required field in Laserfiche
+              </span>
+            ) : (
+              <a
+                href='javascript:;'
+                className='ml-3'
+                onClick={() => RemoveSpecificMapping(index)}
+              >
+                <span className='material-icons'>delete</span>
+              </a>
+            )}
+            {errorMessageMapping}
+          </td>
+        </tr>
+      );
+    }
+  );
+
   return (
     <>
-      <table className='table table-sm'>
-        <thead>
-          <tr>
-            <th className='text-center' style={{ width: '39%' }}>
-              SharePoint Column
-            </th>
-            <th className='text-center' style={{ width: '38%' }}>
-              Laserfiche Field
-            </th>
-          </tr>
-        </thead>
-        <tbody id='tableEditBodyId'>{mappedList}</tbody>
-      </table>
-      {displayError}
-      <a
-        onClick={props.AddNewMappingFields}
-        className='btn btn-primary pl-5 pr-5 float-right ml-2'
+      {props.profileConfig.selectedTemplateName ? (
+        <>
+          <table className='table table-sm'>
+            <thead>
+              <tr>
+                <th className='text-center' style={{ width: '39%' }}>
+                  SharePoint Column
+                </th>
+                <th className='text-center' style={{ width: '38%' }}>
+                  Laserfiche Field
+                </th>
+              </tr>
+            </thead>
+            <tbody id='tableEditBodyId'>{mappedList}</tbody>
+          </table>
+          {fullValidationError}
+          <a
+            onClick={AddNewMappingFields}
+            className='btn btn-primary pl-5 pr-5 float-right ml-2'
+          >
+            Add Field
+          </a>
+        </>
+      ) : (
+        <span>Please select a template above to map fields</span>
+      )}
+      <div
+        className='modal'
+        id='deleteModal'
+        hidden={!deleteModal}
+        data-backdrop='static'
+        data-keyboard='false'
       >
-        Add Field
-      </a>
+        {deleteModal}
+      </div>
     </>
   );
 }
@@ -563,52 +669,71 @@ export function DeleteModal(props: {
 function getMappingErrorMessage(
   mappedField: MappedFields
 ): JSX.Element | undefined {
-  let hasMismatch: boolean = false;
   if (mappedField.lfField && mappedField.spField) {
     const spFieldtype = mappedField.spField.TypeAsString;
     const lfFieldtype = mappedField.lfField.fieldType;
-    if (
-      lfFieldtype == 'DateTime' ||
-      lfFieldtype == 'Date' ||
-      lfFieldtype == 'Time'
-    ) {
-      if (spFieldtype != 'DateTime') {
-        hasMismatch = true;
-      }
-    } else if (lfFieldtype == 'LongInteger' || lfFieldtype == 'ShortInteger') {
-      if (spFieldtype != 'Number') {
-        hasMismatch = true;
-      }
-    } else if (lfFieldtype == 'Number') {
-      if (spFieldtype != 'Number' && spFieldtype != 'Currency') {
-        hasMismatch = true;
-      }
-    } else if (lfFieldtype == 'List') {
-      if (spFieldtype != 'Choice') {
-        hasMismatch = true;
-      }
-    }
+    const hasMismatch = hasFieldTypeMismatch(mappedField);
 
     if (hasMismatch) {
       return (
-        <span
+        <div
           style={{
-            display: 'none',
             color: 'red',
             fontSize: '13px',
             marginLeft: '10px',
           }}
           title={`SharePoint field type of ${spFieldtype} cannot be mapped with Laserfiche field type of ${lfFieldtype}`}
         >
-          SharePoint field type of ${spFieldtype} cannot be mapped with
-          Laserfiche field type of ${lfFieldtype}
+          SharePoint field type of {spFieldtype} cannot be mapped with
+          Laserfiche field type of {lfFieldtype}
           <span className='material-icons'>warning</span>Data types mismatch
-        </span>
+        </div>
       );
-    }
-    else {
+    } else {
       return undefined;
     }
   }
   return undefined;
+}
+
+export function hasFieldTypeMismatch(mapped: MappedFields) {
+  const lfFieldType = mapped.lfField.fieldType;
+  const spFieldType = mapped.spField.TypeAsString;
+  if (
+    lfFieldType == 'DateTime' ||
+    lfFieldType == 'Date' ||
+    lfFieldType == 'Time'
+  ) {
+    if (spFieldType != 'DateTime') {
+      return true;
+    }
+  } else if (lfFieldType == 'LongInteger' || lfFieldType == 'ShortInteger') {
+    if (spFieldType != 'Number') {
+      return true;
+    }
+  } else if (lfFieldType == 'Number') {
+    if (spFieldType != 'Number' && spFieldType != 'Currency') {
+      return true;
+    }
+  } else if (lfFieldType == 'List') {
+    if (spFieldType != 'Choice') {
+      return true;
+    }
+  }
+  return false;
+}
+
+export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
+  if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0) {
+    return false;
+  }
+  for (const mapped of profileConfig.mappedFields) {
+    if (!mapped.spField || !mapped.lfField) {
+      return false;
+    }
+    if(hasFieldTypeMismatch(mapped)) {
+      return false;
+    }
+  }
+  return true;
 }
