@@ -1,3 +1,5 @@
+import { TemplateFieldInfo } from '@laserfiche/lf-repository-api-client';
+import { MappedFields, SPFieldData, FieldMappingError, ProfileConfiguration } from '../EditManageConfiguration/IEditManageConfigurationState';
 import { IListItem } from './IListItem';
 
 interface ILfSelectedFolder {
@@ -7,21 +9,17 @@ interface ILfSelectedFolder {
 }
 
 export interface IAddNewManageConfigurationState {
-  action: string;
-  listItem: IListItem[];
-  mappingList: any;
-  sharePointFields: any;
+  mappingList: (MappedFields)[];
+  sharePointFields: SPFieldData[];
+  laserficheFields: TemplateFieldInfo[];
   laserficheTemplates: any;
-  laserficheFields: any;
   documentNames: any;
   loadingContent: boolean;
   hideContent: boolean;
   showFolderModal: boolean;
   showtokensModal: boolean;
-  showDeleteModal: boolean;
+  deleteModal: JSX.Element | undefined;
   showConfirmModal: boolean;
-  lfSelectedFolder: ILfSelectedFolder;
-  shouldShowOpen: boolean;
-  shouldShowSelect: boolean;
-  shouldDisableSelect: boolean;
+  columnError: FieldMappingError;
+  profileConfig: ProfileConfiguration; 
 }

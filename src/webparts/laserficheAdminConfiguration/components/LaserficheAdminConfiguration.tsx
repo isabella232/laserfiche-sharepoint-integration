@@ -149,7 +149,8 @@ export default function LaserficheAdminConfiguration(
                   {...properties}
                   context={props.context}
                   laserficheRedirectPage={props.laserficheRedirectPage}
-                  devMode={props.devMode}
+                  loggedIn={loggedIn}
+                  repoClient={repoClient}
                 />
               )}
               path='/EditManageConfiguration/:name'

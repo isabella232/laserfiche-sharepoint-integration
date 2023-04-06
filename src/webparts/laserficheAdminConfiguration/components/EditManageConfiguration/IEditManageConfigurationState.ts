@@ -1,3 +1,4 @@
+import { TemplateFieldInfo } from '@laserfiche/lf-repository-api-client';
 import { IListItem } from './IListItem';
 
 interface ILfSelectedFolder {
@@ -6,22 +7,48 @@ interface ILfSelectedFolder {
   //selectedFolderName: string; // name of the selected folder
 }
 
+
+export interface SPFieldData {
+  Title: string;
+  TypeAsString: string;
+  InternalName: string;
+}
+
+export interface ProfileConfiguration {
+  ConfigurationName: string;
+  DocumentName: string;
+  DocumentTemplate: any;
+  DestinationPath: string;
+  EntryId: string;
+  Action: string;
+  SharePointFields: SPFieldData[];
+  LaserficheFields: TemplateFieldInfo[];
+}
+
+export enum FieldMappingError {
+  CONTENT_TYPE= 'CONTENT_TYPE',
+  SELECT_TEMPLATE= 'SELECT_TYPE',
+}
+
+export interface MappedFields {
+  id: string;
+  lfField: TemplateFieldInfo | undefined;
+  spField: SPFieldData | undefined;
+}
+
+
 export interface IEditManageConfigurationState {
-  mappingList: any;
-  listItem: IListItem[];
+  mappingList: (MappedFields)[];
   laserficheTemplates: any;
-  sharePointFields: any;
-  laserficheFields: any;
+  sharePointFields: SPFieldData[];
+  laserficheFields: TemplateFieldInfo[];
   documentNames: any;
   loadingContent: boolean;
   hideContent: boolean;
   showFolderModal: boolean;
   showtokensModal: boolean;
-  showDeleteModal: boolean;
+  deleteModal: JSX.Element | undefined;
   showConfirmModal: boolean;
-  lfSelectedFolder: ILfSelectedFolder;
-  shouldShowOpen: boolean;
-  shouldShowSelect: boolean;
-  shouldDisableSelect: boolean;
-  region: string;
+  columnError: FieldMappingError;
+  profileConfig: ProfileConfiguration; 
 }

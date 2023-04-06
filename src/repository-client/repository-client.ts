@@ -28,11 +28,11 @@ export class RepositoryClientExInternal {
   ) => {
     // TODO trigger authorization flow if no accessToken
     const accessToken =
-      this.loginRef.current?.authorization_credentials?.accessToken;
+      (document.querySelector('lf-login') as any).authorization_credentials?.accessToken;
     if (accessToken) {
       this.addAuthorizationHeader(request, accessToken);
       return {
-        regionalDomain: this.loginRef.current.account_endpoints.regionalDomain,
+        regionalDomain: (document.querySelector('lf-login') as any).account_endpoints.regionalDomain,
       }; // update this if you are using a different region
     } else {
       throw new Error('No access token');
@@ -45,10 +45,10 @@ export class RepositoryClientExInternal {
     request: RequestInit
   ) => {
     if (response.status === 401) {
-      const refresh = await this.loginRef.current?.refreshTokenAsync(true);
+      const refresh = await (document.querySelector('lf-login') as any)?.refreshTokenAsync(true);
       if (refresh) {
         const accessToken =
-          this.loginRef.current?.authorization_credentials?.accessToken;
+        (document.querySelector('lf-login') as any)?.authorization_credentials?.accessToken;
         this.addAuthorizationHeader(request, accessToken);
         return true;
       } else {
