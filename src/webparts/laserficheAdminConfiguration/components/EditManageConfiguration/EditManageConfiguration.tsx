@@ -146,7 +146,7 @@ export default function EditManageConfiguration(
     <div>
       <ProfileHeader
         configurationName={profileConfig?.ConfigurationName}
-      ></ProfileHeader>
+      />
     </div>
   );
   return profileConfig ? (
@@ -161,8 +161,8 @@ export default function EditManageConfiguration(
       handleProfileConfigUpdate={handleProfileConfigUpdate}
       saveConfiguration={SaveEditExisitingConfiguration}
       validate={validate}
-    ></ManageConfiguration>
+    />
   ) : (
-    <span>'Nothing to see'</span>
+    <span>Nothing to see</span>
   );
 }

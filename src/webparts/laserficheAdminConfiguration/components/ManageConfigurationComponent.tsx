@@ -4,6 +4,7 @@ import {
   TemplateFieldInfo,
   WTemplateInfo,
 } from '@laserfiche/lf-repository-api-client';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react';
 import * as React from 'react';
 import { useState } from 'react';
@@ -24,7 +25,7 @@ export default function ManageConfiguration(props: {
   profileConfig: ProfileConfiguration;
   loadingContent: boolean;
   createNew: boolean;
-  context: any;
+  context: WebPartContext;
   validate: boolean;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
   saveConfiguration: () => Promise<boolean>;
@@ -184,7 +185,7 @@ export default function ManageConfiguration(props: {
                   handleTemplateChange={OnChangeTemplate}
                   profileConfig={props.profileConfig}
                   handleProfileConfigUpdate={props.handleProfileConfigUpdate}
-                ></ConfigurationBody>
+                />
               </div>
               <h6 className='card-header border-top'>
                 Mappings from SharePoint Column to Laserfiche Field Values
@@ -196,7 +197,7 @@ export default function ManageConfiguration(props: {
                   lfFieldsForSelectedTemplate={lfFieldsForSelectedTemplate}
                   handleProfileConfigUpdate={props.handleProfileConfigUpdate}
                   validate={props.validate}
-                ></SharePointLaserficheColumnMatching>
+                />
               </div>
               <div className='card-footer bg-transparent'>
                 {props.loggedIn && (

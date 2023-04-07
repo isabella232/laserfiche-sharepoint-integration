@@ -1,6 +1,8 @@
+import { WebPartContext } from "@microsoft/sp-webpart-base";
+
 export interface ILaserficheAdminConfigurationProps {
   webPartTitle: string;
   laserficheRedirectPage: string;
-  context: any;
+  context: WebPartContext;
   devMode: boolean;
 }

@@ -232,6 +232,6 @@ export default function AddNewManageConfiguration(
       handleProfileConfigUpdate={handleProfileConfigUpdate}
       saveConfiguration={SaveNewManageConfiguration}
       validate={validate}
-    ></ManageConfiguration>
+    />
   );
 }

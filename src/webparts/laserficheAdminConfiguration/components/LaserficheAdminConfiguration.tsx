@@ -84,7 +84,7 @@ export default function LaserficheAdminConfiguration(
 
   async function ensureRepoClientInitializedAsync(): Promise<void> {
     if (!repoClient) {
-      const repoClientCreator = new RepositoryClientExInternal(loginComponent);
+      const repoClientCreator = new RepositoryClientExInternal();
       const newRepoClient =
         await repoClientCreator.createRepositoryClientAsync();
       setRepoClient(newRepoClient);

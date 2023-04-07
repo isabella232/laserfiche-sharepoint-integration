@@ -433,7 +433,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
         onCancel={CloseModalUp}
         onConfirmDelete={() => RemoveRow(idx)}
         configurationName={rows[idx].SharePointContentType}
-      ></DeleteModal>
+      />
     );
     setDeleteModal(delModal);
   };
@@ -493,10 +493,10 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
   };
 
   const SharePointContents = sharePointContentTypes.map((v) => (
-    <option value={v.name}>{v.name}</option>
+    <option key={v.name} value={v.name}>{v.name}</option>
   ));
   const LaserficheContents = laserficheContentTypes.map((v) => (
-    <option value={v.name}>{v.name}</option>
+    <option key={v.name} value={v.name}>{v.name}</option>
   ));
   const renderTableData = mappingRows.map((item, index) => {
     if (item.toggle) {
@@ -640,16 +640,6 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
                 {validationMessage}
               </span>
             </div>}
-            <div id='laserficheValidationMapping' style={{ color: 'red' }}>
-              <span>
-                
-              </span>
-            </div>
-            <div id='validationOfMapping' style={{ color: 'red' }}>
-              <span>
-                
-              </span>
-            </div>
             <div className='card-footer bg-transparent'>
               <a
                 className='btn btn-primary pl-5 pr-5 float-right'

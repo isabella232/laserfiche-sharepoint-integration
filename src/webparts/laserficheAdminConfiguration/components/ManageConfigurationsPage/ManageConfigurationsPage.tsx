@@ -62,7 +62,7 @@ export default function ManageConfigurationsPage(
         configurationName={configName}
         onConfirmDelete={() => RemoveRow(idx)}
         onCancel={CloseModalUp}
-      ></DeleteModal>
+      />
     );
     setDeleteModal(deleteModal);
   }

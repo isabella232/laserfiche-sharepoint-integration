@@ -176,9 +176,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   }
   public async ensureRepoClientInitializedAsync(): Promise<void> {
     if (!this.repoClient) {
-      const repoClientCreator = new RepositoryClientExInternal(
-        this.loginComponent
-      );
+      const repoClientCreator = new RepositoryClientExInternal();
       this.repoClient = await repoClientCreator.createRepositoryClientAsync();
     }
   }

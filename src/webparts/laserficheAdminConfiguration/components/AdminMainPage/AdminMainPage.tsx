@@ -8,6 +8,7 @@ import {
 } from '@microsoft/sp-http';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { IAdminPageProps } from './IAdminPageProps';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 
@@ -91,7 +92,7 @@ function Links(props: { linkData: LinkInfo[] }) {
 }
 
 class CreateConfigurations {
-  public static CreateDocumentConfigList(context: any) {
+  public static CreateDocumentConfigList(context: WebPartContext) {
     const listUrl: string =
       context.pageContext.web.absoluteUrl +
       "/_api/web/lists/GetByTitle('DocumentNameConfigList')";
@@ -126,7 +127,7 @@ class CreateConfigurations {
       });
   }
 
-  private static AddItemsInDocumentConfigList(context: any, documentlist) {
+  private static AddItemsInDocumentConfigList(context: WebPartContext, documentlist) {
     const arary = [
       '%(count)',
       '%(date)',
@@ -166,7 +167,7 @@ class CreateConfigurations {
     }
   }
 
-  public static CreateAdminConfigList(context: any) {
+  public static CreateAdminConfigList(context: WebPartContext) {
     const listUrl: string =
       context.pageContext.web.absoluteUrl +
       "/_api/web/lists/GetByTitle('AdminConfigurationList')";
@@ -218,7 +219,7 @@ class CreateConfigurations {
     }
   }
 
-  private static async CreateColumns(context: any, listtitle, FormDigestValue) {
+  private static async CreateColumns(context: WebPartContext, listtitle, FormDigestValue) {
     const siteUrl: string =
       context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('" +

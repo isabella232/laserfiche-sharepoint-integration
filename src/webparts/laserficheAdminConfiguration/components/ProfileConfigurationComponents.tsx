@@ -111,7 +111,7 @@ export function ConfigurationBody(props: {
       <div className='form-group row'>
         <DocumentName
           documentName={props.profileConfig?.DocumentName}
-        ></DocumentName>
+        />
       </div>
       <div className='form-group row'>
         <TemplateSelector
@@ -119,7 +119,7 @@ export function ConfigurationBody(props: {
           selectedTemplateName={props.profileConfig?.selectedTemplateName}
           repoClient={props.repoClient}
           onChangeTemplate={handleTemplateChange}
-        ></TemplateSelector>
+        />
       </div>
       <div className='form-group row'>
         <label htmlFor='txt3' className='col-sm-2 col-form-label'>
@@ -184,7 +184,7 @@ export function ConfigurationBody(props: {
             CloseFolderBrowserUp={CloseFolderModalUp}
             selectedEntryNodePath={selectedEntryNodePath}
             SelectFolder={onSelectFolder}
-          ></RepositoryBrowserModal>
+          />
         )}
       </div>
     </>
@@ -396,10 +396,10 @@ export function TemplateSelector(props: {
   availableLfTemplates: WTemplateInfo[];
   selectedTemplateName: string;
   repoClient: IRepositoryApiClientExInternal;
-  onChangeTemplate: (event: any) => void;
+  onChangeTemplate: (event: ChangeEvent<HTMLSelectElement>) => void;
 }) {
   const laserficheTemplateOptions = props.availableLfTemplates?.map((item) => (
-    <option value={item.displayName}>{item.displayName}</option>
+    <option key={item.id} value={item.displayName}>{item.displayName}</option>
   ));
   return (
     <>
@@ -478,7 +478,7 @@ export function SharePointLaserficheColumnMatching(props: {
         configurationName='the field mapping'
         onCancel={CloseModalUp}
         onConfirmDelete={() => DeleteMapping(idx)}
-      ></DeleteModal>
+      />
     );
     setDeleteModal(del);
   };
@@ -507,13 +507,13 @@ export function SharePointLaserficheColumnMatching(props: {
     }
   };
   const spFields = props.availableSPFields?.slice()?.map((field) => (
-    <option value={field.InternalName}>
+    <option key={field.InternalName} value={field.InternalName}>
       {field.Title} ({field.TypeAsString})
     </option>
   ));
   const laserficheFields = props.lfFieldsForSelectedTemplate?.map((items) => {
     return (
-      <option value={items.id}>
+      <option key={items.id} value={items.id}>
         {items.name} ({items.fieldType})
       </option>
     );
@@ -536,7 +536,7 @@ export function SharePointLaserficheColumnMatching(props: {
     ?.filter((field) => !field.isRequired)
     ?.map((items) => {
       return (
-        <option value={items.id}>
+        <option key={items.id} value={items.id}>
           {items.name} ({items.fieldType})
         </option>
       );
