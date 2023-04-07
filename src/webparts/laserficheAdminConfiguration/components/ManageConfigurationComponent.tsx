@@ -13,8 +13,8 @@ import {
   ConfigurationBody,
   ProfileConfiguration,
   SharePointLaserficheColumnMatching,
+  SPFieldData,
 } from './ProfileConfigurationComponents';
-import { SPFieldData } from './EditManageConfiguration/IEditManageConfigurationState';
 
 export default function ManageConfiguration(props: {
   header?: JSX.Element;
@@ -96,7 +96,6 @@ export default function ManageConfiguration(props: {
     return templateInfo;
   }
   const OnChangeTemplate = async (templateName: string) => {
-    // TODO clear error
     const templateFields = await GetLaserficheFields(templateName);
     if (templateFields != null) {
       const array = [];

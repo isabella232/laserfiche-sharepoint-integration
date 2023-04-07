@@ -1,56 +1,40 @@
 import * as React from 'react';
-import * as $ from 'jquery';
-import { IManageMappingsPageProps } from './IManageMappingsPageProps';
-import { IManageMappingsPageState } from './IManageMappingsPageState';
-import { IListItem } from './IListItem';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
+import { DeleteModal } from '../ProfileConfigurationComponents';
+import { ChangeEvent, useState } from 'react';
+import { IManageMappingsPageProps } from './IManageMappingsPageProps';
+import { IListItem } from '../IListItem';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
-export default class ManageMappingsPage extends React.Component<
-  IManageMappingsPageProps,
-  IManageMappingsPageState
-> {
-  constructor(props: IManageMappingsPageProps) {
-    super(props);
-    this.Reset = this.Reset.bind(this);
-    this.state = {
-      mappingRows: [],
-      sharePointContentTypes: [],
-      laserficheContentTypes: [],
-      listItem: [],
-      showDeleteModal: false,
-      deleteSharePointcontentType: '',
-    };
-  }
-  //On component load get content types from SharePoint and get existing mapping list from the SharePoint Admin Configuration list
-  public componentDidMount(): void {
-    this.setState(() => {
-      return { showDeleteModal: false };
-    });
-    this.GetAllSharePointContentTypes();
-    this.GetAllLaserficheContentTypes();
-    this.GetItemIdByTitle().then((results: IListItem[]) => {
-      this.setState({ listItem: results });
-      if (this.state.listItem != null) {
-        const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
+const sharepointValidationMapping = 'Please select a content type from the SharePoint Content Type drop down';
+const laserficheValidationMapping = 'Please select a content type from the Laserfiche Profile dropdown';
+const validationOf = 'Already Mapping exists for this SharePoint content type';
+
+export default function ManageMappingsPage(props: IManageMappingsPageProps) {
+  const [mappingRows, setMappingRows] = useState([]);
+  const [sharePointContentTypes, setSharePointContentTypes] = useState([]);
+  const [laserficheContentTypes, setLaserficheContentTypes] = useState([]);
+  const [deleteModal, setDeleteModal] = useState(undefined);
+  const [validationMessage, setValidationMessage] = useState(undefined);
+
+  React.useEffect(() => {
+    GetAllSharePointContentTypes();
+    GetAllLaserficheContentTypes();
+    GetItemIdByTitle().then((results: IListItem[]) => {
+      if (results != null) {
+        const jsonValue = JSON.parse(results[0].JsonValue);
         if (jsonValue.length > 0) {
-          this.setState({
-            mappingRows: this.state.mappingRows.concat(jsonValue),
-          });
+          setMappingRows(mappingRows.concat(jsonValue));
         }
       }
     });
-    $('#sharePointValidationMapping').hide();
-    $('#laserficheValidationMapping').hide();
-    $('#validationOfMapping').hide();
-  }
+  }, [props.repoClient]);
 
-  //Get all laserfiche configuration created under manage configuration settings and append to Select element
-  public GetAllLaserficheContentTypes() {
+  function GetAllLaserficheContentTypes() {
     const array = [];
-    this.GetManageConfiguration().then((results: IListItem[]) => {
+    GetManageConfiguration().then((results: IListItem[]) => {
       if (results != null) {
         const jsonValue = JSON.parse(results[0].JsonValue);
         if (jsonValue.length > 0) {
@@ -59,17 +43,16 @@ export default class ManageMappingsPage extends React.Component<
               name: jsonValue[i].ConfigurationName,
             });
           }
-          this.setState({ laserficheContentTypes: array });
+          setLaserficheContentTypes(array);
         }
       }
     });
   }
 
-  //Get Manage Configurations setting value from the SharePoint list
-  public async GetManageConfiguration(): Promise<IListItem[]> {
+  async function GetManageConfiguration(): Promise<IListItem[]> {
     const data: IListItem[] = [];
     const restApiUrl: string =
-      this.props.context.pageContext.web.absoluteUrl +
+      props.context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
     try {
       const res = await fetch(restApiUrl, {
@@ -93,11 +76,10 @@ export default class ManageMappingsPage extends React.Component<
     }
   }
 
-  //Get all content types from SharePoint append to Select element
-  public async GetAllSharePointContentTypes() {
+  async function GetAllSharePointContentTypes() {
     const array = [];
     const restApiUrl: string =
-      this.props.context.pageContext.web.absoluteUrl + '/_api/web/contenttypes';
+      props.context.pageContext.web.absoluteUrl + '/_api/web/contenttypes';
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -113,30 +95,24 @@ export default class ManageMappingsPage extends React.Component<
         });
       }
       array.sort((a, b) => (a.name > b.name ? 1 : -1));
-      this.setState({ sharePointContentTypes: array });
+      setSharePointContentTypes(array);
     } catch (error) {
       console.log('error occured' + error);
     }
   }
 
-  //If no mapping in list then create a New mapping in list or update the existing mapping in list
-  public CreateNewMapping(idx, rows) {
-    $('#sharePointValidationMapping').hide();
-    $('#laserficheValidationMapping').hide();
+  function CreateNewMapping(idx, rows) {
+    setValidationMessage(undefined);
     if (rows[idx].SharePointContentType == 'Select') {
-      $('#sharePointValidationMapping').show();
+      setValidationMessage(sharepointValidationMapping);
     } else if (rows[idx].LaserficheContentType == 'Select') {
-      $('#laserficheValidationMapping').show();
+      setValidationMessage(laserficheValidationMapping);
     } else {
-      $('#sharePointValidationMapping').hide();
-      $('#laserficheValidationMapping').hide();
-      $('#validationOfMapping').hide();
-      this.GetItemIdByTitle().then((results: IListItem[]) => {
-        this.setState({ listItem: results });
-        if (this.state.listItem != null) {
+      GetItemIdByTitle().then((results: IListItem[]) => {
+        if (results != null) {
           let entryExists = false;
-          const itemId = this.state.listItem[0].Id;
-          const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
+          const itemId = results[0].Id;
+          const jsonValue = JSON.parse(results[0].JsonValue);
           if (jsonValue.length > 0) {
             for (let i = 0; i < jsonValue.length; i++) {
               if (jsonValue[i].id == rows[idx].id) {
@@ -145,17 +121,17 @@ export default class ManageMappingsPage extends React.Component<
               }
             }
             if (entryExists == true) {
-              this.UpdateExistingMapping(jsonValue, rows, idx, itemId);
+              UpdateExistingMapping(jsonValue, rows, idx, itemId);
             } else {
-              this.AddNewInExistingMapping(jsonValue, rows, idx, itemId);
+              AddNewInExistingMapping(jsonValue, rows, idx, itemId);
             }
           } else {
             const restApiUrl: string =
-              this.props.context.pageContext.web.absoluteUrl +
+              props.context.pageContext.web.absoluteUrl +
               "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
               itemId +
               ')';
-            const row = [...this.state.mappingRows];
+            const row = [...mappingRows];
             const newjsonValue = [
               {
                 id: row[idx].id,
@@ -179,19 +155,19 @@ export default class ManageMappingsPage extends React.Component<
               },
               body: body,
             };
-            this.props.context.spHttpClient.post(
+            props.context.spHttpClient.post(
               restApiUrl,
               SPHttpClient.configurations.v1,
               options
             );
             rows[idx].toggle = !rows[idx].toggle;
-            this.setState({ mappingRows: rows });
+            setMappingRows(rows);
           }
         } else {
           const restApiUrl: string =
-            this.props.context.pageContext.web.absoluteUrl +
+            props.context.pageContext.web.absoluteUrl +
             "/_api/web/lists/getByTitle('AdminConfigurationList')/items";
-          const newRow = [...this.state.mappingRows];
+          const newRow = [...mappingRows];
           const jsonValues = [
             {
               id: newRow[idx].id,
@@ -213,20 +189,19 @@ export default class ManageMappingsPage extends React.Component<
             },
             body: body,
           };
-          this.props.context.spHttpClient.post(
+          props.context.spHttpClient.post(
             restApiUrl,
             SPHttpClient.configurations.v1,
             options
           );
           rows[idx].toggle = !rows[idx].toggle;
-          this.setState({ mappingRows: rows });
+          setMappingRows(rows);
         }
       });
     }
   }
 
-  //Add New mapping in existing json value
-  public AddNewInExistingMapping(jsonValue, rows, idx, itemId) {
+  function AddNewInExistingMapping(jsonValue, rows, idx, itemId) {
     let exitEntry = false;
     for (let i = 0; i < jsonValue.length; i++) {
       if (
@@ -238,7 +213,7 @@ export default class ManageMappingsPage extends React.Component<
     }
     if (exitEntry == false) {
       const restApiUrl: string =
-        this.props.context.pageContext.web.absoluteUrl +
+        props.context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
         itemId +
         ')';
@@ -266,25 +241,22 @@ export default class ManageMappingsPage extends React.Component<
         },
         body: body,
       };
-      this.props.context.spHttpClient.post(
+      props.context.spHttpClient.post(
         restApiUrl,
         SPHttpClient.configurations.v1,
         options
       );
       rows[idx].toggle = !rows[idx].toggle;
-      this.setState({ mappingRows: rows });
+      setMappingRows(rows);
       if (jsonValue.length + 1 == rows.length) {
-        $('#sharePointValidationMapping').hide();
-        $('#laserficheValidationMapping').hide();
-        $('#validationOfMapping').hide();
+        setValidationMessage(undefined);
       }
     } else {
-      $('#validationOfMapping').show();
+      setValidationMessage(validationOf);
     }
   }
 
-  //Update the existing mapping in json
-  public UpdateExistingMapping(jsonValue, rows, idx, itemId) {
+  function UpdateExistingMapping(jsonValue, rows, idx, itemId) {
     let exitEntry = false;
     for (let i = 0; i < jsonValue.length; i++) {
       if (
@@ -309,7 +281,7 @@ export default class ManageMappingsPage extends React.Component<
         }
       }
       const restApiUrl: string =
-        this.props.context.pageContext.web.absoluteUrl +
+        props.context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
         itemId +
         ')';
@@ -329,34 +301,30 @@ export default class ManageMappingsPage extends React.Component<
         },
         body: body,
       };
-      this.props.context.spHttpClient.post(
+      props.context.spHttpClient.post(
         restApiUrl,
         SPHttpClient.configurations.v1,
         options
       );
       rows[idx].toggle = !rows[idx].toggle;
-      this.setState({ mappingRows: rows });
+      setMappingRows(rows);
       if (rows.some((item) => item.SharePointContentType == 'Select')) {
-        $('#sharePointValidationMapping').show();
+        setValidationMessage(sharepointValidationMapping);
       } else if (rows.some((item) => item.LaserficheContentType == 'Select')) {
-        $('#laserficheValidationMapping').show();
+        setValidationMessage(laserficheValidationMapping);
       } else {
-        $('#sharePointValidationMapping').hide();
-        $('#laserficheValidationMapping').hide();
-        $('#validationOfMapping').hide();
+        setValidationMessage(undefined);
       }
     } else {
-      $('#validationOfMapping').show();
+      setValidationMessage(validationOf);
     }
   }
 
-  //Delete the mapping from the json
-  public DeleteMapping(rows, idx) {
-    this.GetItemIdByTitle().then((results: IListItem[]) => {
-      this.setState({ listItem: results });
-      if (this.state.listItem != null) {
-        const itemId = this.state.listItem[0].Id;
-        const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
+  function DeleteMapping(rows, idx) {
+    GetItemIdByTitle().then((results: IListItem[]) => {
+      if (results != null) {
+        const itemId = results[0].Id;
+        const jsonValue = JSON.parse(results[0].JsonValue);
         let entryExists = -1;
         for (let i = 0; i < jsonValue.length; i++) {
           if (jsonValue[i].id == rows[idx].id) {
@@ -367,7 +335,7 @@ export default class ManageMappingsPage extends React.Component<
         if (entryExists > -1) {
           jsonValue.splice(entryExists, 1);
           const restApiUrl: string =
-            this.props.context.pageContext.web.absoluteUrl +
+            props.context.pageContext.web.absoluteUrl +
             "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
             itemId +
             ')';
@@ -387,7 +355,7 @@ export default class ManageMappingsPage extends React.Component<
             },
             body: body,
           };
-          this.props.context.spHttpClient.post(
+          props.context.spHttpClient.post(
             restApiUrl,
             SPHttpClient.configurations.v1,
             options
@@ -396,24 +364,22 @@ export default class ManageMappingsPage extends React.Component<
             if (
               rows[idx].SharePointContentType == rows[q].SharePointContentType
             ) {
-              $('#validationOfMapping').hide();
+              setValidationMessage(undefined);
               break;
             } else {
-              $('#validationOfMapping').show();
+              setValidationMessage(validationOf);
             }
           }
         } else {
           if (jsonValue.length + 1 == rows.length) {
-            $('#sharePointValidationMapping').hide();
-            $('#laserficheValidationMapping').hide();
-            $('#validationOfMapping').hide();
+            setValidationMessage(undefined);
           } else {
             for (let j = jsonValue.length; j < rows.length; j++) {
               if (rows[j].SharePointContentType == 'Select') {
-                $('#sharePointValidationMapping').show();
+                setValidationMessage(sharepointValidationMapping);
                 break;
               } else if (rows[j].LaserficheContentType == 'Select') {
-                $('#laserficheValidationMapping').show();
+                setValidationMessage(laserficheValidationMapping);
               }
             }
           }
@@ -422,11 +388,10 @@ export default class ManageMappingsPage extends React.Component<
     });
   }
 
-  //Get ManageMapping value from the SharePoint list based on Title
-  public async GetItemIdByTitle(): Promise<IListItem[]> {
+  async function GetItemIdByTitle(): Promise<IListItem[]> {
     const array: IListItem[] = [];
     const restApiUrl: string =
-      this.props.context.pageContext.web.absoluteUrl +
+      props.context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageMapping'";
     try {
       const res = await fetch(restApiUrl, {
@@ -450,8 +415,7 @@ export default class ManageMappingsPage extends React.Component<
     }
   }
 
-  //Add New Mapping in the UI
-  public AddNewMapping = () => {
+  const AddNewMapping = () => {
     const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
     const item = {
       id: id,
@@ -459,324 +423,261 @@ export default class ManageMappingsPage extends React.Component<
       LaserficheContentType: 'Select',
       toggle: false,
     };
-    this.setState({
-      mappingRows: [...this.state.mappingRows, item],
-    });
+    setMappingRows([...mappingRows, item]);
   };
-  //Remove specific mapping from the UI
-  public RemoveSpecificMapping = (idx) => () => {
-    $('#deleteModal').data('id', idx);
-    const rows = [...this.state.mappingRows];
-    this.setState({
-      deleteSharePointcontentType: rows[idx].SharePointContentType,
-    });
-    this.setState(() => {
-      return { showDeleteModal: true };
-    });
+
+  const RemoveSpecificMapping = (idx) => {
+    const rows = [...mappingRows];
+    const delModal = (
+      <DeleteModal
+        onCancel={CloseModalUp}
+        onConfirmDelete={() => RemoveRow(idx)}
+        configurationName={rows[idx].SharePointContentType}
+      ></DeleteModal>
+    );
+    setDeleteModal(delModal);
   };
-  //Getting confirmation in modal dialog to remove mapping
-  public RemoveRow() {
-    const id = $('#deleteModal').data('id');
-    const rows = [...this.state.mappingRows];
-    const deleteRows = [...this.state.mappingRows];
+
+  function RemoveRow(id: number) {
+    const rows = [...mappingRows];
+    const deleteRows = [...mappingRows];
     rows.splice(id, 1);
-    this.setState({ mappingRows: rows });
-    this.DeleteMapping(deleteRows, id);
-    this.setState(() => {
-      return { showDeleteModal: false };
-    });
+    setMappingRows(rows);
+    DeleteMapping(deleteRows, id);
+    setDeleteModal(undefined);
   }
-  //Edit the specific mapping from the row
-  public EditSpecificMapping = (idx) => () => {
-    const rows = [...this.state.mappingRows];
+
+  const EditSpecificMapping = (idx) => {
+    const rows = [...mappingRows];
     rows[idx].toggle = !rows[idx].toggle;
-    this.setState({ mappingRows: rows });
+    setMappingRows(rows);
   };
-  //Save specific mapping from row
-  public SaveSpecificMapping = (idx) => () => {
-    const rows = [...this.state.mappingRows];
-    this.CreateNewMapping(idx, rows);
+
+  const SaveSpecificMapping = (idx) => {
+    const rows = [...mappingRows];
+    CreateNewMapping(idx, rows);
   };
-  //change event on Select elements
-  public handleChange = (idx) => (e) => {
+
+  const handleChange = (event: ChangeEvent<HTMLSelectElement>, idx: number) => {
     const item = {
-      id: e.target.id,
-      name: e.target.name,
-      value: e.target.value,
+      id: event.target.id,
+      name: event.target.name,
+      value: event.target.value,
     };
-    const newRows = [...this.state.mappingRows];
+    const newRows = [...mappingRows];
     if (item.name == 'SharePointContentType') {
       newRows[idx].SharePointContentType = item.value;
     } else if (item.name == 'LaserficheContentType') {
       newRows[idx].LaserficheContentType = item.value;
     }
-    this.setState({ mappingRows: newRows });
+    setMappingRows(newRows);
   };
 
-  //Close the delete modal dialog
-  public CloseModalUp() {
-    this.setState(() => {
-      return { showDeleteModal: false };
-    });
+  function CloseModalUp() {
+    setDeleteModal(undefined);
   }
 
-  // Reset all the Recent edits to original form
-  public Reset() {
-    this.setState(() => {
-      return { showDeleteModal: false };
-    });
-    this.GetAllSharePointContentTypes();
-    this.GetAllLaserficheContentTypes();
-    this.GetItemIdByTitle().then((results: IListItem[]) => {
-      this.setState({ listItem: results });
-      if (this.state.listItem != null) {
-        const jsonValue = JSON.parse(this.state.listItem[0].JsonValue);
+  const Reset = () => {
+    setDeleteModal(undefined);
+    GetAllSharePointContentTypes();
+    GetAllLaserficheContentTypes();
+    GetItemIdByTitle().then((results: IListItem[]) => {
+      if (results != null) {
+        const jsonValue = JSON.parse(results[0].JsonValue);
         if (jsonValue.length > 0) {
-          this.setState({
-            mappingRows: jsonValue,
-          });
+          setMappingRows(jsonValue);
         }
       }
     });
-    $('#sharePointValidationMapping').hide();
-    $('#laserficheValidationMapping').hide();
-    $('#validationOfMapping').hide();
-  }
+    setValidationMessage(undefined);
+  };
 
-  //dynamic render the mapping and create table row elements
-  public renderTableData() {
-    const SharePointContents = this.state.sharePointContentTypes.map((v) => (
-      <option value={v.name}>{v.name}</option>
-    ));
-    const LaserficheContents = this.state.laserficheContentTypes.map((v) => (
-      <option value={v.name}>{v.name}</option>
-    ));
-    return this.state.mappingRows.map((item, index) => {
-      if (item.toggle) {
-        return (
-          <tr id='addr0' key={index}>
-            <td>
-              <select
-                name='SharePointContentType'
-                disabled
-                className='custom-select'
-                value={this.state.mappingRows[index].SharePointContentType}
-                id={this.state.mappingRows[index].id}
-                onChange={this.handleChange(index)}
-              >
-                <option>Select</option>
-                {SharePointContents}
-              </select>
-            </td>
-            <td>
-              <select
-                name='LaserficheContentType'
-                disabled
-                className='custom-select'
-                value={this.state.mappingRows[index].LaserficheContentType}
-                id={this.state.mappingRows[index].id}
-                onChange={this.handleChange(index)}
-              >
-                <option>Select</option>
-                {LaserficheContents}
-              </select>
-            </td>
-            <td className='text-center'>
-              <a
-                href='javascript:;'
-                className='ml-3'
-                onClick={this.EditSpecificMapping(index)}
-              >
-                <span className='material-icons'>edit</span>
-              </a>
-              <a
-                href='javascript:;'
-                className='ml-3'
-                onClick={this.RemoveSpecificMapping(index)}
-              >
-                <span className='material-icons'>delete</span>
-              </a>
-            </td>
-          </tr>
-        );
-      } else {
-        return (
-          <tr id='addr0' key={index}>
-            <td>
-              <select
-                name='SharePointContentType'
-                className='custom-select'
-                value={this.state.mappingRows[index].SharePointContentType}
-                id={this.state.mappingRows[index].id}
-                onChange={this.handleChange(index)}
-              >
-                <option>Select</option>
-                {SharePointContents}
-              </select>
-            </td>
-            <td>
-              <select
-                name='LaserficheContentType'
-                className='custom-select'
-                value={this.state.mappingRows[index].LaserficheContentType}
-                id={this.state.mappingRows[index].id}
-                onChange={this.handleChange(index)}
-              >
-                <option>Select</option>
-                {LaserficheContents}
-              </select>
-            </td>
-            <td className='text-center'>
-              <a
-                href='javascript:;'
-                className='ml-3'
-                onClick={this.SaveSpecificMapping(index)}
-              >
-                <span className='material-icons'>save</span>
-              </a>
-              <a
-                href='javascript:;'
-                className='ml-3'
-                onClick={this.RemoveSpecificMapping(index)}
-              >
-                <span className='material-icons'>delete</span>
-              </a>
-            </td>
-          </tr>
-        );
-      }
-    });
-  }
-  public render(): React.ReactElement {
-    const viewSharePointContentTypes =
-      this.props.context.pageContext.web.absoluteUrl +
-      '/_layouts/15/mngctype.aspx';
-    return (
-      <div className=''>
-        <div className=''>
-          <div
-            className='container-fluid p-3'
-            style={{ maxWidth: '85%', marginLeft: '-26px' }}
-          >
-            <div className='p-3'>
-              <div className='card rounded-0'>
-                <div className='card-header d-flex justify-content-between'>
-                  <div>
-                    <h6 className='mb-0'>Content Type Mappings Laserfiche</h6>
-                  </div>
-                  <div>
-                    <a
-                      href=''
-                      onClick={() => window.open(viewSharePointContentTypes)}
-                      target='_blank'
-                    >
-                      View SharePoint Content Types
-                    </a>
-                  </div>
-                </div>
-                <div className='card-body'>
-                  <table className='table table-sm'>
-                    <thead>
-                      <tr>
-                        <th className='text-center' style={{ width: '45%' }}>
-                          SharePoint Content Type
-                        </th>
-                        <th className='text-center' style={{ width: '45%' }}>
-                          Laserfiche Profile
-                        </th>
-                        <th className='text-center'>Action</th>
-                      </tr>
-                    </thead>
-                    <tbody>{this.renderTableData()}</tbody>
-                  </table>
-                </div>
-                <div id='sharePointValidationMapping' style={{ color: 'red' }}>
-                  <span>
-                    Please select a content type from the SharePoint Content
-                    Type drop down
-                  </span>
-                </div>
-                <div id='laserficheValidationMapping' style={{ color: 'red' }}>
-                  <span>
-                    Please select a content type from the Laserfiche Profile
-                    drop down
-                  </span>
-                </div>
-                <div id='validationOfMapping' style={{ color: 'red' }}>
-                  <span>
-                    Already Mapping exists for this SharePoint content type
-                  </span>
-                </div>
-                <div className='card-footer bg-transparent'>
-                  <a
-                    className='btn btn-primary pl-5 pr-5 float-right'
-                    style={{ marginLeft: '10px' }}
-                    onClick={this.Reset}
-                  >
-                    Reset
-                  </a>
-                  <a
-                    href='javascript:;'
-                    className='btn btn-primary pl-5 pr-5 float-right'
-                    onClick={this.AddNewMapping}
-                  >
-                    Add
-                  </a>
-                </div>
+  const SharePointContents = sharePointContentTypes.map((v) => (
+    <option value={v.name}>{v.name}</option>
+  ));
+  const LaserficheContents = laserficheContentTypes.map((v) => (
+    <option value={v.name}>{v.name}</option>
+  ));
+  const renderTableData = mappingRows.map((item, index) => {
+    if (item.toggle) {
+      return (
+        <tr id='addr0' key={index}>
+          <td>
+            <select
+              name='SharePointContentType'
+              disabled
+              className='custom-select'
+              value={mappingRows[index].SharePointContentType}
+              id={mappingRows[index].id}
+              onChange={(e) => handleChange(e, index)}
+            >
+              <option>Select</option>
+              {SharePointContents}
+            </select>
+          </td>
+          <td>
+            <select
+              name='LaserficheContentType'
+              disabled
+              className='custom-select'
+              value={mappingRows[index].LaserficheContentType}
+              id={mappingRows[index].id}
+              onChange={(e) => handleChange(e,index)}
+            >
+              <option>Select</option>
+              {LaserficheContents}
+            </select>
+          </td>
+          <td className='text-center'>
+            <a
+              href='javascript:;'
+              className='ml-3'
+              onClick={() => EditSpecificMapping(index)}
+            >
+              <span className='material-icons'>edit</span>
+            </a>
+            <a
+              href='javascript:;'
+              className='ml-3'
+              onClick={() => RemoveSpecificMapping(index)}
+            >
+              <span className='material-icons'>delete</span>
+            </a>
+          </td>
+        </tr>
+      );
+    } else {
+      return (
+        <tr id='addr0' key={index}>
+          <td>
+            <select
+              name='SharePointContentType'
+              className='custom-select'
+              value={mappingRows[index].SharePointContentType}
+              id={mappingRows[index].id}
+              onChange={(e) => handleChange(e, index)}
+            >
+              <option>Select</option>
+              {SharePointContents}
+            </select>
+          </td>
+          <td>
+            <select
+              name='LaserficheContentType'
+              className='custom-select'
+              value={mappingRows[index].LaserficheContentType}
+              id={mappingRows[index].id}
+              onChange={(e) => handleChange(e, index)}
+            >
+              <option>Select</option>
+              {LaserficheContents}
+            </select>
+          </td>
+          <td className='text-center'>
+            <a
+              href='javascript:;'
+              className='ml-3'
+              onClick={() => SaveSpecificMapping(index)}
+            >
+              <span className='material-icons'>save</span>
+            </a>
+            <a
+              href='javascript:;'
+              className='ml-3'
+              onClick={() => RemoveSpecificMapping(index)}
+            >
+              <span className='material-icons'>delete</span>
+            </a>
+          </td>
+        </tr>
+      );
+    }
+  });
+  const viewSharePointContentTypes =
+    props.context.pageContext.web.absoluteUrl + '/_layouts/15/mngctype.aspx';
+
+  return (
+    <>
+      <div
+        className='container-fluid p-3'
+        style={{ maxWidth: '85%', marginLeft: '-26px' }}
+      >
+        <div className='p-3'>
+          <div className='card rounded-0'>
+            <div className='card-header d-flex justify-content-between'>
+              <div>
+                <h6 className='mb-0'>Content Type Mappings Laserfiche</h6>
+              </div>
+              <div>
+                <a
+                  href=''
+                  onClick={() => window.open(viewSharePointContentTypes)}
+                  target='_blank'
+                >
+                  View SharePoint Content Types
+                </a>
               </div>
             </div>
-          </div>
-          <div
-            className='modal'
-            id='deleteModal'
-            hidden={!this.state.showDeleteModal}
-            data-backdrop='static'
-            data-keyboard='false'
-          >
-            <div className='modal-dialog modal-dialog-centered'>
-              <div className='modal-content'>
-                <div className='modal-header'>
-                  <h5 className='modal-title' id='ModalLabel'>
-                    Delete Confirmation
-                  </h5>
-                  <button
-                    type='button'
-                    className='close'
-                    data-dismiss='modal'
-                    aria-label='Close'
-                    onClick={() => this.CloseModalUp()}
-                  >
-                    <span aria-hidden='true'>&times;</span>
-                  </button>
-                </div>
-                <div className='modal-body'>
-                  Do you want to permanently delete the &quot;
-                  {this.state.deleteSharePointcontentType}&quot; mapping?
-                  {/*  for the "{this.state.deleteSharePointcontentType}" Content Type? */}
-                </div>
-                <div className='modal-footer'>
-                  <button
-                    type='button'
-                    className='btn btn-primary btn-sm'
-                    data-dismiss='modal'
-                    onClick={() => this.RemoveRow()}
-                  >
-                    OK
-                  </button>
-                  <button
-                    type='button'
-                    className='btn btn-secondary btn-sm'
-                    data-dismiss='modal'
-                    onClick={() => this.CloseModalUp()}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
+            <div className='card-body'>
+              <table className='table table-sm'>
+                <thead>
+                  <tr>
+                    <th className='text-center' style={{ width: '45%' }}>
+                      SharePoint Content Type
+                    </th>
+                    <th className='text-center' style={{ width: '45%' }}>
+                      Laserfiche Profile
+                    </th>
+                    <th className='text-center'>Action</th>
+                  </tr>
+                </thead>
+                <tbody>{renderTableData}</tbody>
+              </table>
+            </div>
+
+            {validationMessage && <div id='sharePointValidationMapping' style={{ color: 'red' }}>
+              <span>
+                {validationMessage}
+              </span>
+            </div>}
+            <div id='laserficheValidationMapping' style={{ color: 'red' }}>
+              <span>
+                
+              </span>
+            </div>
+            <div id='validationOfMapping' style={{ color: 'red' }}>
+              <span>
+                
+              </span>
+            </div>
+            <div className='card-footer bg-transparent'>
+              <a
+                className='btn btn-primary pl-5 pr-5 float-right'
+                style={{ marginLeft: '10px' }}
+                onClick={Reset}
+              >
+                Reset
+              </a>
+              <a
+                href='javascript:;'
+                className='btn btn-primary pl-5 pr-5 float-right'
+                onClick={AddNewMapping}
+              >
+                Add
+              </a>
             </div>
           </div>
         </div>
       </div>
-    );
-  }
+      <div
+        className='modal'
+        id='deleteModal'
+        hidden={!deleteModal}
+        data-backdrop='static'
+        data-keyboard='false'
+      >
+        {deleteModal}
+      </div>
+    </>
+  );
 }

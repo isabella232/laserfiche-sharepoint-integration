@@ -2,10 +2,9 @@ import * as React from 'react';
 import * as bootstrap from 'bootstrap';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IEditManageConfigurationProps } from './IEditManageConfigurationProps';
-import { IListItem } from './IListItem';
+import { IListItem } from '../IListItem';
 
 import { useEffect, useState } from 'react';
-import { clientId } from '../../../constants';
 import {
   ProfileHeader,
   validateNewConfiguration,

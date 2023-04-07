@@ -5,7 +5,7 @@ import ManageConfiguration from '../ManageConfigurationComponent';
 import { useState } from 'react';
 import { ProfileConfiguration, validateNewConfiguration } from '../ProfileConfigurationComponents';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
-import { IListItem } from './IListItem';
+import { IListItem } from '../IListItem';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');

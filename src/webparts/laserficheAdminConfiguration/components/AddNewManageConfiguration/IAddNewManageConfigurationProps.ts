@@ -3,7 +3,6 @@ import { IRepositoryApiClientExInternal } from '../../../../repository-client/re
 
 export interface IAddNewManageConfigurationProps {
   context: WebPartContext;
-  laserficheRedirectPage: string;
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
 }

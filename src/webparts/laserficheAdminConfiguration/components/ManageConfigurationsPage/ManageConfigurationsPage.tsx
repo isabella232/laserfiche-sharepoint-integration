@@ -2,8 +2,8 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
-import { IListItem } from './IListItem';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
+import { IListItem } from '../IListItem';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../Assets/CSS/adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -79,7 +79,6 @@ export default function ManageConfigurationsPage(
     setDeleteModal(undefined);
   }
 
-  //Delete the selected configuration from the list
   function DeleteMapping(rows, idx) {
     GetItemIdByTitle().then((results: IListItem[]) => {
       if (results != null) {
@@ -122,7 +121,6 @@ export default function ManageConfigurationsPage(
     });
   }
 
-  //Dynamically render list of configurations created in the table format
   const tableData = configRows.map((item, index) => {
     return (
       <tr id='addr0' key={index}>

@@ -125,7 +125,7 @@ class CreateConfigurations {
         }
       });
   }
-  //Adding items in newly created document configuration list
+
   private static AddItemsInDocumentConfigList(context: any, documentlist) {
     const arary = [
       '%(count)',
@@ -165,7 +165,7 @@ class CreateConfigurations {
       );
     }
   }
-  //Creating AdminConfigurationList to store admin config values
+
   public static CreateAdminConfigList(context: any) {
     const listUrl: string =
       context.pageContext.web.absoluteUrl +
@@ -199,7 +199,7 @@ class CreateConfigurations {
         }
       });
   }
-  //Get Form Digest Value from the context information
+
   private static async GetFormDigestValue(context, listtitle) {
     try {
       const res = await fetch(
@@ -218,7 +218,6 @@ class CreateConfigurations {
     }
   }
 
-  //Create columns in the newly created admin list
   private static async CreateColumns(context: any, listtitle, FormDigestValue) {
     const siteUrl: string =
       context.pageContext.web.absoluteUrl +

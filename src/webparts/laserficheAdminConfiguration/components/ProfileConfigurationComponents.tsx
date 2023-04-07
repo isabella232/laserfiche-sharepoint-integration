@@ -1,8 +1,3 @@
-import {
-  FieldMappingError,
-  MappedFields,
-  SPFieldData,
-} from './EditManageConfiguration/IEditManageConfigurationState';
 import { NgElement, WithProperties } from '@angular/elements';
 import {
   EntryType,
@@ -30,6 +25,18 @@ export interface ProfileConfiguration {
 export interface LfFolder {
   path: string;
   id: string;
+}
+
+export interface SPFieldData {
+  Title: string;
+  TypeAsString: string;
+  InternalName: string;
+}
+
+export interface MappedFields {
+  id: string;
+  lfField: TemplateFieldInfo | undefined;
+  spField: SPFieldData | undefined;
 }
 
 export function ProfileHeader(props: { configurationName: string }) {
@@ -452,7 +459,6 @@ export function SharePointLaserficheColumnMatching(props: {
     setDeleteModal(undefined);
   }
   const RemoveSpecificMapping = (idx) => {
-    // set error undefined
     const del = (
       <DeleteModal
         configurationName='the field mapping'
@@ -484,8 +490,6 @@ export function SharePointLaserficheColumnMatching(props: {
       const profileConfig = { ...props.profileConfig };
       profileConfig.mappedFields = [...profileConfig.mappedFields, item];
       props.handleProfileConfigUpdate(profileConfig);
-    } else {
-      // set error select template
     }
   };
   const spFields = props.availableSPFields?.slice()?.map((field) => (

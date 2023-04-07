@@ -77,7 +77,6 @@ export default function LaserficheAdminConfiguration(
       loginComponent?.current?.authorization_credentials?.accessToken;
     if (accessToken) {
       await ensureRepoClientInitializedAsync();
-      // this.lfFieldsService = new LfFieldsService(this.repoClient);
     } else {
       // user is not logged in
     }
@@ -127,7 +126,11 @@ export default function LaserficheAdminConfiguration(
             />
             <Route
               exact={true}
-              component={() => <ManageMappingsPage context={props.context} />}
+              component={() => <ManageMappingsPage
+                context={props.context}
+                isLoggedIn={loggedIn}
+                repoClient={repoClient}
+              />}
               path='/ManageMappingsPage'
             />
             <Route
@@ -135,7 +138,6 @@ export default function LaserficheAdminConfiguration(
               component={() => (
                 <AddNewManageConfiguration
                   context={props.context}
-                  laserficheRedirectPage={props.laserficheRedirectPage}
                   loggedIn={loggedIn}
                   repoClient={repoClient}
                 />
