@@ -17,6 +17,7 @@ import { IRepositoryApiClientExInternal } from '../../../repository-client/repos
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
+import { ActionTypes } from '../../laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 
 declare global {
   namespace JSX {
@@ -245,7 +246,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const Entryid = entryCreateResult.operations.entryCreate.entryId;
         filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid}`;
 
-        if (Action === 'Copy') {
+        if (Action === ActionTypes.COPY) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -254,7 +255,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           window.localStorage.removeItem('LContType');
-        } else if (Action === 'Move and Delete') {
+        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -263,7 +264,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
-        } else if (Action === 'Replace') {
+        } else if (Action === ActionTypes.REPLACE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -325,7 +326,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const Entryid3 = entryCreateResult.operations.entryCreate.entryId;
         filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid3}`;
 
-        if (Action === 'Copy') {
+        if (Action === ActionTypes.COPY) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -334,7 +335,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           window.localStorage.removeItem('LContType');
-        } else if (Action === 'Move and Delete') {
+        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -343,7 +344,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
-        } else if (Action === 'Replace') {
+        } else if (Action === ActionTypes.REPLACE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -408,7 +409,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const Entryid6 = entryCreateResult.operations.entryCreate.entryId;
         filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
 
-        if (Action === 'Copy') {
+        if (Action === ActionTypes.COPY) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -417,7 +418,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           window.localStorage.removeItem('LContType');
-        } else if (Action === 'Move and Delete') {
+        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -426,7 +427,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
-        } else if (Action === 'Replace') {
+        } else if (Action === ActionTypes.REPLACE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -508,7 +509,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const Entryid6 = entryCreateResult.operations.entryCreate.entryId;
         filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
 
-        if (Action === 'Copy') {
+        if (Action === ActionTypes.COPY) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -517,7 +518,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           window.localStorage.removeItem('LContType');
-        } else if (Action === 'Move and Delete') {
+        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -526,7 +527,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
-        } else if (Action === 'Replace') {
+        } else if (Action === ActionTypes.REPLACE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -584,7 +585,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const Entryid9 = entryCreateResult.operations.entryCreate.entryId;
         filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid9}`;
 
-        if (Action === 'Copy') {
+        if (Action === ActionTypes.COPY) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -593,7 +594,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           window.localStorage.removeItem('LContType');
-        } else if (Action === 'Move and Delete') {
+        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -602,7 +603,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
-        } else if (Action === 'Replace') {
+        } else if (Action === ActionTypes.REPLACE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -667,7 +668,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const Entryid14 = entryCreateResult.operations.entryCreate.entryId;
         filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
 
-        if (Action === 'Copy') {
+        if (Action === ActionTypes.COPY) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -676,7 +677,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           window.localStorage.removeItem('LContType');
-        } else if (Action === 'Move and Delete') {
+        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';
@@ -685,7 +686,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
           this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
-        } else if (Action === 'Replace') {
+        } else if (Action === ActionTypes.REPLACE) {
           document.getElementById('it').innerHTML = 'Document uploaded';
           document.getElementById('imgid').style.display = 'none';
           document.getElementById('divid').style.display = 'block';

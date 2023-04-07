@@ -3,7 +3,7 @@ import * as bootstrap from 'bootstrap';
 import { IAddNewManageConfigurationProps } from './IAddNewManageConfigurationProps';
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { useState } from 'react';
-import { ProfileConfiguration, validateNewConfiguration } from '../ProfileConfigurationComponents';
+import { ActionTypes, ProfileConfiguration, validateNewConfiguration } from '../ProfileConfigurationComponents';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
 require('../../../../Assets/CSS/bootstrap.min.css');
@@ -24,7 +24,7 @@ const initialConfig: ProfileConfiguration = {
   ConfigurationName: '',
   selectedTemplateName: undefined,
   mappedFields: [],
-  Action: '',
+  Action: ActionTypes.COPY,
 };
 
 export default function AddNewManageConfiguration(

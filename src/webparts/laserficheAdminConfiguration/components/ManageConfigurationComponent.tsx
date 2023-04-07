@@ -13,7 +13,7 @@ import {
   ConfigurationBody,
   ProfileConfiguration,
   SharePointLaserficheColumnMatching,
-  SPFieldData,
+  SPProfileConfigurationData,
 } from './ProfileConfigurationComponents';
 
 export default function ManageConfiguration(props: {
@@ -35,7 +35,7 @@ export default function ManageConfiguration(props: {
   const [lfFieldsForSelectedTemplate, setLfFieldsForSelectedTemplate] =
     useState<TemplateFieldInfo[] | undefined>(undefined);
   const [availableSPFields, setAvailableSPFields] = useState<
-    SPFieldData[] | undefined
+    SPProfileConfigurationData[] | undefined
   >(undefined);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
   React.useEffect(() => {
@@ -51,14 +51,14 @@ export default function ManageConfiguration(props: {
           }
         );
       }
-      GetAllSharePointSiteColumns().then((contents: SPFieldData[]) => {
+      GetAllSharePointSiteColumns().then((contents: SPProfileConfigurationData[]) => {
         contents.sort((a, b) => (a.Title > b.Title ? 1 : -1));
         setAvailableSPFields(contents);
       });
     }
   }, [props.repoClient]);
 
-  async function GetAllSharePointSiteColumns(): Promise<SPFieldData[]> {
+  async function GetAllSharePointSiteColumns(): Promise<SPProfileConfigurationData[]> {
     const restApiUrl: string =
       props.context.pageContext.web.absoluteUrl +
       "/_api/web/fields?$filter=(Hidden ne true and Group ne '_Hidden')";
@@ -71,7 +71,7 @@ export default function ManageConfiguration(props: {
           'odata-version': '',
         },
       });
-      const results = (await res.json()).value as SPFieldData[];
+      const results = (await res.json()).value as SPProfileConfigurationData[];
 
       return results;
     } catch (error) {

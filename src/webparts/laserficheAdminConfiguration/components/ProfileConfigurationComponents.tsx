@@ -27,7 +27,7 @@ export interface LfFolder {
   id: string;
 }
 
-export interface SPFieldData {
+export interface SPProfileConfigurationData {
   Title: string;
   TypeAsString: string;
   InternalName: string;
@@ -36,7 +36,13 @@ export interface SPFieldData {
 export interface MappedFields {
   id: string;
   lfField: TemplateFieldInfo | undefined;
-  spField: SPFieldData | undefined;
+  spField: SPProfileConfigurationData | undefined;
+}
+
+export enum ActionTypes {
+  'COPY'= 'COPY',
+  'MOVE_AND_DELETE' = 'MOVE_AND_DELETE',
+  'REPLACE' = 'REPLACE'
 }
 
 export function ProfileHeader(props: { configurationName: string }) {
@@ -76,7 +82,7 @@ export function ConfigurationBody(props: {
     setShowFolderModal(false);
   };
 
-  const handleTemplateChange = async (event) => {
+  const handleTemplateChange = (event) => {
     const value = (event.target as HTMLSelectElement).value;
     const templateName = value;
     const profileConfig = { ...props.profileConfig };
@@ -84,6 +90,14 @@ export function ConfigurationBody(props: {
     props.handleProfileConfigUpdate(profileConfig);
     props.handleTemplateChange(templateName);
   };
+
+  const handleActionTypeChange = (event) => {
+    const value = (event.target as HTMLSelectElement).value;
+    const actionName = value;
+    const profileConfig = { ...props.profileConfig };
+    profileConfig.Action = actionName;
+    props.handleProfileConfigUpdate(profileConfig);
+  }
 
   function CloseFolderModalUp() {
     setShowFolderModal(false);
@@ -141,14 +155,14 @@ export function ConfigurationBody(props: {
           After import
         </label>
         <div className='col-sm-6'>
-          <select className='custom-select' id='action'>
-            <option value={'Copy'}>
+          <select onChange={handleActionTypeChange} className='custom-select' id='action'>
+            <option value={ActionTypes.COPY}>
               Leave a copy of the file in SharePoint
             </option>
-            <option value={'Replace'}>
+            <option value={ActionTypes.REPLACE}>
               Replace SharePoint file with a link to the document in Laserfiche
             </option>
-            <option value={'Move and Delete'}>Delete SharePoint file</option>
+            <option value={ActionTypes.MOVE_AND_DELETE}>Delete SharePoint file</option>
           </select>
         </div>
         <div className='col-sm-2'>
@@ -408,7 +422,7 @@ export function TemplateSelector(props: {
 }
 export function SharePointLaserficheColumnMatching(props: {
   profileConfig: ProfileConfiguration;
-  availableSPFields: SPFieldData[];
+  availableSPFields: SPProfileConfigurationData[];
   lfFieldsForSelectedTemplate: TemplateFieldInfo[];
   validate: boolean;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
