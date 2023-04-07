@@ -42,7 +42,7 @@ export interface ISendToLfCommandSetProperties {
 
 const LOG_SOURCE = 'SendToLfCommandSet';
 const dialog: CustomDailog = new CustomDailog();
-let staticFieldNames;
+let staticFieldNames = [];
 let fieldDataStatic = [];
 let fieldDataStaticAll = [];
 let fieldDataInternal = [];
@@ -311,8 +311,11 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
 
                       //checking whether the required fields mapped in admin configuration is present in Library
                       const requiredFieldsCheckinLibrary =
-                        spRequiredfieldsFromAdmin.filter((element) =>
-                          staticFieldNames.includes(element)
+                        spRequiredfieldsFromAdmin.filter(
+                          (element) =>
+                            staticFieldNames.findIndex(
+                              (el) => element === el
+                            ) !== -1
                         );
                       //missing Required fields from Library
                       const requiredFieldsmissing = $(spRequiredfieldsFromAdmin)
@@ -610,7 +613,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                           );
                           window.localStorage.setItem('Siteurl', siteUrl);
                           window.localStorage.setItem('SiteUrl', siteurl);
-                          window.localStorage.setItem('Maping', mapping.SharePointContentType);
+                          window.localStorage.setItem(
+                            'Maping',
+                            mapping.SharePointContentType
+                          );
                           window.localStorage.setItem(
                             'Filecontenttype',
                             filecontenttypename
@@ -688,7 +694,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       );
                       window.localStorage.setItem('Siteurl', siteUrl);
                       window.localStorage.setItem('SiteUrl', siteurl);
-                      window.localStorage.setItem('Maping', mapping.SharePointContentType);
+                      window.localStorage.setItem(
+                        'Maping',
+                        mapping.SharePointContentType
+                      );
                       window.localStorage.setItem(
                         'Filecontenttype',
                         filecontenttypename
