@@ -1,15 +1,12 @@
 import { IDocument } from './ILaserficheRepositoryAccessDocument';
-import { IColumn, Selection } from 'office-ui-fabric-react';
 
 export interface ILaserficheRepositoryAccessWebPartState {
-  columns: IColumn[];
   items: IDocument[];
   announcedMessage?: string;
   selectionDetails: string;
-  selection: Selection;
-  checkeditemid: number;
+  checkeditemid: string;
   checkeditemfolderornot: boolean;
-  parentItemId: number;
+  parentItemId: string;
   loading: boolean;
   uploadProgressBar: boolean;
   fileUploadPercentage: number;

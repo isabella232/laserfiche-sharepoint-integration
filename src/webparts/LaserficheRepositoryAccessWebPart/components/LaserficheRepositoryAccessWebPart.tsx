@@ -1,21 +1,7 @@
 import * as React from 'react';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { ILaserficheRepositoryAccessWebPartState } from './ILaserficheRepositoryAccessWebPartState';
-import {
-  DetailsList,
-  SelectionMode,
-  Selection,
-  IColumn,
-  CheckboxVisibility,
-  ScrollablePane,
-  ScrollbarVisibility,
-  StickyPositionType,
-  Sticky,
-} from 'office-ui-fabric-react';
-import { IDocument } from './ILaserficheRepositoryAccessDocument';
-import { mergeStyleSets } from 'office-ui-fabric-react/lib/Styling';
 import * as $ from 'jquery';
-import { Spinner, SpinnerSize } from 'office-ui-fabric-react/lib/Spinner';
 import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
@@ -28,12 +14,20 @@ import {
   PutFieldValsRequest,
   FieldToUpdate,
   ValueToUpdate,
+  EntryType,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfRepoTreeNodeService,
   LfFieldsService,
+  LfRepoTreeNode,
 } from '@laserfiche/lf-ui-components-services';
-import { LfFieldContainerComponent, LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
+import {
+  ColumnDef,
+  LfFieldContainerComponent,
+  LfLoginComponent,
+  LfRepositoryBrowserComponent,
+  LoginState,
+} from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
@@ -50,18 +44,20 @@ declare global {
     }
   }
 }
-const classNames = mergeStyleSets({
-  fileHeader: {
-    fontSize: '17px',
-  },
-});
 
 export default class LaserficheRepositoryAccessWebPart extends React.Component<
   ILaserficheRepositoryAccessWebPartProps,
   ILaserficheRepositoryAccessWebPartState
 > {
-  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
-  public fieldContainer: React.RefObject<NgElement & WithProperties<LfFieldContainerComponent>>;
+  public loginComponent: React.RefObject<
+    NgElement & WithProperties<LfLoginComponent>
+  >;
+  public fieldContainer: React.RefObject<
+    NgElement & WithProperties<LfFieldContainerComponent>
+  >;
+  public repositoryBrowser: React.RefObject<
+    NgElement & WithProperties<LfRepositoryBrowserComponent>
+  >;
   public repoClient: IRepositoryApiClientExInternal;
   public lfRepoTreeService: LfRepoTreeNodeService;
   public lfFieldsService: LfFieldsService;
@@ -77,152 +73,14 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     );
     this.loginComponent = React.createRef();
     this.fieldContainer = React.createRef();
-    const selection: Selection = new Selection({
-      onSelectionChanged: () =>
-        this.setState({ selectionDetails: this._getSelectionDetails() }),
-    });
-    //Defing static columns in the grid
-    const columns: IColumn[] = [
-      {
-        key: 'column1',
-        name: 'Name',
-        className: classNames.fileHeader,
-        fieldName: 'Name',
-        minWidth: 90,
-        maxWidth: 350,
-        isResizable: true,
-        onColumnClick: this._onColumnClick,
-        data: 'string',
-        onRender: (item: IDocument) => {
-          const name = '    ' + item.name;
-          if (item.entryType == 'Document') {
-            const svgFileIcon = this.GetIconClassForDocExtension(
-              item.extension
-            );
-            return (
-              <a href='#' onDoubleClick={() => this.OpenSubfolders(item)}>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  focusable='false'
-                  style={{
-                    height: '20px',
-                    width: '20px',
-                    color: 'transparent',
-                  }}
-                >
-                  <use xlinkHref={`#${svgFileIcon}`} />
-                </svg>
-                {name}
-              </a>
-            );
-          } else {
-            return (
-              <a href='#' onDoubleClick={() => this.OpenSubfolders(item)}>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  focusable='false'
-                  style={{
-                    height: '20px',
-                    width: '20px',
-                    color: 'transparent',
-                  }}
-                >
-                  <use xlinkHref={`#${'folder-20'}`} />
-                </svg>
-                {name}
-              </a>
-            );
-          }
-        },
-        isPadded: true,
-      },
-      {
-        key: 'column2',
-        name: 'Creation Date',
-        className: classNames.fileHeader,
-        fieldName: 'Creation Date',
-        minWidth: 90,
-        maxWidth: 160,
-        onColumnClick: this._onColumnClick,
-        data: 'number',
-        onRender: (item: IDocument) => {
-          const creationDate = new Date(item.creationTime).toLocaleString([], {
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-          });
-          const result = creationDate.replace(/,/g, '');
-          return <span>{result}</span>;
-        },
-        isPadded: true,
-      },
-      {
-        key: 'column3',
-        name: 'Last Modified Date',
-        className: classNames.fileHeader,
-        minWidth: 90,
-        maxWidth: 160,
-        isResizable: true,
-        isCollapsible: true,
-        onColumnClick: this._onColumnClick,
-        data: 'number',
-        onRender: (item: IDocument) => {
-          const modifiedDate = new Date(item.lastModifiedTime).toLocaleString(
-            [],
-            {
-              year: 'numeric',
-              month: 'numeric',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            }
-          );
-          const result = modifiedDate.replace(/,/g, '');
-          return <span>{result}</span>;
-        },
-      },
-      {
-        key: 'column4',
-        name: 'Pages',
-        className: classNames.fileHeader,
-        minWidth: 90,
-        maxWidth: 160,
-        isResizable: true,
-        isCollapsible: true,
-        onColumnClick: this._onColumnClick,
-        data: 'number',
-        onRender: (item: IDocument) => {
-          if (item.pageCount != 0) {
-            return <span>{item.pageCount}</span>;
-          }
-        },
-      },
-      {
-        key: 'column6',
-        name: 'Template',
-        className: classNames.fileHeader,
-        minWidth: 90,
-        maxWidth: 160,
-        isResizable: true,
-        isCollapsible: true,
-        onColumnClick: this._onColumnClick,
-        data: 'string',
-        onRender: (item: IDocument) => {
-          return <span>{item.templateName}</span>;
-        },
-      },
-    ];
+    this.repositoryBrowser = React.createRef();
 
     this.state = {
-      columns: columns,
       items: [],
       selectionDetails: '',
-      selection: selection,
-      checkeditemid: 0,
+      checkeditemid: '0',
       checkeditemfolderornot: false,
-      parentItemId: 0,
+      parentItemId: '0',
       loading: false,
       uploadProgressBar: false,
       fileUploadPercentage: 5,
@@ -234,201 +92,6 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
         ? 'a.clouddev.laserfiche.com'
         : 'laserfiche.com',
     };
-  }
-  public GetIconClassForDocExtension(extension) {
-    switch (extension) {
-      case '':
-        return 'document-20';
-      case 'ascx':
-      case 'aspx':
-      case 'cs':
-      case 'css':
-      case 'htm':
-      case 'html':
-      case 'js':
-      case 'jsproj':
-      case 'vbs':
-      case 'xml':
-        return 'edoc-code-20';
-      case 'avi':
-      case 'mov':
-      case 'mpeg':
-      case 'rm':
-      case 'wmv':
-      case 'mp4':
-      case 'webm':
-      case 'ogv':
-      case 'ogg':
-        return 'edoc-movie-20';
-      case 'bmp':
-      case 'gif':
-      case 'jpeg':
-      case 'jpg':
-      case 'png':
-      case 'tif':
-      case 'tiff':
-        return 'image-20';
-      case 'config':
-        return 'edoc-config-20';
-      case 'doc':
-      case 'docx':
-      case 'dot':
-        return 'edoc-wordprocessing-20';
-      case 'mdb':
-      case 'accdb':
-        return 'edoc-database-20';
-      case 'pdf':
-        return 'edoc-pdf-20';
-      case 'ppt':
-      case 'pptx':
-        return 'edoc-presentation-20';
-      case 'qfx':
-        return 'edoc-qfx-20';
-      case 'reg':
-        return 'edoc-registry-20';
-      case 'rtf':
-      case 'txt':
-        return 'edoc-text-20';
-      case 'wav':
-      case 'mp2':
-      case 'mp3':
-      case 'opus':
-      case 'oga':
-        return 'edoc-audio-20';
-      case 'wfx':
-        return 'edoc-wfx-20';
-      case 'csv':
-      case 'xls':
-      case 'xlsm':
-      case 'xlsx':
-        return 'edoc-spreadsheet-20';
-      case 'zip':
-      case 'gz':
-      case 'rar':
-      case '7z':
-        return 'edoc-zip-20';
-      case 'msg':
-      case 'eml':
-        return 'email-20';
-      case 'lnk':
-        return 'link-20';
-      case 'lfb':
-        return 'edoc-briefcase-20';
-      default:
-        return 'edoc-generic-20';
-    }
-  }
-  //Opening the contents in the subfolder in webpart
-  public async OpenSubfolders(item) {
-    const itemId = item.id;
-    this.setState({ parentItemId: itemId });
-    const repoId = await this.repoClient.getCurrentRepoId();
-    if (item.entryType == 'Folder') {
-      this.setState({
-        loading: true,
-      });
-      this.BuildBreadcrumb(item);
-      const subFolderItems: Entry[] = [];
-      await this.repoClient.entriesClient.getEntryListingForEach({
-        callback: async (listOfEntries) => {
-          if (listOfEntries.value) {
-            subFolderItems.push(...listOfEntries.value);
-          }
-          return true;
-        },
-        repoId,
-        entryId: itemId,
-        groupByEntryType: true,
-        select:
-          'name,parentId,creationTime,lastModifiedTime,entryType,templateName,pageCount,extension,id',
-      });
-      if (subFolderItems) {
-        const entryResult = [];
-        for (let i = 0; i < subFolderItems.length; i++) {
-          entryResult.push(subFolderItems[i]);
-        }
-        this.setState({
-          items: entryResult,
-        });
-      }
-      this.setState({ loading: false });
-    }
-    if (item.entryType != 'Folder') {
-      // assign the first repoId for now, in production there is only one repository
-      window.open(
-        this.state.webClientUrl +
-          '/DocView.aspx?db=' +
-          repoId +
-          '&docid=' +
-          itemId
-      );
-    }
-  }
-
-  //Implementing Breadcrumb functionality on double click on folders
-  public BuildBreadcrumb(item) {
-    const liId = item.id + item.name;
-    const liElement = liId.replace(/ /g, '');
-    if ($('#LaserficheBreadcrumb').find('#' + item.id).length == 0) {
-      $('#LaserficheBreadcrumb').append(
-        "<li class='breadcrumb-item' id='" +
-          item.id +
-          "'><a href='#' id='" +
-          liElement +
-          "'>" +
-          item.name +
-          '</a></li>'
-      );
-      const clickEvent = document.getElementById(liElement);
-      clickEvent.addEventListener('click', () => {
-        this.DisplayItemsUnderBreadcrumb(item);
-      });
-    }
-  }
-
-  //Open the laserfiche contents when we click on previous folder in breadcrumb
-  public async DisplayItemsUnderBreadcrumb(item) {
-    this.setState({
-      loading: true,
-    });
-    if (
-      $('#LaserficheBreadcrumb')
-        .find('#' + item.id)
-        .nextAll('li').length > 0
-    ) {
-      $('#LaserficheBreadcrumb')
-        .find('#' + item.id)
-        .nextAll('li')
-        .remove();
-    }
-    const itemId = item.id;
-    this.setState({ parentItemId: itemId });
-    const subFolderItems: Entry[] = [];
-    const repoId = await this.repoClient.getCurrentRepoId();
-
-    await this.repoClient.entriesClient.getEntryListingForEach({
-      callback: async (listOfEntries) => {
-        if (listOfEntries.value) {
-          subFolderItems.push(...listOfEntries.value);
-        }
-        return true;
-      },
-      repoId,
-      entryId: itemId,
-      groupByEntryType: true,
-      select:
-        'name,parentId,creationTime,lastModifiedTime,entryType,templateName,pageCount,extension,id',
-    });
-    if (subFolderItems) {
-      const entryResult = [];
-      for (let i = 0; i < subFolderItems.length; i++) {
-        entryResult.push(subFolderItems[i]);
-      }
-      this.setState({
-        items: entryResult,
-      });
-    }
-    this.setState({ loading: false });
   }
 
   //Get all items from the Laserfiche on load of webpart
@@ -442,7 +105,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
     );
     await SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
     );
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
@@ -481,86 +144,6 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       $('#mainWebpartContent').show();
     }
     await this.getAndInitializeRepositoryClientAndServicesAsync();
-  }
-
-  //Get all Laserfiche Items on load of webpart
-  public async GetAllLaserficheItemsOnLoad() {
-    if (this.state.parentItemId == 0) {
-      const allItemsResponse: Entry[] = [];
-
-      const repoId = await this.repoClient.getCurrentRepoId();
-      await this.repoClient.entriesClient.getEntryListingForEach({
-        callback: async (listOfEntries) => {
-          if (listOfEntries.value) {
-            allItemsResponse.push(...listOfEntries.value);
-          }
-          return true;
-        },
-        repoId,
-        entryId: 1,
-        groupByEntryType: true,
-        select:
-          'name,parentId,creationTime,lastModifiedTime,entryType,templateName,pageCount,extension,id',
-      });
-      if (allItemsResponse) {
-        const entryResult = [];
-        for (let i = 0; i < allItemsResponse.length; i++) {
-          entryResult.push(allItemsResponse[i]);
-        }
-        this.setState({
-          items: entryResult,
-        });
-      }
-      this.setState({
-        parentItemId: 1,
-      });
-      this.setState({ loading: false });
-    }
-  }
-
-  //Get all Laserfiche Items on click on Files in the breadcrumb
-  public async GetAllLaserficheItems() {
-    this.setState({
-      loading: true,
-    });
-    if (
-      $('#LaserficheBreadcrumb').find('#RepositoryFiles').nextAll('li').length >
-      0
-    ) {
-      $('#LaserficheBreadcrumb')
-        .find('#RepositoryFiles')
-        .nextAll('li')
-        .remove();
-    }
-    const allItemsResponse: Entry[] = [];
-    const repoId = await this.repoClient.getCurrentRepoId();
-
-    await this.repoClient.entriesClient.getEntryListingForEach({
-      callback: async (listOfEntries) => {
-        if (listOfEntries.value) {
-          allItemsResponse.push(...listOfEntries.value);
-        }
-        return true;
-      },
-      repoId,
-      entryId: 1,
-      groupByEntryType: true,
-      select:
-        'name,parentId,creationTime,lastModifiedTime,entryType,templateName,pageCount,extension,id',
-    });
-    if (allItemsResponse) {
-      const entryResult = [];
-      for (let i = 0; i < allItemsResponse.length; i++) {
-        entryResult.push(allItemsResponse[i]);
-      }
-      this.setState({
-        items: entryResult,
-      });
-    }
-    this.setState({
-      parentItemId: 1,
-    });
-    this.setState({ loading: false });
   }
 
   //Get Field Values on Selection on template
@@ -602,14 +185,92 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       // Note: this will hopefully be removed and there will be no need to create server session explicitly
 
       this.lfFieldsService = new LfFieldsService(this.repoClient);
+      this.lfRepoTreeService = new LfRepoTreeNodeService(this.repoClient);
+      this.lfRepoTreeService.viewableEntryTypes = [
+        EntryType.Folder,
+        EntryType.Shortcut,
+        EntryType.Document,
+      ];
+      await this.initializeTreeAsync();
       await this.initializeFieldContainerAsync();
       this.setState({
         webClientUrl:
           this.loginComponent.current.account_endpoints.webClientUrl,
       });
-      this.GetAllLaserficheItemsOnLoad();
     } else {
       // user is not logged in
+    }
+  }
+
+  onEntrySelected = (event: CustomEvent<LfRepoTreeNode[] | undefined>) => {
+    const selectedNode = event.detail ? event.detail[0] : undefined;
+    this.setState(() => {
+      return {
+        checkeditemfolderornot: selectedNode?.entryType === EntryType.Folder,
+        checkeditemid: selectedNode?.id ?? '0',
+      };
+    });
+  };
+
+  onEntryOpened = (event: CustomEvent<LfRepoTreeNode[] | undefined>) => {
+    const openedNode = event.detail ? event.detail[0] : undefined;
+    this.setState(() => {
+      return {
+        parentItemId: openedNode?.id ?? '0'
+      }
+    });
+  }
+
+  async initializeTreeAsync() {
+    if (!this.repoClient) {
+      throw new Error('RepoId is undefined');
+    }
+    this.repositoryBrowser.current?.addEventListener(
+      'entrySelected',
+      this.onEntrySelected
+    );
+    this.repositoryBrowser.current?.addEventListener(
+      'entryDblClicked',
+      this.onEntryOpened
+    );
+    let focusedNode: LfRepoTreeNode | undefined;
+    if (this.lfRepoTreeService) {
+      this.lfRepoTreeService.columnIds = [
+        'creationTime',
+        'lastModifiedTime',
+        'pageCount',
+        'templateName',
+      ];
+      await this.repositoryBrowser?.current?.initAsync(
+        this.lfRepoTreeService,
+        focusedNode
+      );
+      const cols: ColumnDef[] = [
+        {
+          id: 'creationTime',
+          displayName: 'Creation Date',
+          defaultWidth: '100px',
+          resizable: true,
+        },
+        {
+          id: 'lastModifiedTime',
+          displayName: 'Last Modified Date',
+          defaultWidth: '100px',
+          resizable: true,
+        },
+        { id: 'pageCount', displayName: 'Page', defaultWidth: '100px' },
+        {
+          id: 'templateName',
+          displayName: 'Template Name',
+          defaultWidth: '100px',
+        },
+      ];
+      this.repositoryBrowser.current!.setColumnsToDisplay(cols);
+      await this.repositoryBrowser.current.refreshAsync();
+    } else {
+      console.debug(
+        'Unable to initialize tree, lfRepoTreeService is undefined'
+      );
     }
   }
 
@@ -625,67 +286,8 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     await this.fieldContainer.current.initAsync(this.lfFieldsService);
   }
 
-  //Get which file/folder is selected in the grid
-  private _getSelectionDetails(): string {
-    this.setState({
-      checkeditemfolderornot: false,
-    });
-    this.setState({
-      checkeditemid: 0,
-    });
-    if (this.state.selection.getSelection().length != 0) {
-      this.setState({
-        checkeditemid: (this.state.selection.getSelection()[0] as IDocument).id,
-      });
-      if (
-        (this.state.selection.getSelection()[0] as IDocument).entryType ==
-        'Folder'
-      ) {
-        this.setState({
-          checkeditemfolderornot: true,
-        });
-      }
-      return;
-    }
-  }
-
-  //Provding sorting on metadata columns
-  private _onColumnClick = (
-    ev: React.MouseEvent<HTMLElement>,
-    column: IColumn
-  ): void => {
-    const { columns, items } = this.state;
-    const newColumns: IColumn[] = columns.slice();
-    const currColumn: IColumn = newColumns.filter(
-      (currCol) => column.key === currCol.key
-    )[0];
-    newColumns.forEach((newCol: IColumn) => {
-      if (newCol === currColumn) {
-        currColumn.isSortedDescending = !currColumn.isSortedDescending;
-        currColumn.isSorted = true;
-        this.setState({
-          announcedMessage: `${currColumn.name} is sorted ${
-            currColumn.isSortedDescending ? 'descending' : 'ascending'
-          }`,
-        });
-      } else {
-        newCol.isSorted = false;
-        newCol.isSortedDescending = true;
-      }
-    });
-    const newItems = _copyAndSort(
-      items,
-      currColumn.fieldName ?? '',
-      currColumn.isSortedDescending
-    );
-    this.setState({
-      columns: newColumns,
-      items: newItems,
-    });
-  };
-
   //Open New folder Modal Popup
-  public OpenNewFolderModal() {
+  OpenNewFolderModal = () => {
     $('#folderValidation').hide();
     $('#folderExists').hide();
     $('#folderNameValidation').hide();
@@ -694,7 +296,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   }
 
   //Close New folder Modal Popup
-  public CloseNewFolderModal() {
+  CloseNewFolderModal = () => {
     $('#folderValidation').hide();
     $('#folderExists').hide();
     $('#folderNameValidation').hide();
@@ -703,7 +305,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   }
 
   //Create New Folder in Repository
-  public async CreateNewFolder(folderName) {
+  CreateNewFolder = async (folderName) => {
     if ($('#folderName').val() != '') {
       if (/[^ A-Za-z0-9]/.test(folderName)) {
         $('#folderValidation').hide();
@@ -722,7 +324,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
           });
         const requestParameters = {
           repoId,
-          entryId: this.state.parentItemId,
+          entryId: Number.parseInt(this.state.parentItemId, 10),
           request: postEntryChildrenRequest,
         };
         try {
@@ -748,7 +350,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   }
 
   //Open Import file Modal Popup
-  public OpenImportFileModal() {
+  OpenImportFileModal = () => {
     this.fieldContainer.current.clearAsync();
     $('#fileValidation').hide();
     $('#fileSizeValidation').hide();
@@ -763,7 +365,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   }
 
   //Close Import File Modal Popup
-  public CloseImportFileModal() {
+  CloseImportFileModal = () => {
     this.fieldContainer.current.clearAsync();
     $('#importFileName').text('Choose file');
     $('#importFile').val('');
@@ -777,7 +379,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   }
 
   //Import file in Repository
-  public async ImportFileToRepository() {
+  ImportFileToRepository = async () => {
     const fileData = document.getElementById('importFile')['files'][0];
     let renameFileName;
     const repoId = await this.repoClient.getCurrentRepoId();
@@ -792,8 +394,8 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
           $('#importFileName').text() !=
           '.' +
             document
-              .getElementById('importFile')['value']
-              .split('\\')
+              .getElementById('importFile')
+              ['value'].split('\\')
               .pop()
               .split('.')[1]
         ) {
@@ -863,7 +465,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
               };
               const requestParameters = {
                 repoId,
-                parentEntryId,
+                parentEntryId: Number.parseInt(this.state.parentItemId, 10),
                 electronicDocument: file,
                 autoRename: true,
                 fileName: fileNameNoPeriod,
@@ -923,14 +525,14 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     let fileNamee = '';
     const fileSize = document.getElementById('importFile')['files'][0].size;
     const filenameLength = document
-      .getElementById('importFile')['value']
-      .split('\\')
+      .getElementById('importFile')
+      ['value'].split('\\')
       .pop()
       .split('.').length;
     for (let j = 0; j < filenameLength - 1; j++) {
       const fileSplitValue = document
-        .getElementById('importFile')['value']
-        .split('\\')
+        .getElementById('importFile')
+        ['value'].split('\\')
         .pop()
         .split('.')[j];
       fileNamee += fileSplitValue + '.';
@@ -955,22 +557,22 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     }
   }
 
-  public SetNewFileName = () => () => {
+  public SetNewFileName = () => {
     let fileNamee = '';
     const filenameLength = document
-      .getElementById('importFile')['value']
-      .split('\\')
+      .getElementById('importFile')
+      ['value'].split('\\')
       .pop()
       .split('.').length;
     const fileExtension = document
-      .getElementById('importFile')['value']
-      .split('\\')
+      .getElementById('importFile')
+      ['value'].split('\\')
       .pop()
       .split('.')[filenameLength - 1];
     for (let k = 0; k < filenameLength - 1; k++) {
       const fileSplitValue = document
-        .getElementById('importFile')['value']
-        .split('\\')
+        .getElementById('importFile')
+        ['value'].split('\\')
         .pop()
         .split('.')[k];
       fileNamee += fileSplitValue + '.';
@@ -987,81 +589,30 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     }
   };
 
-  //On scroll display remaining items
-  public ScrollToDisplayLazyLoadItems = (e) => {
-    if (
-      e.target.scrollHeight - parseInt(e.target.scrollTop) ==
-      e.target.clientHeight
+  isNodeSelectable = (node: LfRepoTreeNode) => {
+    if (node?.entryType == EntryType.Folder || node?.entryType === EntryType.Document) {
+      return true;
+    } else if (
+      (node?.entryType == EntryType.Shortcut &&
+      node?.targetType == EntryType.Folder) ||
+      (node?.entryType == EntryType.Shortcut &&
+        node?.targetType == EntryType.Document)
     ) {
-      this.GetLazyLoadItems();
+      return true;
+    } else {
+      return false;
     }
   };
 
-  public async GetLazyLoadItems() {
-    const itemId = this.state.parentItemId;
-    const repoId = await this.repoClient.getCurrentRepoId();
-    if (itemId === 0) {
-      const allItemsResponse: Entry[] = [];
-
-      await this.repoClient.entriesClient.getEntryListingForEach({
-        callback: async (listOfEntries) => {
-          if (listOfEntries.value) {
-            allItemsResponse.push(...listOfEntries.value);
-          }
-          return true;
-        },
-        repoId,
-        entryId: itemId,
-        groupByEntryType: true,
-        select:
-          'name,parentId,creationTime,lastModifiedTime,entryType,templateName,pageCount,extension,id',
-      });
-      if (allItemsResponse) {
-        const entryResult = [];
-        for (let i = 0; i < allItemsResponse.length; i++) {
-          entryResult.push(allItemsResponse[i]);
-        }
-        this.setState({
-          items: this.state.items.concat(entryResult),
-        });
-        this.setState({
-          parentItemId: itemId,
-        });
-      }
-    }
-  }
-  //public async GetLaserficheLazyLoadItems(accessToken: string, laserficheApiUrl, itemslength, itemId, repoId): Promise<IDocument[]> {
-  //let array: IDocument[] = [];
-  //let restApiUrl: string = laserficheApiUrl + repoId + "/Entries/" + itemId + "/Laserfiche.Repository.Folder/children?select=name,parentId,creationTime,lastModifiedTime,entryType,templateName,pages,extension,id&$top=100&$skip=" + itemslength;
-  //try {
-  // const res = await fetch(restApiUrl, {
-  //    method: 'GET',
-  //   headers: {
-  //       'Accept': 'application/json',
-  //      'Content-Type': 'application/json',
-  //     'Authorization': 'Bearer ' + accessToken,
-  //  },
-  // });
-  // const results = await res.json();
-  // for (var i = 0; i < results.value.length; i++) {
-  //     array.push(results.value[i]);
-  // }
-  //return array;
-  //}
-  //catch (error) {
-  //console.log("error occured" + error);
-  //}
-  //}
-
   //Open file button functinality to open files/folder in repository from the command bar
-  public async OpenFileOrFolder(
+  OpenFileOrFolder = async (
     checkeditemfolderornot: boolean,
-    checkeditemid: number
-  ) {
+    checkeditemid: string
+  ) => {
     const repoId = await this.repoClient.getCurrentRepoId();
 
     if (checkeditemfolderornot == false) {
-      if (checkeditemid != 0) {
+      if (checkeditemid != '0') {
         // assign the first repoId for now, in production there is only one repository
         window.open(
           this.state.webClientUrl +
@@ -1074,7 +625,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
         this.setState({ showAlertModal: true });
       }
     } else {
-      if (checkeditemid != 0) {
+      if (checkeditemid != '0') {
         // assign the first repoId for now, in production there is only one repository
         window.open(
           this.state.webClientUrl +
@@ -1089,13 +640,13 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     }
   }
 
-  public ConfirmAlertButton() {
-    this.setState({ showAlertModal: false });
+  ConfirmAlertButton = () => {
+    this.setState(() => {
+      return { showAlertModal: false };
+    });
   }
 
   public render(): React.ReactElement<ILaserficheRepositoryAccessWebPartProps> {
-    const sbBg = '#D4DBD7';
-    const sbThumbBg = '#068c8e';
     return (
       <div>
         <div style={{ display: 'none' }}>
@@ -1148,7 +699,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                         href='javascript:;'
                         className='mr-3'
                         title='Upload File'
-                        onClick={() => this.OpenImportFileModal()}
+                        onClick={this.OpenImportFileModal}
                       >
                         <span className='material-icons'>upload</span>
                       </a>
@@ -1158,7 +709,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                         href='javascript:;'
                         className='mr-3'
                         title='Create Folder'
-                        onClick={() => this.OpenNewFolderModal()}
+                        onClick={this.OpenNewFolderModal}
                       >
                         <span className='material-icons'>
                           create_new_folder
@@ -1188,90 +739,20 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                     </div>
                   </div>
                 </div>
-                <div className='parentdiv'>
-                  <div>
-                    <nav aria-label='breadcrumb'>
-                      <ol
-                        className='breadcrumb bg-white rounded-0 border border-top-0 border-bottom-0 mb-0 border-right-0'
-                        id='LaserficheBreadcrumb'
-                      >
-                        <li
-                          className='breadcrumb-item'
-                          id='RepositoryFiles'
-                          onClick={() => this.GetAllLaserficheItems()}
-                        >
-                          <a href='#'>Files</a>
-                        </li>
-                      </ol>
-                    </nav>
-                  </div>
-                  <div className='spinloader'>
-                    {this.state.loading && (
-                      <Spinner
-                        size={SpinnerSize.medium}
-                        label='loading'
-                        labelPosition='right'
-                      />
-                    )}
-                  </div>
-                </div>
-                <div className='detailsListScrollpane'>
-                  <ScrollablePane
-                    initialScrollPosition={0}
-                    scrollbarVisibility={ScrollbarVisibility.auto}
-                    onScroll={this.ScrollToDisplayLazyLoadItems}
-                    styles={{
-                      root: {
-                        selectors: {
-                          '.ms-ScrollablePane--contentContainer': {
-                            scrollbarColor: `${sbThumbBg} ${sbBg}`,
-                          },
-                          '.ms-ScrollablePane--contentContainer::-webkit-scrollbar-track':
-                            {
-                              background: sbBg,
-                            },
-                          '.ms-ScrollablePane--contentContainer::-webkit-scrollbar-thumb':
-                            {
-                              background: sbThumbBg,
-                            },
-                        },
-                      },
-                    }}
-                  >
-                    <DetailsList
-                      items={this.state.items}
-                      columns={this.state.columns}
-                      selectionMode={SelectionMode.single}
-                      checkboxVisibility={CheckboxVisibility.hidden}
-                      selection={this.state.selection}
-                      onRenderDetailsHeader={(headerProps, defaultRender) => {
-                        return (
-                          <Sticky
-                            stickyPosition={StickyPositionType.Header}
-                            isScrollSynced={true}
-                            stickyBackgroundColor='transparent'
-                          >
-                            {defaultRender({
-                              ...headerProps,
-                              styles: {
-                                root: {
-                                  selectors: {
-                                    '.ms-DetailsHeader-cellName': {
-                                      fontWeight: 'bold',
-                                      fontSize: 17,
-                                    },
-                                  },
-                                  background: '#f5f5f5',
-                                  borderBottom: '1px solid #ddd',
-                                  paddingTop: 1,
-                                },
-                              },
-                            })}
-                          </Sticky>
-                        );
-                      }}
-                    />
-                  </ScrollablePane>
+              </div>
+              <div
+                className='lf-folder-browser-sample-container'
+                style={{ height: '400px' }}
+              >
+                <div className='repository-browser'>
+                  <lf-repository-browser
+                    ref={this.repositoryBrowser}
+                    ok_button_text='Okay'
+                    cancel_button_text='Cancel'
+                    multiple='false'
+                    style={{ height: '420px' }}
+                    isSelectable={this.isNodeSelectable}
+                  />
                 </div>
               </div>
             </main>
@@ -1318,7 +799,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                       type='file'
                       className='custom-file-input'
                       id='importFile'
-                      onChange={() => this.SetImportFileName()}
+                      onChange={this.SetImportFileName}
                       aria-describedby='inputGroupFileAddon04'
                       placeholder='Choose file'
                     />
@@ -1348,7 +829,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                       type='text'
                       className='form-control'
                       id='uploadFileID'
-                      onChange={this.SetNewFileName()}
+                      onChange={this.SetNewFileName}
                     />
                   </div>
                 </div>
@@ -1366,14 +847,14 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                 <button
                   type='button'
                   className='btn btn-primary btn-sm'
-                  onClick={() => this.ImportFileToRepository()}
+                  onClick={this.ImportFileToRepository}
                 >
                   OK
                 </button>
                 <button
                   type='button'
                   className='btn btn-secondary btn-sm'
-                  onClick={() => this.CloseImportFileModal()}
+                  onClick={this.CloseImportFileModal}
                 >
                   Cancel
                 </button>
@@ -1399,7 +880,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                   className='close'
                   data-dismiss='modal'
                   aria-label='Close'
-                  onClick={() => this.CloseNewFolderModal()}
+                  onClick={this.CloseNewFolderModal}
                 >
                   <span aria-hidden='true'>&times;</span>
                 </button>
@@ -1438,7 +919,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                   type='button'
                   className='btn btn-secondary btn-sm'
                   data-dismiss='modal'
-                  onClick={() => this.CloseNewFolderModal()}
+                  onClick={this.CloseNewFolderModal}
                 >
                   Close
                 </button>
@@ -1463,7 +944,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
                   type='button'
                   className='btn btn-primary btn-sm'
                   data-dismiss='modal'
-                  onClick={() => this.ConfirmAlertButton()}
+                  onClick={this.ConfirmAlertButton}
                 >
                   OK
                 </button>
