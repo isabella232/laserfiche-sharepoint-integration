@@ -10,7 +10,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import { IAdminPageProps } from './IAdminPageProps';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../Assets/CSS/adminConfig.css');
+require('../../adminConfig.css');
 
 declare global {
   namespace JSX {

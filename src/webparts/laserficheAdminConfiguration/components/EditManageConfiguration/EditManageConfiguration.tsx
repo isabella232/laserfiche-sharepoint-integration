@@ -12,7 +12,7 @@ import {
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { ProfileConfiguration } from '../ProfileConfigurationComponents';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../Assets/CSS/adminConfig.css');
+require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {
