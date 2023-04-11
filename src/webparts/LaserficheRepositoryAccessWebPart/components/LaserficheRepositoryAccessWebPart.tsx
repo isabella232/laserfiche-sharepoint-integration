@@ -1,37 +1,18 @@
 import * as React from 'react';
-import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
-import { ILaserficheRepositoryAccessWebPartState } from './ILaserficheRepositoryAccessWebPartState';
 import * as $ from 'jquery';
 import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
-  CreateEntryResult,
-  Entry,
-  PostEntryChildrenRequest,
-  PostEntryChildrenEntryType,
-  FileParameter,
-  PostEntryWithEdocMetadataRequest,
-  PutFieldValsRequest,
-  FieldToUpdate,
-  ValueToUpdate,
-  EntryType,
-} from '@laserfiche/lf-repository-api-client';
-import {
-  LfRepoTreeNodeService,
-  LfFieldsService,
-  LfRepoTreeNode,
-} from '@laserfiche/lf-ui-components-services';
-import {
-  ColumnDef,
-  LfFieldContainerComponent,
   LfLoginComponent,
-  LfRepositoryBrowserComponent,
   LoginState,
 } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
+import { useEffect, useState } from 'react';
+import { WebPartContext } from '@microsoft/sp-webpart-base';
+import RepositoryViewComponent from './RepositoryViewWebPart';
 require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 require('../../../Assets/CSS/custom.css');
@@ -45,908 +26,119 @@ declare global {
   }
 }
 
-export default class LaserficheRepositoryAccessWebPart extends React.Component<
-  ILaserficheRepositoryAccessWebPartProps,
-  ILaserficheRepositoryAccessWebPartState
-> {
-  public loginComponent: React.RefObject<
+export default function LaserficheRepositoryAccessWebPart(props: {
+  context: WebPartContext;
+  devMode: boolean;
+  webPartTitle: string;
+  laserficheRedirectPage: string;
+}) {
+  const [webClientUrl, setwebClientUrl] = React.useState('');
+  let loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
-  >;
-  public fieldContainer: React.RefObject<
-    NgElement & WithProperties<LfFieldContainerComponent>
-  >;
-  public repositoryBrowser: React.RefObject<
-    NgElement & WithProperties<LfRepositoryBrowserComponent>
-  >;
-  public repoClient: IRepositoryApiClientExInternal;
-  public lfRepoTreeService: LfRepoTreeNodeService;
-  public lfFieldsService: LfFieldsService;
-  public showFieldContainer = false;
+  > = React.createRef();
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [repoClient, setRepoClient] = useState<
+    IRepositoryApiClientExInternal | undefined
+  >(undefined);
+  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  const redirectPage =
+    props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
 
-  constructor(props: ILaserficheRepositoryAccessWebPartProps) {
-    super(props);
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
-    );
-    this.loginComponent = React.createRef();
-    this.fieldContainer = React.createRef();
-    this.repositoryBrowser = React.createRef();
-
-    this.state = {
-      items: [],
-      selectionDetails: '',
-      checkeditemid: '0',
-      checkeditemfolderornot: false,
-      parentItemId: '0',
-      loading: false,
-      uploadProgressBar: false,
-      fileUploadPercentage: 5,
-      webClientUrl: '',
-      showUploadModal: false,
-      showCreateModal: false,
-      showAlertModal: false,
-      region: this.props.devMode
-        ? 'a.clouddev.laserfiche.com'
-        : 'laserfiche.com',
-    };
-  }
-
-  //Get all items from the Laserfiche on load of webpart
-  public async componentDidMount() {
-    $('#folderValidation').hide();
-    $('#folderExists').hide();
-    $('#folderNameValidation').hide();
-    $('#mainWebpartContent').hide();
-
-    await SPComponentLoader.loadScript(
+  useEffect(() => {
+    SPComponentLoader.loadScript(
       'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    );
-    await SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
-    );
-    this.setState({
-      loading: true,
-      showUploadModal: false,
-      showCreateModal: false,
-      showAlertModal: false,
-    });
-    this.loginComponent.current.addEventListener(
-      'loginCompleted',
-      this.loginCompleted
-    );
-    this.loginComponent.current.addEventListener(
-      'logoutCompleted',
-      this.logoutCompleted
-    );
-    this.fieldContainer.current.addEventListener(
-      'dialogOpened',
-      this.onDialogOpened
-    );
+    ).then(() => {
+      SPComponentLoader.loadScript(
+        'https://watsonville.laserfiche.com/lfwebcomponents/lf-cdn/lf-ui-components.js'
+      ).then(() => {
+        const loginCompleted = async () => {
+          await getAndInitializeRepositoryClientAndServicesAsync();
+          setLoggedIn(true);
+          const login = loginComponent.current;
+          setwebClientUrl(login?.account_endpoints.webClientUrl);
+        };
+        const logoutCompleted = async () => {
+          setLoggedIn(false);
+          window.location.href =
+            props.context.pageContext.web.absoluteUrl +
+            props.laserficheRedirectPage;
+        };
 
-    const loggedOut: boolean =
-      this.loginComponent.current.state === LoginState.LoggedOut;
-    if (loggedOut) {
-      $('#mainWebpartContent').hide();
-    } else {
-      $('#mainWebpartContent').show();
-    }
-    await this.getAndInitializeRepositoryClientAndServicesAsync();
-  }
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompleted
+        );
+        loginComponent.current.addEventListener(
+          'logoutCompleted',
+          logoutCompleted
+        );
+        if (loginComponent.current.authorization_credentials) {
+          getAndInitializeRepositoryClientAndServicesAsync().then(() => {
+            const login = loginComponent.current;
+            setwebClientUrl(login?.account_endpoints.webClientUrl);
+            setLoggedIn(true);
+          });
+        }
+      });
+    });
+  }, []);
+
+  SPComponentLoader.loadCss(
+    'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+  );
+  SPComponentLoader.loadCss(
+    'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+  );
 
   //lf-login will trigger on click on Sign in to Laserfiche
-  public loginCompleted = async () => {
-    $('#mainWebpartContent').show();
-    await this.getAndInitializeRepositoryClientAndServicesAsync();
-  };
 
-  //lf-login will trigger on click on Sign Out
-  public logoutCompleted = async () => {
-    $('#mainWebpartContent').hide();
-  };
-  public onDialogOpened = () => {
-    $('div.adhoc-modal').css('height', '450px');
-  };
-  public async getAndInitializeRepositoryClientAndServicesAsync() {
+  const getAndInitializeRepositoryClientAndServicesAsync = async () => {
     const accessToken =
-      this.loginComponent?.current?.authorization_credentials?.accessToken;
+      loginComponent?.current?.authorization_credentials?.accessToken;
     if (accessToken) {
-      await this.ensureRepoClientInitializedAsync();
+      await ensureRepoClientInitializedAsync();
       // need to set repositoryId because multiple repositories are available in development apartment
 
       // need to create server session with the new repositoryID
       // Note: this will hopefully be removed and there will be no need to create server session explicitly
-
-      this.lfFieldsService = new LfFieldsService(this.repoClient);
-      this.lfRepoTreeService = new LfRepoTreeNodeService(this.repoClient);
-      this.lfRepoTreeService.viewableEntryTypes = [
-        EntryType.Folder,
-        EntryType.Shortcut,
-        EntryType.Document,
-      ];
-      await this.initializeTreeAsync();
-      await this.initializeFieldContainerAsync();
-      this.setState({
-        webClientUrl:
-          this.loginComponent.current.account_endpoints.webClientUrl,
-      });
     } else {
       // user is not logged in
     }
-  }
-
-  onEntrySelected = (event: CustomEvent<LfRepoTreeNode[] | undefined>) => {
-    const selectedNode = event.detail ? event.detail[0] : undefined;
-    this.setState(() => {
-      return {
-        checkeditemfolderornot: selectedNode?.entryType === EntryType.Folder,
-        checkeditemid: selectedNode?.id ?? '0',
-      };
-    });
   };
 
-  onEntryOpened = (event: CustomEvent<LfRepoTreeNode[] | undefined>) => {
-    const openedNode = event.detail ? event.detail[0] : undefined;
-    this.setState(() => {
-      return {
-        parentItemId: openedNode?.id ?? '0'
-      }
-    });
-  }
-
-  async initializeTreeAsync() {
-    if (!this.repoClient) {
-      throw new Error('RepoId is undefined');
-    }
-    this.repositoryBrowser.current?.addEventListener(
-      'entrySelected',
-      this.onEntrySelected
-    );
-    this.repositoryBrowser.current?.addEventListener(
-      'entryDblClicked',
-      this.onEntryOpened
-    );
-    let focusedNode: LfRepoTreeNode | undefined;
-    if (this.lfRepoTreeService) {
-      this.lfRepoTreeService.columnIds = [
-        'creationTime',
-        'lastModifiedTime',
-        'pageCount',
-        'templateName',
-      ];
-      await this.repositoryBrowser?.current?.initAsync(
-        this.lfRepoTreeService,
-        focusedNode
-      );
-      const cols: ColumnDef[] = [
-        {
-          id: 'creationTime',
-          displayName: 'Creation Date',
-          defaultWidth: '100px',
-          resizable: true,
-        },
-        {
-          id: 'lastModifiedTime',
-          displayName: 'Last Modified Date',
-          defaultWidth: '100px',
-          resizable: true,
-        },
-        { id: 'pageCount', displayName: 'Page', defaultWidth: '100px' },
-        {
-          id: 'templateName',
-          displayName: 'Template Name',
-          defaultWidth: '100px',
-        },
-      ];
-      this.repositoryBrowser.current!.setColumnsToDisplay(cols);
-      await this.repositoryBrowser.current.refreshAsync();
-    } else {
-      console.debug(
-        'Unable to initialize tree, lfRepoTreeService is undefined'
-      );
-    }
-  }
-
-  public async ensureRepoClientInitializedAsync(): Promise<void> {
-    if (!this.repoClient) {
+  const ensureRepoClientInitializedAsync = async () => {
+    if (!repoClient) {
       const repoClientCreator = new RepositoryClientExInternal();
-      this.repoClient = await repoClientCreator.createRepositoryClientAsync();
-    }
-  }
-
-  public async initializeFieldContainerAsync() {
-    this.showFieldContainer = true;
-    await this.fieldContainer.current.initAsync(this.lfFieldsService);
-  }
-
-  //Open New folder Modal Popup
-  OpenNewFolderModal = () => {
-    $('#folderValidation').hide();
-    $('#folderExists').hide();
-    $('#folderNameValidation').hide();
-    $('#folderName').val('');
-    this.setState({ showCreateModal: true });
-  }
-
-  //Close New folder Modal Popup
-  CloseNewFolderModal = () => {
-    $('#folderValidation').hide();
-    $('#folderExists').hide();
-    $('#folderNameValidation').hide();
-    $('#folderName').val('');
-    this.setState({ showCreateModal: false });
-  }
-
-  //Create New Folder in Repository
-  CreateNewFolder = async (folderName) => {
-    if ($('#folderName').val() != '') {
-      if (/[^ A-Za-z0-9]/.test(folderName)) {
-        $('#folderValidation').hide();
-        $('#folderExists').hide();
-        $('#folderNameValidation').show();
-      } else {
-        $('#folderValidation').hide();
-        $('#folderExists').hide();
-        $('#folderNameValidation').hide();
-
-        const repoId = await this.repoClient.getCurrentRepoId();
-        const postEntryChildrenRequest: PostEntryChildrenRequest =
-          new PostEntryChildrenRequest({
-            entryType: PostEntryChildrenEntryType.Folder,
-            name: folderName,
-          });
-        const requestParameters = {
-          repoId,
-          entryId: Number.parseInt(this.state.parentItemId, 10),
-          request: postEntryChildrenRequest,
-        };
-        try {
-          const array = [];
-          const newFolderEntry: Entry =
-            await this.repoClient.entriesClient.createOrCopyEntry(
-              requestParameters
-            );
-
-          array.push(newFolderEntry);
-          this.setState({
-            items: this.state.items.concat(array),
-          });
-          this.setState({ showCreateModal: false });
-          $('#folderName').val('');
-        } catch {
-          $('#folderExists').show();
-        }
-      }
-    } else {
-      $('#folderValidation').show();
-    }
-  }
-
-  //Open Import file Modal Popup
-  OpenImportFileModal = () => {
-    this.fieldContainer.current.clearAsync();
-    $('#fileValidation').hide();
-    $('#fileSizeValidation').hide();
-    $('#fileNameValidation').hide();
-    $('#fileNameWithBacklash').hide();
-    $('#importFileName').text('Choose file');
-    $('#importFile').val('');
-    $('#uploadFileID').val('');
-    this.setState({ showUploadModal: true });
-    $('#uploadModal .modal-footer').show();
-    $('.progress').css('display', 'none');
-  }
-
-  //Close Import File Modal Popup
-  CloseImportFileModal = () => {
-    this.fieldContainer.current.clearAsync();
-    $('#importFileName').text('Choose file');
-    $('#importFile').val('');
-    $('#uploadFileID').val('');
-    this.setState({ showUploadModal: false });
-    $('#fileValidation').hide();
-    $('#fileSizeValidation').hide();
-    $('#fileNameValidation').hide();
-    $('#fileNameWithBacklash').hide();
-    $('#uploadModal .modal-footer').show();
-  }
-
-  //Import file in Repository
-  ImportFileToRepository = async () => {
-    const fileData = document.getElementById('importFile')['files'][0];
-    let renameFileName;
-    const repoId = await this.repoClient.getCurrentRepoId();
-    //Checking file has been uploaded or not
-    if (fileData != undefined) {
-      const fileDataSize =
-        document.getElementById('importFile')['files'][0].size;
-      //Checking file size is not exceeding 100mb
-      if (fileDataSize < 100000000) {
-        //Checking file name is valid or not
-        if (
-          $('#importFileName').text() !=
-          '.' +
-            document
-              .getElementById('importFile')
-              ['value'].split('\\')
-              .pop()
-              .split('.')[1]
-        ) {
-          //Checking if user want to change the uploaded file name
-          if (fileData.name != $('#importFileName').text()) {
-            renameFileName = new File([fileData], $('#importFileName').text());
-          } else {
-            renameFileName = document.getElementById('importFile')['files'][0];
-          }
-          $('#fileValidation').hide();
-          $('#fileSizeValidation').hide();
-          $('#fileNameValidation').hide();
-          $('#fileNameWithBacklash').hide();
-          const fileContainsBacklash = renameFileName.name.includes('\\')
-            ? 'Yes'
-            : 'No';
-          //Checking if filename contains backlash
-          if (fileContainsBacklash === 'No') {
-            const fieldValidation =
-              this.fieldContainer.current.forceValidation();
-            //Checking field validation
-            if (fieldValidation == true) {
-              $('#uploadModal .modal-footer').hide();
-              const fieldValues = this.fieldContainer.current.getFieldValues();
-              const formattedFieldValues:
-                | {
-                    [key: string]: FieldToUpdate;
-                  }
-                | undefined = {};
-
-              for (const key in fieldValues) {
-                const value = fieldValues[key];
-                formattedFieldValues[key] = new FieldToUpdate({
-                  ...value,
-                  values: value.values.map((val) => new ValueToUpdate(val)),
-                });
-              }
-
-              const templateValue = this.getTemplateName();
-              let templateName;
-              if (templateValue != undefined) {
-                templateName = templateValue;
-              }
-              $('.progress').css('display', 'block');
-
-              this.setState({
-                uploadProgressBar: !this.state.uploadProgressBar,
-              });
-              this.setState({ fileUploadPercentage: 100 });
-              const fieldsmetadata: PostEntryWithEdocMetadataRequest =
-                new PostEntryWithEdocMetadataRequest({
-                  template: templateName,
-                  metadata: new PutFieldValsRequest({
-                    fields: formattedFieldValues,
-                  }),
-                });
-              //const fileNameSplitByDot = (renameFileName.name as string).split(".");
-              const fileNameWithExt = renameFileName.name as string;
-              const fileNameSplitByDot = fileNameWithExt.split('.');
-              const fileextensionperiod = fileNameSplitByDot.pop();
-              const fileNameNoPeriod = fileNameSplitByDot.join('.');
-              const parentEntryId = this.state.parentItemId;
-
-              const file: FileParameter = {
-                data: fileData,
-                fileName: fileNameWithExt,
-              };
-              const requestParameters = {
-                repoId,
-                parentEntryId: Number.parseInt(this.state.parentItemId, 10),
-                electronicDocument: file,
-                autoRename: true,
-                fileName: fileNameNoPeriod,
-                request: fieldsmetadata,
-                extension: fileextensionperiod,
-              };
-
-              try {
-                const entryCreateResult: CreateEntryResult =
-                  await this.repoClient.entriesClient.importDocument(
-                    requestParameters
-                  );
-                const result = entryCreateResult.documentLink;
-                const parentId = parseInt(result.split('Entries/')[1]);
-                const entryResult = [];
-                const entry: Entry =
-                  await this.repoClient.entriesClient.getEntry({
-                    repoId,
-                    entryId: parentId,
-                    select:
-                      'name,parentId,creationTime,lastModifiedTime,entryType,templateName,pageCount,extension,id',
-                  });
-                entryResult.push(entry);
-                this.setState({
-                  items: this.state.items.concat(entryResult),
-                });
-                this.setState({ showUploadModal: false });
-              } catch (error) {
-                window.alert('Error uploding file:' + JSON.stringify(error));
-              }
-            } else {
-              this.fieldContainer.current.forceValidation();
-            }
-          } else {
-            $('#fileNameWithBacklash').show();
-          }
-        } else {
-          $('#fileNameValidation').show();
-        }
-      } else {
-        $('#fileSizeValidation').show();
-      }
-    } else {
-      $('#fileValidation').show();
-    }
-  }
-  public getTemplateName() {
-    const templateValue = this.fieldContainer.current.getTemplateValue();
-    if (templateValue) {
-      return templateValue.name;
-    }
-    return undefined;
-  }
-
-  //Set the input file Name
-  public SetImportFileName() {
-    let fileNamee = '';
-    const fileSize = document.getElementById('importFile')['files'][0].size;
-    const filenameLength = document
-      .getElementById('importFile')
-      ['value'].split('\\')
-      .pop()
-      .split('.').length;
-    for (let j = 0; j < filenameLength - 1; j++) {
-      const fileSplitValue = document
-        .getElementById('importFile')
-        ['value'].split('\\')
-        .pop()
-        .split('.')[j];
-      fileNamee += fileSplitValue + '.';
-    }
-    if (fileSize < 100000000) {
-      $('#importFileName').text(
-        document.getElementById('importFile')['value'].split('\\').pop()
-      );
-      //$('#uploadFileID').val(document.getElementById('importFile')["value"].split('\\').pop().split(".")[0]);
-      $('#uploadFileID').val(fileNamee.slice(0, -1));
-      $('#fileValidation').hide();
-      $('#fileSizeValidation').hide();
-      $('#fileNameValidation').hide();
-      $('#fileNameWithBacklash').hide();
-    } else {
-      $('#importFileName').text(
-        document.getElementById('importFile')['value'].split('\\').pop()
-      );
-      //$('#uploadFileID').val(document.getElementById('importFile')["value"].split('\\').pop().split(".")[0]);
-      $('#uploadFileID').val(fileNamee.slice(0, -1));
-      $('#fileSizeValidation').show();
-    }
-  }
-
-  public SetNewFileName = () => {
-    let fileNamee = '';
-    const filenameLength = document
-      .getElementById('importFile')
-      ['value'].split('\\')
-      .pop()
-      .split('.').length;
-    const fileExtension = document
-      .getElementById('importFile')
-      ['value'].split('\\')
-      .pop()
-      .split('.')[filenameLength - 1];
-    for (let k = 0; k < filenameLength - 1; k++) {
-      const fileSplitValue = document
-        .getElementById('importFile')
-        ['value'].split('\\')
-        .pop()
-        .split('.')[k];
-      fileNamee += fileSplitValue + '.';
-    }
-    const importFileName = fileNamee.slice(0, -1);
-    //let importFileName = document.getElementById('importFile')["value"].split('\\').pop().split(".")[0];
-    const fileChangeName = $('#uploadFileID').val();
-    if (importFileName != fileChangeName) {
-      $('#importFileName').text(
-        fileChangeName +
-          '.' +
-          fileExtension /* document.getElementById('importFile')["value"].split('\\').pop().split(".")[1] */
-      );
+      const repoClient = await repoClientCreator.createRepositoryClientAsync();
+      setRepoClient(repoClient);
     }
   };
 
-  isNodeSelectable = (node: LfRepoTreeNode) => {
-    if (node?.entryType == EntryType.Folder || node?.entryType === EntryType.Document) {
-      return true;
-    } else if (
-      (node?.entryType == EntryType.Shortcut &&
-      node?.targetType == EntryType.Folder) ||
-      (node?.entryType == EntryType.Shortcut &&
-        node?.targetType == EntryType.Document)
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  };
-
-  //Open file button functinality to open files/folder in repository from the command bar
-  OpenFileOrFolder = async (
-    checkeditemfolderornot: boolean,
-    checkeditemid: string
-  ) => {
-    const repoId = await this.repoClient.getCurrentRepoId();
-
-    if (checkeditemfolderornot == false) {
-      if (checkeditemid != '0') {
-        // assign the first repoId for now, in production there is only one repository
-        window.open(
-          this.state.webClientUrl +
-            '/DocView.aspx?db=' +
-            repoId +
-            '&docid=' +
-            checkeditemid
-        );
-      } else {
-        this.setState({ showAlertModal: true });
-      }
-    } else {
-      if (checkeditemid != '0') {
-        // assign the first repoId for now, in production there is only one repository
-        window.open(
-          this.state.webClientUrl +
-            '/browse.aspx?repo=' +
-            repoId +
-            '#?id=' +
-            checkeditemid
-        );
-      } else {
-        this.setState({ showAlertModal: true });
-      }
-    }
-  }
-
-  ConfirmAlertButton = () => {
-    this.setState(() => {
-      return { showAlertModal: false };
-    });
-  }
-
-  public render(): React.ReactElement<ILaserficheRepositoryAccessWebPartProps> {
-    return (
-      <div>
-        <div style={{ display: 'none' }}>
-          <SvgHtmlIcons />
-        </div>
-        <div
-          className='container-fluid p-3'
-          style={{ maxWidth: '100%', marginLeft: '-30px' }}
-        >
-          <div className='btnSignOut'>
-            <lf-login
-              redirect_uri={
-                this.props.context.pageContext.web.absoluteUrl +
-                this.props.laserficheRedirectUrl
-              }
-              redirect_behavior='Replace'
-              client_id={clientId}
-              authorize_url_host_name={this.state.region}
-              ref={this.loginComponent}
-            />
-          </div>
-          <div>
-            <main className='bg-white shadow-sm'>
-              <nav className='navbar navbar-dark bg-white flex-md-nowrap'>
-                <a className='navbar-brand pl-0' href='#'>
-                  <img
-                    src={require('./../../../Assets/Images/laserfiche-logo.png')}
-                  />{' '}
-                  {this.props.webPartTitle}
-                </a>
-              </nav>
-              <div className='p-3' id='mainWebpartContent'>
-                <div className='d-flex justify-content-between border p-2 file-option'>
-                  <div>
-                    <a
-                      href='javascript:;'
-                      className='mr-3'
-                      title='Open File'
-                      onClick={() =>
-                        this.OpenFileOrFolder(
-                          this.state.checkeditemfolderornot,
-                          this.state.checkeditemid
-                        )
-                      }
-                    >
-                      <span className='material-icons'>description</span>
-                    </a>
-                    <span>
-                      <a
-                        href='javascript:;'
-                        className='mr-3'
-                        title='Upload File'
-                        onClick={this.OpenImportFileModal}
-                      >
-                        <span className='material-icons'>upload</span>
-                      </a>
-                    </span>
-                    <span>
-                      <a
-                        href='javascript:;'
-                        className='mr-3'
-                        title='Create Folder'
-                        onClick={this.OpenNewFolderModal}
-                      >
-                        <span className='material-icons'>
-                          create_new_folder
-                        </span>
-                      </a>
-                    </span>
-                  </div>
-                  <div>
-                    <div
-                      className='input-group input-group-sm'
-                      style={{ display: 'none' }}
-                    >
-                      <input
-                        type='text'
-                        className='form-control'
-                        placeholder='Search Filename'
-                      />
-                      <div className='input-group-append'>
-                        <button
-                          className='btn btn-secondary '
-                          type='button'
-                          id='button-addon2'
-                        >
-                          <span className='material-icons'>search</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div
-                className='lf-folder-browser-sample-container'
-                style={{ height: '400px' }}
-              >
-                <div className='repository-browser'>
-                  <lf-repository-browser
-                    ref={this.repositoryBrowser}
-                    ok_button_text='Okay'
-                    cancel_button_text='Cancel'
-                    multiple='false'
-                    style={{ height: '420px' }}
-                    isSelectable={this.isNodeSelectable}
-                  />
-                </div>
-              </div>
-            </main>
-          </div>
-        </div>
-        <div
-          className='modal'
-          id='uploadModal'
-          data-backdrop='static'
-          data-keyboard='false'
-          hidden={!this.state.showUploadModal}
-        >
-          <div className='modal-dialog modal-dialog-scrollable modal-lg'>
-            <div className='modal-content' style={{ width: '724px' }}>
-              <div className='modal-header'>
-                <h5 className='modal-title' id='ModalLabel'>
-                  Upload File
-                </h5>
-                <div
-                  className='progress'
-                  style={{
-                    display: this.state.uploadProgressBar ? '' : 'none',
-                    width: '100%',
-                  }}
-                >
-                  <div
-                    className='progress-bar progress-bar-striped active'
-                    style={{
-                      width: this.state.fileUploadPercentage + '%',
-                      backgroundColor: 'orange',
-                    }}
-                  >
-                    Uploading
-                  </div>
-                </div>
-                {/*<button type="button" className="close" data-dismiss="modal" aria-label="Close" onClick={() => this.CloseImportFileModal()}>
-                  <span aria-hidden="true">&times;</span>
-                    </button>*/}
-              </div>
-              <div className='modal-body' style={{ height: '600px' }}>
-                <div className='input-group mb-3'>
-                  <div className='custom-file'>
-                    <input
-                      type='file'
-                      className='custom-file-input'
-                      id='importFile'
-                      onChange={this.SetImportFileName}
-                      aria-describedby='inputGroupFileAddon04'
-                      placeholder='Choose file'
-                    />
-                    <label className='custom-file-label' id='importFileName'>
-                      Choose file
-                    </label>
-                  </div>
-                </div>
-                <div id='fileValidation' style={{ color: 'red' }}>
-                  <span>Please select the file to upload</span>
-                </div>
-                <div id='fileSizeValidation' style={{ color: 'red' }}>
-                  <span>Please select a file below 100MB size</span>
-                </div>
-                <div id='fileNameValidation' style={{ color: 'red' }}>
-                  <span>Please provide proper name of the file</span>
-                </div>
-                <div id='fileNameWithBacklash' style={{ color: 'red' }}>
-                  <span>
-                    Please provide proper name of the file without backslash
-                  </span>
-                </div>
-                <div className='form-group row mb-3'>
-                  <label className='col-sm-2 col-form-label'>Name</label>
-                  <div className='col-sm-10'>
-                    <input
-                      type='text'
-                      className='form-control'
-                      id='uploadFileID'
-                      onChange={this.SetNewFileName}
-                    />
-                  </div>
-                </div>
-                <div className='card'>
-                  <div className='lf-component-container'>
-                    <lf-field-container
-                      collapsible='true'
-                      startCollapsed='true'
-                      ref={this.fieldContainer}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className='modal-footer'>
-                <button
-                  type='button'
-                  className='btn btn-primary btn-sm'
-                  onClick={this.ImportFileToRepository}
-                >
-                  OK
-                </button>
-                <button
-                  type='button'
-                  className='btn btn-secondary btn-sm'
-                  onClick={this.CloseImportFileModal}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          className='modal'
-          id='createModal'
-          data-backdrop='static'
-          data-keyboard='false'
-          hidden={!this.state.showCreateModal}
-        >
-          <div className='modal-dialog'>
-            <div className='modal-content'>
-              <div className='modal-header'>
-                <h5 className='modal-title' id='ModalLabel'>
-                  Create Folder
-                </h5>
-                <button
-                  type='button'
-                  className='close'
-                  data-dismiss='modal'
-                  aria-label='Close'
-                  onClick={this.CloseNewFolderModal}
-                >
-                  <span aria-hidden='true'>&times;</span>
-                </button>
-              </div>
-              <div className='modal-body'>
-                <div className='form-group'>
-                  <label>Folder Name</label>
-                  <input
-                    type='text'
-                    className='form-control'
-                    id='folderName'
-                    placeholder='Name'
-                    ref={(input) => input && input.focus()}
-                  />
-                </div>
-                <div id='folderValidation' style={{ color: 'red' }}>
-                  <span>Please provide folder name</span>
-                </div>
-                <div id='folderNameValidation' style={{ color: 'red' }}>
-                  <span>Invalid Name, only alphanumeric are allowed.</span>
-                </div>
-                <div id='folderExists' style={{ color: 'red' }}>
-                  <span>Object already exists</span>
-                </div>
-              </div>
-              <div className='modal-footer'>
-                <button
-                  type='button'
-                  className='btn btn-primary btn-sm'
-                  data-dismiss='modal'
-                  onClick={() => this.CreateNewFolder($('#folderName').val())}
-                >
-                  Submit
-                </button>
-                <button
-                  type='button'
-                  className='btn btn-secondary btn-sm'
-                  data-dismiss='modal'
-                  onClick={this.CloseNewFolderModal}
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div
-          className='modal'
-          id='AlertModal'
-          data-backdrop='static'
-          data-keyboard='false'
-          hidden={!this.state.showAlertModal}
-        >
-          <div className='modal-dialog'>
-            <div className='modal-content'>
-              <div className='modal-body'>
-                Please select file/folder to open
-              </div>
-              <div className='modal-footer'>
-                <button
-                  type='button'
-                  className='btn btn-primary btn-sm'
-                  data-dismiss='modal'
-                  onClick={this.ConfirmAlertButton}
-                >
-                  OK
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+  return (
+    <div>
+      <div style={{ display: 'none' }}>
+        <SvgHtmlIcons />
       </div>
-    );
-  }
-}
-
-function _copyAndSort<T>(
-  items: T[],
-  columnKey: string,
-  isSortedDescending?: boolean
-): T[] {
-  const key = columnKey as keyof T;
-  return items
-    .slice(0)
-    .sort((a: T, b: T) =>
-      (isSortedDescending ? a[key] < b[key] : a[key] > b[key]) ? 1 : -1
-    );
+      <div
+        className='container-fluid p-3'
+        style={{ maxWidth: '100%', marginLeft: '-30px' }}
+      >
+        <div className='btnSignOut'>
+          <lf-login
+            redirect_uri={redirectPage}
+            redirect_behavior='Replace'
+            client_id={clientId}
+            authorize_url_host_name={region}
+            ref={loginComponent}
+          />
+        </div>
+        <RepositoryViewComponent
+          webClientUrl={webClientUrl}
+          repoClient={repoClient}
+          webPartTitle={props.webPartTitle}
+          loggedIn={loggedIn}
+        ></RepositoryViewComponent>
+      </div>
+    </div>
+  );
 }

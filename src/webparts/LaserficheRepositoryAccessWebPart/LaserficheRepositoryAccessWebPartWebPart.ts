@@ -24,7 +24,7 @@ export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClient
       React.createElement(LaserficheRepositoryAccessWebPart, {
         context: this.context,
         webPartTitle: this.properties.WebPartTitle,
-        laserficheRedirectUrl: this.properties.LaserficheRedirectUrl,
+        laserficheRedirectPage: this.properties.LaserficheRedirectUrl,
         devMode: this.properties.devMode,
       });
 
