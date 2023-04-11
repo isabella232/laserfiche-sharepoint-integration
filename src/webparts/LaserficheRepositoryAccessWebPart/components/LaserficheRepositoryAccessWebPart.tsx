@@ -66,10 +66,10 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   constructor(props: ILaserficheRepositoryAccessWebPartProps) {
     super(props);
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
     );
     this.loginComponent = React.createRef();
     this.fieldContainer = React.createRef();
@@ -108,10 +108,10 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
     );
     this.setState({
       loading: true,
@@ -128,10 +128,6 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       this.logoutCompleted
     );
     this.fieldContainer.current.addEventListener(
-      'templateSelectedChanged',
-      this.onTemplateChange
-    );
-    this.fieldContainer.current.addEventListener(
       'dialogOpened',
       this.onDialogOpened
     );
@@ -144,21 +140,6 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
       $('#mainWebpartContent').show();
     }
     await this.getAndInitializeRepositoryClientAndServicesAsync();
-  }
-
-  //Get Field Values on Selection on template
-  public onTemplateChange = async () => {
-    await this.updateFieldValuesAsync();
-  };
-  public async updateFieldValuesAsync(): Promise<void> {
-    try {
-      // TODO I don't think this is doing anything
-      // const fieldValues =
-      //   await this.lfFieldsService.getAllFieldDefinitionsAsync();
-      // await this.fieldContainer.current.updateFieldValuesAsync(fieldValues);
-    } catch (error) {
-      // TODO handle error
-    }
   }
 
   //lf-login will trigger on click on Sign in to Laserfiche

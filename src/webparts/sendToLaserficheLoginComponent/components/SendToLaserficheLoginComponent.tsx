@@ -76,10 +76,10 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
     );
     this.loginComponent.current.addEventListener(
       'loginCompleted',
