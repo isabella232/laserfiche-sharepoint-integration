@@ -15,13 +15,6 @@ import { LfFieldContainerComponent } from '@laserfiche/types-lf-ui-components';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import { ProfileConfiguration } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 
-SPComponentLoader.loadScript(
-  'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js',
-  {
-    globalExportsName: 'jQuery',
-  }
-);
-
 interface ProfileMappingConfiguration {
   id: string;
   SharePointContentType: string;
@@ -318,24 +311,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                             ) !== -1
                         );
                       //missing Required fields from Library
-                      const requiredFieldsmissing = $(spRequiredfieldsFromAdmin)
-                        .not(requiredFieldsCheckinLibrary)
-                        .get();
-
-                      /* if(requiredFieldsmissing.length!=0){
-                  for(let l=0; l<requiredFieldsmissing.length; l++){
-                    var requiredStaticName=requiredFieldsmissing[l];
-                    for(let f=0; f<fieldDataDisplay.length; f++){
-                      if(fieldDataDisplay[f][requiredStaticName]!=undefined){
-                        missigRequiredFields.push(fieldDataDisplay[f][requiredStaticName]);
-                      }
-                    }
-                  }
-                } */
-
-                      const missingRequiredFieldsNames = [
-                        ...new Set(requiredFieldsmissing),
-                      ];
+                      const requiredFieldsmissing =
+                        spRequiredfieldsFromAdmin.filter(
+                          (requiredMappedField) =>
+                            requiredFieldsCheckinLibrary.findIndex(
+                              (v) => v === requiredMappedField
+                            ) === -1
+                        );
 
                       //getting internal names of required fields present in the library
                       for (const q of requiredFieldsCheckinLibrary /* =0; q<requiredFieldsCheckinLibrary.length; q++ */) {
@@ -655,7 +637,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       } else {
                         document.getElementById('it').innerHTML =
                           'The following SharePoint fields are not available in the library and are mapped to required Laserfiche fields:<br/>&ensp;-' +
-                          missingRequiredFieldsNames.join('<br/>&ensp;-') +
+                          requiredFieldsmissing.join('<br/>&ensp;-') +
                           '<br/><br/>Note:These are the internal names of the SharePoint fields';
                         document.getElementById('imgid').style.display = 'none';
                         //document.getElementById("ref").style.display='block';

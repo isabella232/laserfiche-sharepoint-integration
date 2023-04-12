@@ -6,13 +6,16 @@ import CustomDailog from './SendToLaserficheCustomDialog';
 import { Navigation } from 'spfx-navigation';
 import {
   CreateEntryResult,
-  PostEntryWithEdocMetadataRequest, 
+  PostEntryWithEdocMetadataRequest,
   PutFieldValsRequest,
   FileParameter,
   FieldToUpdate,
   ValueToUpdate,
 } from '@laserfiche/lf-repository-api-client';
-import { LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
+import {
+  LfLoginComponent,
+  LoginState,
+} from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
@@ -33,7 +36,9 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   ISendToLaserficheLoginComponentProps,
   ISendToLaserficheLoginComponentState
 > {
-  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
+  public loginComponent: React.RefObject<
+    NgElement & WithProperties<LfLoginComponent>
+  >;
   public repoClient: IRepositoryApiClientExInternal;
 
   constructor(props: ISendToLaserficheLoginComponentProps) {
@@ -44,15 +49,6 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
     );
-    SPComponentLoader.loadScript(
-      'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js',
-      { globalExportsName: 'jQuery' }
-    ).then((): void => {
-      SPComponentLoader.loadScript(
-        'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js',
-        { globalExportsName: 'jQuery' }
-      );
-    });
     this.loginComponent = React.createRef();
     this.loginComponent = React.createRef();
 
@@ -814,31 +810,28 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     window.open(filelink);
   }
   //
-  public DeleteFile(SiteUrl, Fileurl, Filenamewithext) {
+  public async DeleteFile(SiteUrl, Fileurl, Filenamewithext) {
     const encde = encodeURIComponent(Filenamewithext);
     const fileur = Fileurl.replace(Filenamewithext, encde);
     const fileUrl1 = SiteUrl + fileur;
-    $.ajax({
-      url: fileUrl1,
-      type: 'DELETE',
-      async: false,
+    const init: RequestInit = {
       headers: {
         Accept: 'application/json;odata=verbose',
       },
-      success: () => {
-        window.localStorage.removeItem('LContType');
-        //Perform further activity upon success, like displaying a notification
-        alert('File deleted successfully');
-      },
-      error: () => {
-        window.localStorage.removeItem('LContType');
-        console.log('An error occurred. Please try again.');
-        //Log error and perform further activity upon error/exception
-      },
-    });
+      method: 'DELETE',
+    };
+    const response = await fetch(fileUrl1, init);
+    if (response.ok) {
+      window.localStorage.removeItem('LContType');
+      //Perform further activity upon success, like displaying a notification
+      alert('File deleted successfully');
+    } else {
+      window.localStorage.removeItem('LContType');
+      console.log('An error occurred. Please try again.');
+    }
   }
   //
-  public deletefileandreplace(
+  public async deletefileandreplace(
     SiteUrl,
     Fileurl,
     Filenamewithoutext,
@@ -849,34 +842,29 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     const encde = encodeURIComponent(Filenamewithext);
     const fileur = Fileurl.replace(Filenamewithext, encde);
     const fileUrl1 = SiteUrl + fileur;
-    $.ajax({
-      url: fileUrl1,
-      type: 'DELETE',
-      async: false,
+    const deleteFile = await fetch(fileUrl1, {
+      method: 'DELETE',
       headers: {
         Accept: 'application/json;odata=verbose',
       },
-      success: () => {
-        alert('File replaced with link successfully');
-        this.GetFormDigestValue(
-          SiteUrl,
-          Fileurl,
-          Filenamewithoutext,
-          Filenamewithext,
-          docFilelink,
-          Siteurl
-        );
-        //Perform further activity upon success, like displaying a notification
-      },
-      error: () => {
-        window.localStorage.removeItem('LContType');
-        console.log('An error occurred. Please try again.');
-        //Log error and perform further activity upon error/exception
-      },
     });
+    if (deleteFile.ok) {
+      alert('File replaced with link successfully');
+      this.GetFormDigestValue(
+        SiteUrl,
+        Fileurl,
+        Filenamewithoutext,
+        Filenamewithext,
+        docFilelink,
+        Siteurl
+      );
+    } else {
+      window.localStorage.removeItem('LContType');
+      console.log('An error occurred. Please try again.');
+    }
   }
   //
-  public GetFormDigestValue(
+  public async GetFormDigestValue(
     SiteUrl,
     Fileurl,
     Filenamewithoutext,
@@ -884,32 +872,30 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     docFileLink,
     Siteurl
   ) {
-    $.ajax({
-      url: Siteurl + '/_api/contextinfo',
-      type: 'POST',
-      async: false,
+    const resp = await fetch(Siteurl + '/_api/contextinfo', {
+      method: 'POST',
       headers: { accept: 'application/json;odata=verbose' },
-      success: (data) => {
-        const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
-        //console.log(FormDigestValue);
-        this.postlink(
-          SiteUrl,
-          Fileurl,
-          Filenamewithoutext,
-          Filenamewithext,
-          docFileLink,
-          Siteurl,
-          FormDigestValue
-        );
-      },
-      error: () => {
-        window.localStorage.removeItem('LContType');
-        console.log('Failed');
-      },
     });
+    if (resp.ok) {
+      const data = await resp.json();
+      const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
+      //console.log(FormDigestValue);
+      this.postlink(
+        SiteUrl,
+        Fileurl,
+        Filenamewithoutext,
+        Filenamewithext,
+        docFileLink,
+        Siteurl,
+        FormDigestValue
+      );
+    } else {
+      window.localStorage.removeItem('LContType');
+      console.log('Failed');
+    }
   }
   //
-  public postlink(
+  public async postlink(
     SiteUrl,
     Fileurl,
     Filenamewithoutext,
@@ -924,27 +910,24 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       Siteurl +
       `/_api/web/GetFolderByServerRelativeUrl('${path}')/Files/add(url='${encde1}.url',overwrite=true)`;
 
-    $.ajax({
-      url: AddLinkURL,
-      type: 'POST',
-      data: `[InternetShortcut]\nURL=${docFilelink}`,
-      async: false,
+    const resp = await fetch(AddLinkURL, {
+      method: 'POST',
+      body: `[InternetShortcut]\nURL=${docFilelink}`,
       headers: {
         'content-type': 'text/plain',
         accept: 'application/json;odata=verbose',
         'X-RequestDigest': FormDigestValue,
       },
-      success: (data) => {
-        window.localStorage.removeItem('LContType');
-        console.log('Item Inserted..!!');
-        console.log(data);
-      },
-      error: (data) => {
-        window.localStorage.removeItem('LContType');
-        console.log('API Error');
-        console.log(data);
-      },
     });
+    if (resp.ok) {
+      window.localStorage.removeItem('LContType');
+      console.log('Item Inserted..!!');
+      console.log(await resp.json());
+    } else {
+      window.localStorage.removeItem('LContType');
+      console.log('API Error');
+      console.log(await resp.json());
+    }
   }
   public render(): React.ReactElement {
     return (

@@ -1,10 +1,8 @@
 import * as React from 'react';
-import * as $ from 'jquery';
 import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
   LfLoginComponent,
-  LoginState,
 } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
@@ -16,6 +14,7 @@ import RepositoryViewComponent from './RepositoryViewWebPart';
 require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 require('../../../Assets/CSS/custom.css');
+import './LaserficheRepositoryAccess.scss';
 
 declare global {
   namespace JSX {
@@ -35,7 +34,7 @@ export default function LaserficheRepositoryAccessWebPart(props: {
   const [webClientUrl, setwebClientUrl] = React.useState('');
   let loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
-  > = React.createRef();
+  > = React.useRef();
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
@@ -55,7 +54,6 @@ export default function LaserficheRepositoryAccessWebPart(props: {
           await getAndInitializeRepositoryClientAndServicesAsync();
           setLoggedIn(true);
           const login = loginComponent.current;
-          setwebClientUrl(login?.account_endpoints.webClientUrl);
         };
         const logoutCompleted = async () => {
           setLoggedIn(false);
@@ -74,8 +72,6 @@ export default function LaserficheRepositoryAccessWebPart(props: {
         );
         if (loginComponent.current.authorization_credentials) {
           getAndInitializeRepositoryClientAndServicesAsync().then(() => {
-            const login = loginComponent.current;
-            setwebClientUrl(login?.account_endpoints.webClientUrl);
             setLoggedIn(true);
           });
         }
@@ -95,6 +91,7 @@ export default function LaserficheRepositoryAccessWebPart(props: {
   const getAndInitializeRepositoryClientAndServicesAsync = async () => {
     const accessToken =
       loginComponent?.current?.authorization_credentials?.accessToken;
+    setwebClientUrl(loginComponent?.current?.account_endpoints.webClientUrl);
     if (accessToken) {
       await ensureRepoClientInitializedAsync();
       // need to set repositoryId because multiple repositories are available in development apartment

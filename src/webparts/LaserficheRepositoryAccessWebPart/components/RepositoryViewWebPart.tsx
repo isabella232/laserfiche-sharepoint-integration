@@ -21,8 +21,10 @@ import {
   LfFieldContainerComponent,
   LfRepositoryBrowserComponent,
 } from '@laserfiche/types-lf-ui-components';
+import { PathUtils } from '@laserfiche/lf-js-utils';
 import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
+import { ChangeEvent, createRef } from 'react';
 
 const cols: ColumnDef[] = [
   {
@@ -44,6 +46,16 @@ const cols: ColumnDef[] = [
     defaultWidth: '100px',
   },
 ];
+
+const fileValidation = 'Please select the file to upload';
+const fileSizeValidation = 'Please select a file below 100MB size';
+const fileNameValidation = 'Please provide proper name of the file';
+const fileNameWithBacklash =
+  'Please provide proper name of the file without backslash';
+const folderValidation = 'Please provide folder name';
+const folderNameValidation = 'Invalid Name, only alphanumeric are allowed.';
+const folderExists = 'Object already exists';
+
 export default function RepositoryViewComponent(props: {
   repoClient: IRepositoryApiClientExInternal;
   webPartTitle: string;
@@ -99,7 +111,7 @@ export default function RepositoryViewComponent(props: {
         'templateName',
       ];
       await repoBrowser?.initAsync(lfRepoTreeService, focusedNode);
-      // TODO columns not working right?
+      setParentItem(repoBrowser?.currentFolder as LfRepoTreeNode);
       repoBrowser?.setColumnsToDisplay(cols);
       await repoBrowser?.refreshAsync();
     } else {
@@ -186,7 +198,6 @@ function RepositoryBrowserToolbar(props: {
     if (props.repoClient) {
       initializeFieldContainerAsync();
     }
-    // setwebClientUrl(loginComponent.current.account_endpoints.webClientUrl);
   }, [props.repoClient, props.loggedIn]);
 
   const [uploadProgressBar, setuploadProgressBar] = React.useState(false);
@@ -194,35 +205,34 @@ function RepositoryBrowserToolbar(props: {
   const [showUploadModal, setshowUploadModal] = React.useState(false);
   const [showCreateModal, setshowCreateModal] = React.useState(false);
   const [showAlertModal, setshowAlertModal] = React.useState(false);
+  const [file, setFile] = React.useState<File | undefined>(undefined);
+  const [fileName, setFileName] = React.useState<string | undefined>(undefined);
+  const [folderName, setFolderName] = React.useState('');
+  const [folderNameValidationMessage, setFolderNameValidationMessage] =
+    React.useState<string | undefined>(undefined);
+  const [adhocDialogOpened, setAdhocDialogOpened] =
+    React.useState<boolean>(false);
 
-  //Open New folder Modal Popup
   const OpenNewFolderModal = () => {
-    $('#folderValidation').hide();
-    $('#folderExists').hide();
-    $('#folderNameValidation').hide();
-    $('#folderName').val('');
+    setFolderNameValidationMessage(undefined);
+    setFolderName('');
     setshowCreateModal(true);
   };
-  //Open Import file Modal Popup
+
   const OpenImportFileModal = () => {
-    $('#fileValidation').hide();
-    $('#fileSizeValidation').hide();
-    $('#fileNameValidation').hide();
-    $('#fileNameWithBacklash').hide();
-    $('#importFileName').text('Choose file');
-    $('#importFile').val('');
-    $('#uploadFileID').val('');
+    setFolderNameValidationMessage(undefined);
     setshowUploadModal(true);
-    $('#uploadModal .modal-footer').show();
-    $('.progress').css('display', 'none');
+    setuploadProgressBar(false);
   };
-  //Open file button functinality to open files/folder in repository from the command bar
+
   const OpenFileOrFolder = async () => {
     const repoId = await props.repoClient.getCurrentRepoId();
 
-    if (props.selectedItem && props.selectedItem.entryType !== EntryType.Folder) {
+    if (
+      props.selectedItem &&
+      props.selectedItem.entryType !== EntryType.Folder
+    ) {
       if (props.selectedItem.id) {
-        // assign the first repoId for now, in production there is only one repository
         window.open(
           props.webClientUrl +
             '/DocView.aspx?db=' +
@@ -235,7 +245,6 @@ function RepositoryBrowserToolbar(props: {
       }
     } else {
       if (props.selectedItem?.id) {
-        // assign the first repoId for now, in production there is only one repository
         window.open(
           props.webClientUrl +
             '/browse.aspx?repo=' +
@@ -249,35 +258,33 @@ function RepositoryBrowserToolbar(props: {
     }
   };
   const onDialogOpened = () => {
-    $('div.adhoc-modal').css('height', '450px');
+    setAdhocDialogOpened(true);
   };
+
+  const onDialogClosed = () => {
+    setAdhocDialogOpened(false);
+  };
+
   const initializeFieldContainerAsync = async () => {
     fieldContainer.current.addEventListener('dialogOpened', onDialogOpened);
+    fieldContainer.current.addEventListener('dialogClosed', onDialogClosed);
 
     lfFieldsService = new LfFieldsService(props.repoClient);
     await fieldContainer.current.initAsync(lfFieldsService);
   };
 
-  //Close New folder Modal Popup
   const CloseNewFolderModal = () => {
-    $('#folderValidation').hide();
-    $('#folderExists').hide();
-    $('#folderNameValidation').hide();
-    $('#folderName').val('');
+    setFolderNameValidationMessage(undefined);
+    setFolderName('');
     setshowCreateModal(false);
   };
 
-  //Create New Folder in Repository
-  const CreateNewFolder = async (folderName) => {
-    if ($('#folderName').val() != '') {
+  const CreateNewFolder = async () => {
+    if (folderName) {
       if (/[^ A-Za-z0-9]/.test(folderName)) {
-        $('#folderValidation').hide();
-        $('#folderExists').hide();
-        $('#folderNameValidation').show();
+        setFolderNameValidationMessage(folderNameValidation);
       } else {
-        $('#folderValidation').hide();
-        $('#folderExists').hide();
-        $('#folderNameValidation').hide();
+        setFolderNameValidationMessage(undefined);
 
         const repoId = await props.repoClient.getCurrentRepoId();
         const postEntryChildrenRequest: PostEntryChildrenRequest =
@@ -299,70 +306,36 @@ function RepositoryBrowserToolbar(props: {
 
           array.push(newFolderEntry);
           setshowCreateModal(false);
-          $('#folderName').val('');
+          setFolderName('');
         } catch {
-          $('#folderExists').show();
+          setFolderNameValidationMessage(folderExists);
         }
       }
     } else {
-      $('#folderValidation').show();
+      setFolderNameValidationMessage(folderValidation);
     }
   };
 
-  //Close Import File Modal Popup
   const CloseImportFileModal = () => {
     fieldContainer.current.clearAsync();
-    $('#importFileName').text('Choose file');
-    $('#importFile').val('');
-    $('#uploadFileID').val('');
     setshowUploadModal(false);
-    $('#fileValidation').hide();
-    $('#fileSizeValidation').hide();
-    $('#fileNameValidation').hide();
-    $('#fileNameWithBacklash').hide();
-    $('#uploadModal .modal-footer').show();
+    setFolderNameValidationMessage(undefined);
   };
 
-  //Import file in Repository
   const ImportFileToRepository = async () => {
-    const fileData = document.getElementById('importFile')['files'][0];
-    let renameFileName;
+    const fileData = file;
     const repoId = await props.repoClient.getCurrentRepoId();
-    //Checking file has been uploaded or not
     if (fileData != undefined) {
-      const fileDataSize =
-        document.getElementById('importFile')['files'][0].size;
-      //Checking file size is not exceeding 100mb
+      const fileDataSize = fileData.size;
       if (fileDataSize < 100000000) {
-        //Checking file name is valid or not
-        if (
-          $('#importFileName').text() !=
-          '.' +
-            document
-              .getElementById('importFile')
-              ['value'].split('\\')
-              .pop()
-              .split('.')[1]
-        ) {
-          //Checking if user want to change the uploaded file name
-          if (fileData.name != $('#importFileName').text()) {
-            renameFileName = new File([fileData], $('#importFileName').text());
-          } else {
-            renameFileName = document.getElementById('importFile')['files'][0];
-          }
-          $('#fileValidation').hide();
-          $('#fileSizeValidation').hide();
-          $('#fileNameValidation').hide();
-          $('#fileNameWithBacklash').hide();
-          const fileContainsBacklash = renameFileName.name.includes('\\')
-            ? 'Yes'
-            : 'No';
-          //Checking if filename contains backlash
+        if (fileName) {
+          const extension = PathUtils.getCleanedExtension(fileData.name);
+          const renamedFile = new File([fileData], fileName + extension);
+          setFolderNameValidationMessage(undefined);
+          const fileContainsBacklash = fileName.includes('\\') ? 'Yes' : 'No';
           if (fileContainsBacklash === 'No') {
             const fieldValidation = fieldContainer.current.forceValidation();
-            //Checking field validation
             if (fieldValidation == true) {
-              $('#uploadModal .modal-footer').hide();
               const fieldValues = fieldContainer.current.getFieldValues();
               const formattedFieldValues:
                 | {
@@ -383,9 +356,8 @@ function RepositoryBrowserToolbar(props: {
               if (templateValue != undefined) {
                 templateName = templateValue;
               }
-              $('.progress').css('display', 'block');
 
-              setuploadProgressBar(!uploadProgressBar);
+              setuploadProgressBar(true);
               setfileUploadPercentage(100);
               const fieldsmetadata: PostEntryWithEdocMetadataRequest =
                 new PostEntryWithEdocMetadataRequest({
@@ -394,15 +366,13 @@ function RepositoryBrowserToolbar(props: {
                     fields: formattedFieldValues,
                   }),
                 });
-              //const fileNameSplitByDot = (renameFileName.name as string).split(".");
-              const fileNameWithExt = renameFileName.name as string;
-              const fileNameSplitByDot = fileNameWithExt.split('.');
-              const fileextensionperiod = fileNameSplitByDot.pop();
-              const fileNameNoPeriod = fileNameSplitByDot.join('.');
+              const fileNameWithExt = fileName + extension;
+              const fileextensionperiod = extension;
+              const fileNameNoPeriod = fileName;
               const parentEntryId = props.parentItem.id;
 
               const file: FileParameter = {
-                data: fileData,
+                data: renamedFile,
                 fileName: fileNameWithExt,
               };
               const requestParameters = {
@@ -439,16 +409,16 @@ function RepositoryBrowserToolbar(props: {
               fieldContainer.current.forceValidation();
             }
           } else {
-            $('#fileNameWithBacklash').show();
+            setFolderNameValidationMessage(fileNameWithBacklash);
           }
         } else {
-          $('#fileNameValidation').show();
+          setFolderNameValidationMessage(fileNameValidation);
         }
       } else {
-        $('#fileSizeValidation').show();
+        setFolderNameValidationMessage(fileSizeValidation);
       }
     } else {
-      $('#fileValidation').show();
+      setFolderNameValidationMessage(fileValidation);
     }
   };
   function getTemplateName() {
@@ -460,77 +430,40 @@ function RepositoryBrowserToolbar(props: {
   }
 
   //Set the input file Name
-  function SetImportFileName() {
-    let fileNamee = '';
-    const fileSize = document.getElementById('importFile')['files'][0].size;
-    const filenameLength = document
-      .getElementById('importFile')
-      ['value'].split('\\')
-      .pop()
-      .split('.').length;
-    for (let j = 0; j < filenameLength - 1; j++) {
-      const fileSplitValue = document
-        .getElementById('importFile')
-        ['value'].split('\\')
-        .pop()
-        .split('.')[j];
-      fileNamee += fileSplitValue + '.';
-    }
+  function SetImportFile(e: ChangeEvent<HTMLInputElement>) {
+    const inputFile = e.target.files[0];
+    const filePath = e.target.value;
+    const fileSize = inputFile.size;
+    const newFileName = PathUtils.getLastPathSegment(filePath);
+    const withoutExtension = PathUtils.removeFileExtension(newFileName);
     if (fileSize < 100000000) {
-      $('#importFileName').text(
-        document.getElementById('importFile')['value'].split('\\').pop()
-      );
-      //$('#uploadFileID').val(document.getElementById('importFile')["value"].split('\\').pop().split(".")[0]);
-      $('#uploadFileID').val(fileNamee.slice(0, -1));
-      $('#fileValidation').hide();
-      $('#fileSizeValidation').hide();
-      $('#fileNameValidation').hide();
-      $('#fileNameWithBacklash').hide();
+      setFolderNameValidationMessage(undefined);
+      setFile(inputFile);
+      setFileName(withoutExtension);
     } else {
-      $('#importFileName').text(
-        document.getElementById('importFile')['value'].split('\\').pop()
-      );
-      //$('#uploadFileID').val(document.getElementById('importFile')["value"].split('\\').pop().split(".")[0]);
-      $('#uploadFileID').val(fileNamee.slice(0, -1));
-      $('#fileSizeValidation').show();
+      setFolderNameValidationMessage(fileSizeValidation);
     }
   }
 
-  const SetNewFileName = () => {
-    let fileNamee = '';
-    const filenameLength = document
-      .getElementById('importFile')
-      ['value'].split('\\')
-      .pop()
-      .split('.').length;
-    const fileExtension = document
-      .getElementById('importFile')
-      ['value'].split('\\')
-      .pop()
-      .split('.')[filenameLength - 1];
-    for (let k = 0; k < filenameLength - 1; k++) {
-      const fileSplitValue = document
-        .getElementById('importFile')
-        ['value'].split('\\')
-        .pop()
-        .split('.')[k];
-      fileNamee += fileSplitValue + '.';
-    }
-    const importFileName = fileNamee.slice(0, -1);
-    //let importFileName = document.getElementById('importFile')["value"].split('\\').pop().split(".")[0];
-    const fileChangeName = $('#uploadFileID').val();
-    if (importFileName != fileChangeName) {
-      $('#importFileName').text(
-        fileChangeName +
-          '.' +
-          fileExtension /* document.getElementById('importFile')["value"].split('\\').pop().split(".")[1] */
-      );
-    }
+  const SetNewFileName = (e: ChangeEvent<HTMLInputElement>) => {
+    let newFileName = e.target.value;
+
+    setFileName(newFileName);
   };
 
   const ConfirmAlertButton = () => {
     setshowAlertModal(false);
   };
+
+  function handleFolderNameChange(e: ChangeEvent<HTMLInputElement>) {
+    setFolderName(e.target.value);
+  }
+
+  const validationError = folderNameValidationMessage ? (
+    <div style={{ color: 'red' }}>
+      <span>{folderNameValidationMessage}</span>
+    </div>
+  ) : undefined;
 
   return (
     <>
@@ -582,7 +515,7 @@ function RepositoryBrowserToolbar(props: {
               <div
                 className='progress'
                 style={{
-                  display: uploadProgressBar ? '' : 'none',
+                  display: uploadProgressBar ? 'block' : 'none',
                   width: '100%',
                 }}
               >
@@ -598,35 +531,22 @@ function RepositoryBrowserToolbar(props: {
               </div>
             </div>
             <div className='modal-body' style={{ height: '600px' }}>
-              <div className='input-group mb-3'>
+            <div className='input-group mb-3'>
                 <div className='custom-file'>
                   <input
                     type='file'
                     className='custom-file-input'
                     id='importFile'
-                    onChange={SetImportFileName}
+                    onChange={SetImportFile}
                     aria-describedby='inputGroupFileAddon04'
                     placeholder='Choose file'
                   />
                   <label className='custom-file-label' id='importFileName'>
-                    Choose file
+                    {file?.name ? file.name : 'Choose a file'}
                   </label>
                 </div>
               </div>
-              <div id='fileValidation' style={{ color: 'red' }}>
-                <span>Please select the file to upload</span>
-              </div>
-              <div id='fileSizeValidation' style={{ color: 'red' }}>
-                <span>Please select a file below 100MB size</span>
-              </div>
-              <div id='fileNameValidation' style={{ color: 'red' }}>
-                <span>Please provide proper name of the file</span>
-              </div>
-              <div id='fileNameWithBacklash' style={{ color: 'red' }}>
-                <span>
-                  Please provide proper name of the file without backslash
-                </span>
-              </div>
+                {validationError}
               <div className='form-group row mb-3'>
                 <label className='col-sm-2 col-form-label'>Name</label>
                 <div className='col-sm-10'>
@@ -635,11 +555,16 @@ function RepositoryBrowserToolbar(props: {
                     className='form-control'
                     id='uploadFileID'
                     onChange={SetNewFileName}
+                    value={fileName}
                   />
                 </div>
               </div>
               <div className='card'>
-                <div className='lf-component-container'>
+                <div
+                  className={`lf-component-container${
+                    adhocDialogOpened ? ' lf-adhoc-min-height' : ''
+                  }`}
+                >
                   <lf-field-container
                     collapsible='true'
                     startCollapsed='true'
@@ -698,17 +623,11 @@ function RepositoryBrowserToolbar(props: {
                   className='form-control'
                   id='folderName'
                   placeholder='Name'
-                  ref={(input) => input && input.focus()}
+                  onChange={handleFolderNameChange}
                 />
               </div>
-              <div id='folderValidation' style={{ color: 'red' }}>
-                <span>Please provide folder name</span>
-              </div>
-              <div id='folderNameValidation' style={{ color: 'red' }}>
-                <span>Invalid Name, only alphanumeric are allowed.</span>
-              </div>
-              <div id='folderExists' style={{ color: 'red' }}>
-                <span>Object already exists</span>
+              <div style={{ color: 'red' }}>
+                <span>{folderNameValidationMessage}</span>
               </div>
             </div>
             <div className='modal-footer'>
@@ -716,7 +635,7 @@ function RepositoryBrowserToolbar(props: {
                 type='button'
                 className='btn btn-primary btn-sm'
                 data-dismiss='modal'
-                onClick={() => CreateNewFolder($('#folderName').val())}
+                onClick={CreateNewFolder}
               >
                 Submit
               </button>
