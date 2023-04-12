@@ -1,7 +1,7 @@
 import { BaseDialog, IDialogConfiguration } from '@microsoft/sp-dialog';
 import styles from './SendToLaserficheLoginComponent.module.scss';
 
-export default class CustomDailog extends BaseDialog {
+export default class SendToLaserficheCustomDialog extends BaseDialog {
   public render(): void {
     let html = '';
     html += `<div  class="${styles['maindialog']}">`;
