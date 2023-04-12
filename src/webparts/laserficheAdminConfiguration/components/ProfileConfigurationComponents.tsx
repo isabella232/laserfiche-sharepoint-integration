@@ -155,7 +155,7 @@ export function ConfigurationBody(props: {
           After import
         </label>
         <div className='col-sm-6'>
-          <select onChange={handleActionTypeChange} className='custom-select' id='action'>
+          <select onChange={handleActionTypeChange} defaultValue={props.profileConfig.Action} className='custom-select' id='action'>
             <option value={ActionTypes.COPY}>
               Leave a copy of the file in SharePoint
             </option>
