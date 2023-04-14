@@ -21,6 +21,7 @@ import { RepositoryClientExInternal } from '../../../repository-client/repositor
 import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ActionTypes } from '../../laserficheAdminConfiguration/components/ProfileConfigurationComponents';
+import { TempStorageKeys } from '../../../extensions/savetoLaserfiche/SavetoLaserficheCommandSet';
 
 declare global {
   namespace JSX {
@@ -94,14 +95,14 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       document.getElementById('remve').innerText =
         'You are signed in to Laserfiche';
       document.getElementById('remveHeading').innerText = 'Sign out';
-      if (window.localStorage.getItem('LContType') == null || undefined) {
+      if (window.localStorage.getItem(TempStorageKeys.LContType) == null || undefined) {
         dialog.close();
       }
       this.getAndInitializeRepositoryClientAndServicesAsync().then(() => {
         this.GetFileData().then(async (results) => {
           this.setState({ filedata: results });
-          const DocTemplate = window.localStorage.getItem('DocTemplate');
-          const LContType = window.localStorage.getItem('LContType');
+          const DocTemplate = window.localStorage.getItem(TempStorageKeys.DocTemplate);
+          const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
           if (LContType != 'undefined' && LContType !== null) {
             if (DocTemplate != 'None') {
               this.SendToLaserficheWithMetadata();
@@ -124,14 +125,14 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     document.getElementById('remve').innerText =
       'You are signed in to Laserfiche';
     document.getElementById('remveHeading').innerText = 'Sign out';
-    if (window.localStorage.getItem('LContType') == null || undefined) {
+    if (window.localStorage.getItem(TempStorageKeys.LContType) == null || undefined) {
       dialog.close();
     }
     this.getAndInitializeRepositoryClientAndServicesAsync().then(() => {
       this.GetFileData().then(async (results) => {
         this.setState({ filedata: results });
-        const DocTemplate = window.localStorage.getItem('DocTemplate');
-        const LContType = window.localStorage.getItem('LContType');
+        const DocTemplate = window.localStorage.getItem(TempStorageKeys.DocTemplate);
+        const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
         if (LContType != 'undefined' && LContType !== null) {
           if (DocTemplate != 'None') {
             this.SendToLaserficheWithMetadata();
@@ -179,20 +180,20 @@ export default class SendToLaserficheLoginComponent extends React.Component<
 
   public async SendToLaserficheWithMetadata() {
     dialog.show();
-    const Filenamewithext = window.localStorage.getItem('Filename');
+    const filenameWithExt = window.localStorage.getItem(TempStorageKeys.Filename);
 
-    const fileNameSplitByDot = (Filenamewithext as string).split('.');
+    const fileNameSplitByDot = (filenameWithExt as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
-    const Filenamewithoutext = fileNameSplitByDot.join('.');
-    const Parentid = window.localStorage.getItem('Destinationfolder');
-    const Filemetadata1 = window.localStorage.getItem('Filemetadata');
+    const filenameWithoutExt = fileNameSplitByDot.join('.');
+    const Parentid = window.localStorage.getItem(TempStorageKeys.Destinationfolder);
+    const Filemetadata1 = window.localStorage.getItem(TempStorageKeys.Filemetadata);
     const Filemetadata = JSON.parse(Filemetadata1);
-    const Action = window.localStorage.getItem('Action');
-    const Documentname = window.localStorage.getItem('Documentname');
+    const Action = window.localStorage.getItem(TempStorageKeys.Action);
+    const Documentname = window.localStorage.getItem(TempStorageKeys.Documentname);
     const docfilenamecheck = Documentname.includes('FileName');
-    const Fileurl = window.localStorage.getItem('Fileurl');
-    const Siteurl = window.localStorage.getItem('Siteurl');
-    const SiteUrl = window.localStorage.getItem('SiteUrl');
+    const fileUrl = window.localStorage.getItem(TempStorageKeys.Fileurl);
+    const contextPageAbsoluteUrl = window.localStorage.getItem(TempStorageKeys.ContextPageAbsoluteUrl);
+    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
     const fieldsAlone = Filemetadata['metadata']['fields'];
     const formattedFieldValues:
       | {
@@ -222,13 +223,13 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     const repoId = await this.repoClient.getCurrentRepoId();
     if (Documentname === '') {
       const electronicDocument: FileParameter = {
-        fileName: Filenamewithext,
+        fileName: filenameWithExt,
         data: edocBlob,
       };
       const entryRequest = {
         repoId,
         parentEntryId,
-        fileName: Filenamewithoutext,
+        fileName: filenameWithoutExt,
         autoRename: true,
         electronicDocument,
         request,
@@ -248,17 +249,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         document.getElementById('divid13').onclick = this.viewfile;
         document.getElementById('divid14').onclick = this.Redirect;
         if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
+          this.DeleteFile(pageOrigin, fileUrl, filenameWithExt);
         } else if (Action === ActionTypes.REPLACE) {
           this.deletefileandreplace(
-            SiteUrl,
-            Fileurl,
-            Filenamewithoutext,
-            Filenamewithext,
+            pageOrigin,
+            fileUrl,
+            filenameWithoutExt,
+            filenameWithExt,
             filelink,
-            Siteurl
+            contextPageAbsoluteUrl
           );
         } else {
           // TODO what should happen?
@@ -278,11 +279,11 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').style.display = 'block';
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
           //window.localStorage.clear();
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
           dialog.close();
         }
       }
@@ -314,17 +315,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         document.getElementById('divid13').onclick = this.viewfile;
         document.getElementById('divid14').onclick = this.Redirect;
         if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
+          this.DeleteFile(pageOrigin, fileUrl, filenameWithExt);
         } else if (Action === ActionTypes.REPLACE) {
           this.deletefileandreplace(
-            SiteUrl,
-            Fileurl,
-            Filenamewithoutext,
-            Filenamewithext,
+            pageOrigin,
+            fileUrl,
+            filenameWithoutExt,
+            filenameWithExt,
             filelink,
-            Siteurl
+            contextPageAbsoluteUrl
           );
         } else {
           // TODO what should happen?
@@ -342,17 +343,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').style.display = 'block';
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
           dialog.close();
         }
       }
     } else {
       const DocnameReplacedwithfilename = Documentname.replace(
         'FileName',
-        Filenamewithoutext
+        filenameWithoutExt
       );
 
       const electronicDocument: FileParameter = {
@@ -383,17 +384,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         document.getElementById('divid13').onclick = this.viewfile;
         document.getElementById('divid14').onclick = this.Redirect;
         if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
+          this.DeleteFile(pageOrigin, fileUrl, filenameWithExt);
         } else if (Action === ActionTypes.REPLACE) {
           this.deletefileandreplace(
-            SiteUrl,
-            Fileurl,
-            Filenamewithoutext,
-            Filenamewithext,
+            pageOrigin,
+            fileUrl,
+            filenameWithoutExt,
+            filenameWithExt,
             filelink,
-            Siteurl
+            contextPageAbsoluteUrl
           );
         } else {
           // TODO what to do here
@@ -411,31 +412,31 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').style.display = 'block';
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
           dialog.close();
         }
       }
     }
   }
-  //
+
   public async SendToLaserficheNoTemplate() {
     dialog.show();
-    const Filenamewithext = window.localStorage.getItem('Filename');
+    const Filenamewithext = window.localStorage.getItem(TempStorageKeys.Filename);
 
     const fileNameSplitByDot = (Filenamewithext as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
     const Filenamewithoutext = fileNameSplitByDot.join('.');
 
-    const Parentid = window.localStorage.getItem('Destinationfolder');
-    const Action = window.localStorage.getItem('Action');
-    const Documentname = window.localStorage.getItem('Documentname');
+    const Parentid = window.localStorage.getItem(TempStorageKeys.Destinationfolder);
+    const Action = window.localStorage.getItem(TempStorageKeys.Action);
+    const Documentname = window.localStorage.getItem(TempStorageKeys.Documentname);
     const docfilenamecheck = Documentname.includes('FileName');
-    const Fileurl = window.localStorage.getItem('Fileurl');
-    const Siteurl = window.localStorage.getItem('Siteurl');
-    const SiteUrl = window.localStorage.getItem('SiteUrl');
+    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
+    const contextPageAbsoluteUrl = window.localStorage.getItem(TempStorageKeys.ContextPageAbsoluteUrl);
+    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
 
     const edocBlob: Blob = this.state.filedata as unknown as Blob;
     const parentEntryId = Number(Parentid);
@@ -469,17 +470,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         document.getElementById('divid13').onclick = this.viewfile;
         document.getElementById('divid14').onclick = this.Redirect;
         if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
+          this.DeleteFile(pageOrigin, Fileurl, Filenamewithext);
         } else if (Action === ActionTypes.REPLACE) {
           this.deletefileandreplace(
-            SiteUrl,
+            pageOrigin,
             Fileurl,
             Filenamewithoutext,
             Filenamewithext,
             filelink,
-            Siteurl
+            contextPageAbsoluteUrl
           );
         }
       } catch (error) {
@@ -495,10 +496,10 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').style.display = 'block';
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
           dialog.close();
         }
       }
@@ -531,17 +532,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         document.getElementById('divid13').onclick = this.viewfile;
         document.getElementById('divid14').onclick = this.Redirect;
         if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
+          this.DeleteFile(pageOrigin, Fileurl, Filenamewithext);
         } else if (Action === ActionTypes.REPLACE) {
           this.deletefileandreplace(
-            SiteUrl,
+            pageOrigin,
             Fileurl,
             Filenamewithoutext,
             Filenamewithext,
             filelink,
-            Siteurl
+            contextPageAbsoluteUrl
           );
         } else {
           // TODO
@@ -559,10 +560,10 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').style.display = 'block';
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
           dialog.close();
         }
       }
@@ -600,17 +601,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         document.getElementById('divid13').onclick = this.viewfile;
         document.getElementById('divid14').onclick = this.Redirect;
         if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(SiteUrl, Fileurl, Filenamewithext);
+          this.DeleteFile(pageOrigin, Fileurl, Filenamewithext);
         } else if (Action === ActionTypes.REPLACE) {
           this.deletefileandreplace(
-            SiteUrl,
+            pageOrigin,
             Fileurl,
             Filenamewithoutext,
             Filenamewithext,
             filelink,
-            Siteurl
+            contextPageAbsoluteUrl
           );
         } else {
           // TODO what to do
@@ -628,20 +629,19 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           document.getElementById('divid13').style.display = 'block';
           document.getElementById('divid13').onclick = this.viewfile;
           document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem('LContType');
+          window.localStorage.removeItem(TempStorageKeys.LContType);
           dialog.close();
         }
       }
     }
   }
-  //
+
   public async SendtoLaserficheNoMapping() {
-    //document.getElementById('remvefile').innerText="";
     dialog.show();
-    const Filenamewithext = window.localStorage.getItem('Filename');
+    const Filenamewithext = window.localStorage.getItem(TempStorageKeys.Filename);
 
     const fileNameSplitByDot = (Filenamewithext as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
@@ -678,22 +678,21 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       document.getElementById('divid13').style.display = 'block';
       document.getElementById('divid13').onclick = this.viewfile;
       document.getElementById('divid14').onclick = this.Redirect;
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
     } catch (error) {
       window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
       dialog.close();
     }
   }
-  //
+
   public async GetFileData() {
-    //document.getElementById('remvefile').style.display='block';
-    const Fileurl = window.localStorage.getItem('Fileurl');
-    const SiteUrl = window.localStorage.getItem('SiteUrl');
-    const Filenamewithext2 = window.localStorage.getItem('Filename');
+    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
+    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
+    const Filenamewithext2 = window.localStorage.getItem(TempStorageKeys.Filename);
     const encde = encodeURIComponent(Filenamewithext2);
     const fileur = Fileurl?.replace(Filenamewithext2, encde);
-    const Filedataurl = SiteUrl + fileur;
+    const Filedataurl = pageOrigin + fileur;
     try {
       const res = await fetch(Filedataurl, {
         method: 'GET',
@@ -710,26 +709,28 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       console.log('error occured' + error);
     }
   }
+
   public Redirect() {
-    const Siteurl1 = window.localStorage.getItem('SiteUrl');
-    const Fileurl = window.localStorage.getItem('Fileurl');
-    const Filenamewithext1 = window.localStorage.getItem('Filename');
+    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
+    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
+    const Filenamewithext1 = window.localStorage.getItem(TempStorageKeys.Filename);
     const fileeee = Fileurl.replace(Filenamewithext1, '');
-    const path = Siteurl1 + fileeee;
+    const path = pageOrigin + fileeee;
     Navigation.navigate(path, true);
   }
+
   private Dc() {
     dialog.close();
   }
-  //
+
   private viewfile() {
     window.open(filelink);
   }
-  //
-  public async DeleteFile(SiteUrl, Fileurl, Filenamewithext) {
-    const encde = encodeURIComponent(Filenamewithext);
-    const fileur = Fileurl.replace(Filenamewithext, encde);
-    const fileUrl1 = SiteUrl + fileur;
+
+  public async DeleteFile(pageOrigin: string, fileUrl: string, filenameWithExt: string) {
+    const encde = encodeURIComponent(filenameWithExt);
+    const fileur = fileUrl.replace(filenameWithExt, encde);
+    const fileUrl1 = pageOrigin + fileur;
     const init: RequestInit = {
       headers: {
         Accept: 'application/json;odata=verbose',
@@ -738,26 +739,26 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     };
     const response = await fetch(fileUrl1, init);
     if (response.ok) {
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
       //Perform further activity upon success, like displaying a notification
       alert('File deleted successfully');
     } else {
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
       console.log('An error occurred. Please try again.');
     }
   }
-  //
+
   public async deletefileandreplace(
-    SiteUrl,
-    Fileurl,
-    Filenamewithoutext,
-    Filenamewithext,
-    docFilelink,
-    Siteurl
+    pageOrigin: string,
+    fileUrl: string,
+    filenameWithoutExt: string,
+    filenameWithExt: string,
+    docFilelink: string,
+    contexPageAbsoluteUrl: string
   ) {
-    const encde = encodeURIComponent(Filenamewithext);
-    const fileur = Fileurl.replace(Filenamewithext, encde);
-    const fileUrl1 = SiteUrl + fileur;
+    const encde = encodeURIComponent(filenameWithExt);
+    const fileur = fileUrl.replace(filenameWithExt, encde);
+    const fileUrl1 = pageOrigin + fileur;
     const deleteFile = await fetch(fileUrl1, {
       method: 'DELETE',
       headers: {
@@ -767,63 +768,58 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     if (deleteFile.ok) {
       alert('File replaced with link successfully');
       this.GetFormDigestValue(
-        SiteUrl,
-        Fileurl,
-        Filenamewithoutext,
-        Filenamewithext,
+        fileUrl,
+        filenameWithoutExt,
+        filenameWithExt,
         docFilelink,
-        Siteurl
+        contexPageAbsoluteUrl
       );
     } else {
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
       console.log('An error occurred. Please try again.');
     }
   }
   //
   public async GetFormDigestValue(
-    SiteUrl,
-    Fileurl,
-    Filenamewithoutext,
-    Filenamewithext,
-    docFileLink,
-    Siteurl
+    fileUrl: string,
+    filenameWithoutExt: string,
+    filenameWithExt: string,
+    docFileLink: string,
+    contextPageAbsoluteUrl: string
   ) {
-    const resp = await fetch(Siteurl + '/_api/contextinfo', {
+    const resp = await fetch(contextPageAbsoluteUrl + '/_api/contextinfo', {
       method: 'POST',
       headers: { accept: 'application/json;odata=verbose' },
     });
     if (resp.ok) {
       const data = await resp.json();
       const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
-      //console.log(FormDigestValue);
       this.postlink(
-        SiteUrl,
-        Fileurl,
-        Filenamewithoutext,
-        Filenamewithext,
+        fileUrl,
+        filenameWithoutExt,
+        filenameWithExt,
         docFileLink,
-        Siteurl,
+        contextPageAbsoluteUrl,
         FormDigestValue
       );
     } else {
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
       console.log('Failed');
     }
   }
   //
   public async postlink(
-    SiteUrl,
-    Fileurl,
-    Filenamewithoutext,
-    Filenamewithext,
-    docFilelink,
-    Siteurl,
-    FormDigestValue
+    fileUrl: string,
+    filenameWithoutExt: string,
+    filenameWithExt: string,
+    docFilelink: string,
+    contextPageAbsoluteUrl: string,
+    formDigestValue: string
   ) {
-    const encde1 = encodeURIComponent(Filenamewithoutext);
-    const path = Fileurl.replace(Filenamewithext, '');
+    const encde1 = encodeURIComponent(filenameWithoutExt);
+    const path = fileUrl.replace(filenameWithExt, '');
     const AddLinkURL =
-      Siteurl +
+      contextPageAbsoluteUrl +
       `/_api/web/GetFolderByServerRelativeUrl('${path}')/Files/add(url='${encde1}.url',overwrite=true)`;
 
     const resp = await fetch(AddLinkURL, {
@@ -832,19 +828,20 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       headers: {
         'content-type': 'text/plain',
         accept: 'application/json;odata=verbose',
-        'X-RequestDigest': FormDigestValue,
+        'X-RequestDigest': formDigestValue,
       },
     });
     if (resp.ok) {
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
       console.log('Item Inserted..!!');
       console.log(await resp.json());
     } else {
-      window.localStorage.removeItem('LContType');
+      window.localStorage.removeItem(TempStorageKeys.LContType);
       console.log('API Error');
       console.log(await resp.json());
     }
   }
+
   public render(): React.ReactElement {
     return (
       <div>

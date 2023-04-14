@@ -127,7 +127,7 @@ class CreateConfigurations {
       });
   }
 
-  private static AddItemsInDocumentConfigList(context: WebPartContext, documentlist) {
+  private static AddItemsInDocumentConfigList(context: WebPartContext, documentList: string) {
     const arary = [
       '%(count)',
       '%(date)',
@@ -148,7 +148,7 @@ class CreateConfigurations {
       const restApiUrl: string =
         context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getByTitle('" +
-        documentlist +
+        documentList +
         "')/items";
       const body: string = JSON.stringify({ Title: arary[i] });
       const options: ISPHttpClientOptions = {
@@ -201,7 +201,7 @@ class CreateConfigurations {
       });
   }
 
-  private static async GetFormDigestValue(context, listtitle) {
+  private static async GetFormDigestValue(context: WebPartContext, listTitle: string) {
     try {
       const res = await fetch(
         context.pageContext.web.absoluteUrl + '/_api/contextinfo',
@@ -213,17 +213,17 @@ class CreateConfigurations {
       const contextInfo = await res.json();
       const FormDigestValue =
         contextInfo.GetContextWebInformation.FormDigestValue;
-      this.CreateColumns(context, listtitle, FormDigestValue);
+      this.CreateColumns(context, listTitle, FormDigestValue);
     } catch {
       // TODO handle
     }
   }
 
-  private static async CreateColumns(context: WebPartContext, listtitle, FormDigestValue) {
+  private static async CreateColumns(context: WebPartContext, listTitle: string, formDigestValue: string) {
     const siteUrl: string =
       context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('" +
-      listtitle +
+      listTitle +
       "')/fields";
     try {
       await fetch(siteUrl, {
@@ -236,7 +236,7 @@ class CreateConfigurations {
         headers: {
           accept: 'application/json;odata=verbose',
           'content-type': 'application/json;odata=verbose',
-          'X-RequestDigest': FormDigestValue,
+          'X-RequestDigest': formDigestValue,
         },
       });
       console.log('Fields created');
