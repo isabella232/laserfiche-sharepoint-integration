@@ -5,7 +5,7 @@ import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../Assets/CSS/adminConfig.css');
+require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 export default function ManageConfigurationsPage(

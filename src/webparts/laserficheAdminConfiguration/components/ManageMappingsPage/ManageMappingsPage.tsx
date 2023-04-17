@@ -5,7 +5,7 @@ import { ChangeEvent, useState } from 'react';
 import { IManageMappingsPageProps } from './IManageMappingsPageProps';
 import { IListItem } from '../IListItem';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../Assets/CSS/adminConfig.css');
+require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 const sharepointValidationMapping = 'Please select a content type from the SharePoint Content Type drop down';

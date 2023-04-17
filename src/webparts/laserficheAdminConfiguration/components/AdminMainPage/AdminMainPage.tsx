@@ -10,7 +10,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import { IAdminPageProps } from './IAdminPageProps';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../../../Assets/CSS/adminConfig.css');
+require('../../adminConfig.css');
 
 declare global {
   namespace JSX {
@@ -22,26 +22,9 @@ declare global {
 
 export default function AdminMainPage(props: IAdminPageProps) {
   useEffect(() => {
-    SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    )
-      .then(() => {
-        SPComponentLoader.loadScript(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
-        );
-      })
-      .then(() => {
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
-        );
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
-        );
-
-        CreateConfigurations.CreateAdminConfigList(props.context);
-        CreateConfigurations.CreateDocumentConfigList(props.context);
-      });
-  });
+    CreateConfigurations.CreateAdminConfigList(props.context);
+    CreateConfigurations.CreateDocumentConfigList(props.context);
+  }, []);
 
   const linkData: LinkInfo[] = [
     { route: '/HomePage', name: 'About' },
