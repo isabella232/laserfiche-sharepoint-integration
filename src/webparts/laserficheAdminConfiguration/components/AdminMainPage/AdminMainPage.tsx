@@ -22,26 +22,9 @@ declare global {
 
 export default function AdminMainPage(props: IAdminPageProps) {
   useEffect(() => {
-    SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    )
-      .then(() => {
-        SPComponentLoader.loadScript(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js'
-        );
-      })
-      .then(() => {
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
-        );
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
-        );
-
-        CreateConfigurations.CreateAdminConfigList(props.context);
-        CreateConfigurations.CreateDocumentConfigList(props.context);
-      });
-  });
+    CreateConfigurations.CreateAdminConfigList(props.context);
+    CreateConfigurations.CreateDocumentConfigList(props.context);
+  }, []);
 
   const linkData: LinkInfo[] = [
     { route: '/HomePage', name: 'About' },
@@ -127,7 +110,10 @@ class CreateConfigurations {
       });
   }
 
-  private static AddItemsInDocumentConfigList(context: WebPartContext, documentlist) {
+  private static AddItemsInDocumentConfigList(
+    context: WebPartContext,
+    documentlist
+  ) {
     const arary = [
       '%(count)',
       '%(date)',
@@ -219,7 +205,11 @@ class CreateConfigurations {
     }
   }
 
-  private static async CreateColumns(context: WebPartContext, listtitle, FormDigestValue) {
+  private static async CreateColumns(
+    context: WebPartContext,
+    listtitle,
+    FormDigestValue
+  ) {
     const siteUrl: string =
       context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('" +

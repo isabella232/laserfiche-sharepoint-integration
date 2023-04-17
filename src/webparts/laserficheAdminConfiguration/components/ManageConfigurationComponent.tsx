@@ -4,32 +4,18 @@ import {
   TemplateFieldInfo,
   WTemplateInfo,
 } from '@laserfiche/lf-repository-api-client';
-import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { Spinner, SpinnerSize } from 'office-ui-fabric-react';
 import * as React from 'react';
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
+import { IManageConfigurationProps } from './ManageConfigurationProps';
 import {
   ConfigurationBody,
-  ProfileConfiguration,
   SharePointLaserficheColumnMatching,
   SPProfileConfigurationData,
 } from './ProfileConfigurationComponents';
 
-export default function ManageConfiguration(props: {
-  header?: JSX.Element;
-  extraConfiguration?: JSX.Element;
-  repoClient: IRepositoryApiClientExInternal;
-  loggedIn: boolean;
-  profileConfig: ProfileConfiguration;
-  loadingContent: boolean;
-  createNew: boolean;
-  context: WebPartContext;
-  validate: boolean;
-  handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
-  saveConfiguration: () => Promise<boolean>;
-}) {
+export default function ManageConfiguration(props: IManageConfigurationProps) {
   const [availableLfTemplates, setAvailableLfTemplates] = useState<
     WTemplateInfo[] | undefined
   >([]);
