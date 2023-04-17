@@ -21,7 +21,7 @@ import { RepositoryClientExInternal } from '../../../repository-client/repositor
 import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ActionTypes } from '../../laserficheAdminConfiguration/components/ProfileConfigurationComponents';
-import { TempStorageKeys } from '../../../extensions/savetoLaserfiche/SavetoLaserficheCommandSet';
+import { TempStorageKeys } from '../../../Utils/Enums';
 
 declare global {
   namespace JSX {

@@ -30,30 +30,13 @@ import {
   ValueToUpdate,
   WFieldType,
 } from '@laserfiche/lf-repository-api-client';
+import { TempStorageKeys } from '../../Utils/Enums';
 
 interface ProfileMappingConfiguration {
   id: string;
   SharePointContentType: string;
   LaserficheContentType: string;
   toggle: boolean;
-}
-
-export enum TempStorageKeys {
-  Filename = 'Filename',
-  Documentname = 'Documentname',
-  DocTemplate = 'DocTemplate',
-  Action = 'Action',
-  Fileurl = 'Fileurl',
-  Destinationfolder = 'Destinationfolder',
-  Filedataurl = 'Filedataurl',
-  Fileextension = 'Fileextension',
-  ContextPageAbsoluteUrl = 'ContextPageAbsoluteUrl',
-  PageOrigin = 'PageOrigin',
-  Maping = 'Maping',
-  Filecontenttype = 'Filecontenttype',
-  LContType = 'LContType',
-  configname = 'configname',
-  Filemetadata = 'Filemetadata',
 }
 
 /**
@@ -85,7 +68,8 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     StaticName: string;
   }[] = [];
   allFieldValueStore: object;
-  webpartPage: SpWebPartNames;
+  hasSignInPage: boolean = false;
+  hasAdminPage: boolean = false
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     this.fieldContainer = React.createRef();
@@ -137,11 +121,11 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       );
     } else if (fileSize > 100000000) {
       alert('Please select a file below 100MB size');
-    } else if (this.webpartPage === SpWebPartNames.LaserficheSpSignIn) {
+    } else if (!this.hasSignInPage) {
       alert(
         'Missing "LaserficheSpSignIn" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
       );
-    } else if (this.webpartPage === SpWebPartNames.LaserficheSpAdministration) {
+    } else if (!this.hasAdminPage) {
       alert(
         'Missing "LaserficheSpAdministration" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
       );
@@ -170,14 +154,14 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
           },
         }
       );
-      const resultsrr = await res.json();
-      console.log(resultsrr);
-      for (let o = 0; o < resultsrr.value.length; o++) {
-        const pageName = resultsrr['value'][o]['Title'];
-        if (pageName === 'LaserficheSpSignIn') {
-          this.webpartPage = SpWebPartNames.LaserficheSpSignIn;
-        } else if (pageName === 'LaserficheSpAdministration') {
-          this.webpartPage = SpWebPartNames.LaserficheSpAdministration;
+      const sitePages = await res.json();
+      console.log(sitePages);
+      for (let o = 0; o < sitePages.value.length; o++) {
+        const pageName = sitePages['value'][o]['Title'];
+        if (pageName ===  SpWebPartNames.LaserficheSpSignIn) {
+          this.hasSignInPage = true;
+        } else if (pageName === SpWebPartNames.LaserficheSpAdministration) {
+          this.hasAdminPage = true;
         }
       }
     } catch (error) {
