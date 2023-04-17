@@ -33,10 +33,11 @@ import {
   LfRepoTreeNodeService,
   LfFieldsService,
 } from '@laserfiche/lf-ui-components-services';
-import { LoginState } from '@laserfiche/types-lf-ui-components';
+import { LfFieldContainerComponent, LfLoginComponent, LoginState } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
+import { NgElement, WithProperties } from '@angular/elements';
 require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 require('../../../Assets/CSS/custom.css');
@@ -59,8 +60,8 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   ILaserficheRepositoryAccessWebPartProps,
   ILaserficheRepositoryAccessWebPartState
 > {
-  public loginComponent: React.RefObject<any>;
-  public fieldContainer: React.RefObject<any>;
+  public loginComponent: React.RefObject<NgElement & WithProperties<LfLoginComponent>>;
+  public fieldContainer: React.RefObject<NgElement & WithProperties<LfFieldContainerComponent>>;
   public repoClient: IRepositoryApiClientExInternal;
   public lfRepoTreeService: LfRepoTreeNodeService;
   public lfFieldsService: LfFieldsService;
@@ -568,9 +569,10 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   };
   public async updateFieldValuesAsync(): Promise<void> {
     try {
-      const fieldValues =
-        await this.lfFieldsService.getAllFieldDefinitionsAsync();
-      await this.fieldContainer.current.updateFieldValuesAsync(fieldValues);
+      // TODO I don't think this is doing anything
+      // const fieldValues =
+      //   await this.lfFieldsService.getAllFieldDefinitionsAsync();
+      // await this.fieldContainer.current.updateFieldValuesAsync(fieldValues);
     } catch (error) {
       // TODO handle error
     }
@@ -613,9 +615,7 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
 
   public async ensureRepoClientInitializedAsync(): Promise<void> {
     if (!this.repoClient) {
-      const repoClientCreator = new RepositoryClientExInternal(
-        this.loginComponent
-      );
+      const repoClientCreator = new RepositoryClientExInternal();
       this.repoClient = await repoClientCreator.createRepositoryClientAsync();
     }
   }
@@ -792,8 +792,8 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
           $('#importFileName').text() !=
           '.' +
             document
-              .getElementById('importFile')
-              ['value'].split('\\')
+              .getElementById('importFile')['value']
+              .split('\\')
               .pop()
               .split('.')[1]
         ) {
@@ -923,14 +923,14 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
     let fileNamee = '';
     const fileSize = document.getElementById('importFile')['files'][0].size;
     const filenameLength = document
-      .getElementById('importFile')
-      ['value'].split('\\')
+      .getElementById('importFile')['value']
+      .split('\\')
       .pop()
       .split('.').length;
     for (let j = 0; j < filenameLength - 1; j++) {
       const fileSplitValue = document
-        .getElementById('importFile')
-        ['value'].split('\\')
+        .getElementById('importFile')['value']
+        .split('\\')
         .pop()
         .split('.')[j];
       fileNamee += fileSplitValue + '.';
@@ -958,19 +958,19 @@ export default class LaserficheRepositoryAccessWebPart extends React.Component<
   public SetNewFileName = () => () => {
     let fileNamee = '';
     const filenameLength = document
-      .getElementById('importFile')
-      ['value'].split('\\')
+      .getElementById('importFile')['value']
+      .split('\\')
       .pop()
       .split('.').length;
     const fileExtension = document
-      .getElementById('importFile')
-      ['value'].split('\\')
+      .getElementById('importFile')['value']
+      .split('\\')
       .pop()
       .split('.')[filenameLength - 1];
     for (let k = 0; k < filenameLength - 1; k++) {
       const fileSplitValue = document
-        .getElementById('importFile')
-        ['value'].split('\\')
+        .getElementById('importFile')['value']
+        .split('\\')
         .pop()
         .split('.')[k];
       fileNamee += fileSplitValue + '.';

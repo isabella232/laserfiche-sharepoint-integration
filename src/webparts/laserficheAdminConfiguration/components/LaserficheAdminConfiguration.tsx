@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import { ILaserficheAdminConfigurationProps } from './ILaserficheAdminConfigurationProps';
 import { HashRouter, Route, Switch } from 'react-router-dom';
 import { Stack, StackItem } from 'office-ui-fabric-react';
@@ -8,70 +9,157 @@ import ManageConfigurationsPage from './ManageConfigurationsPage/ManageConfigura
 import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
+import { clientId } from '../../constants';
+import { NgElement, WithProperties } from '@angular/elements';
+import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
+import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
+import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
+import { SPComponentLoader } from '@microsoft/sp-loader';
 
-export default class LaserficheAdminConfiguration extends React.Component<ILaserficheAdminConfigurationProps> {
-  constructor(props: ILaserficheAdminConfigurationProps) {
-    super(props);
+export default function LaserficheAdminConfiguration(
+  props: ILaserficheAdminConfigurationProps
+) {
+  const loginComponent: React.RefObject<
+    NgElement & WithProperties<LfLoginComponent>
+  > = React.createRef();
+  const [loggedIn, setLoggedIn] = useState<boolean>(false);
+  const [repoClient, setRepoClient] = useState<
+    IRepositoryApiClientExInternal | undefined
+  >(undefined);
+  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  const redirectPage =
+    props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
+
+  React.useEffect(() => {
+    SPComponentLoader.loadScript(
+      'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+    ).then(() => {
+      SPComponentLoader.loadScript(
+        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ui-components.js'
+      ).then(() => {
+        const loginCompleted = async () => {
+          await getAndInitializeRepositoryClientAndServicesAsync();
+          setLoggedIn(true);
+        };
+        const logoutCompleted = async () => {
+          setLoggedIn(false);
+          window.location.href =
+            props.context.pageContext.web.absoluteUrl +
+            props.laserficheRedirectPage;
+        };
+
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompleted
+        );
+        loginComponent.current.addEventListener(
+          'logoutCompleted',
+          logoutCompleted
+        );
+        if (loginComponent.current.authorization_credentials) {
+          getAndInitializeRepositoryClientAndServicesAsync().then(() => {
+            setLoggedIn(true);
+          });
+        }
+      });
+    });
+  }, []);
+
+  SPComponentLoader.loadCss(
+    'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/indigo-pink.css'
+  );
+  SPComponentLoader.loadCss(
+    'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@13/cdn/lf-ms-office-lite.css'
+  );
+
+  async function getAndInitializeRepositoryClientAndServicesAsync() {
+    const accessToken =
+      loginComponent?.current?.authorization_credentials?.accessToken;
+    if (accessToken) {
+      await ensureRepoClientInitializedAsync();
+    } else {
+      // user is not logged in
+    }
   }
-  public render(): React.ReactElement<ILaserficheAdminConfigurationProps> {
-    return (
-      <HashRouter>
-        <Stack>
-          <AdminMainPage
-            context={this.props.context}
-            webPartTitle={this.props.webPartTitle}
-            laserficheRedirectPage={this.props.laserficheRedirectPage}
-            devMode={this.props.devMode}
+
+  async function ensureRepoClientInitializedAsync(): Promise<void> {
+    if (!repoClient) {
+      const repoClientCreator = new RepositoryClientExInternal();
+      const newRepoClient =
+        await repoClientCreator.createRepositoryClientAsync();
+      setRepoClient(newRepoClient);
+    }
+  }
+
+  return (
+    <HashRouter>
+      <Stack>
+        <div className='btnSignOut'>
+          <lf-login
+            redirect_uri={redirectPage}
+            authorize_url_host_name={region}
+            redirect_behavior='Replace'
+            client_id={clientId}
+            ref={loginComponent}
           />
-          <StackItem>
-            <Switch>
-              <Route
-                exact={true}
-                component={() => <HomePage />}
-                path='/HomePage'
-              />
-              <Route exact={true} component={() => <HomePage />} path='/' />
-              <Route
-                exact={true}
-                component={() => (
-                  <ManageConfigurationsPage context={this.props.context} />
-                )}
-                path='/ManageConfigurationsPage'
-              />
-              <Route
-                exact={true}
-                component={() => (
-                  <ManageMappingsPage context={this.props.context} />
-                )}
-                path='/ManageMappingsPage'
-              />
-              <Route
-                exact={true}
-                component={() => (
-                  <AddNewManageConfiguration
-                    context={this.props.context}
-                    laserficheRedirectPage={this.props.laserficheRedirectPage}
-                    devMode={this.props.devMode}
-                  />
-                )}
-                path='/AddNewManageConfiguration'
-              />
-              <Route
-                exact={true}
-                render={(props) => (
-                  <EditManageConfiguration
-                    {...props}
-                    context={this.props.context}
-                    laserficheRedirectPage={this.props.laserficheRedirectPage}
-                    devMode={this.props.devMode}
-                  />
-                )}
-                path='/EditManageConfiguration/:name'
-              />
-            </Switch>
-          </StackItem>
-        </Stack>
-      </HashRouter>
-    );
-  }
+        </div>
+        <AdminMainPage
+          context={props.context}
+          webPartTitle={props.webPartTitle}
+          loggedIn={loggedIn}
+          repoClient={repoClient}
+        />
+        <StackItem>
+          <Switch>
+            <Route
+              exact={true}
+              component={() => <HomePage />}
+              path='/HomePage'
+            />
+            <Route exact={true} component={() => <HomePage />} path='/' />
+            <Route
+              exact={true}
+              component={() => (
+                <ManageConfigurationsPage context={props.context} />
+              )}
+              path='/ManageConfigurationsPage'
+            />
+            <Route
+              exact={true}
+              component={() => <ManageMappingsPage
+                context={props.context}
+                isLoggedIn={loggedIn}
+                repoClient={repoClient}
+              />}
+              path='/ManageMappingsPage'
+            />
+            <Route
+              exact={true}
+              component={() => (
+                <AddNewManageConfiguration
+                  context={props.context}
+                  loggedIn={loggedIn}
+                  repoClient={repoClient}
+                />
+              )}
+              path='/AddNewManageConfiguration'
+            />
+            <Route
+              exact={true}
+              render={(properties) => (
+                <EditManageConfiguration
+                  {...properties}
+                  context={props.context}
+                  laserficheRedirectPage={props.laserficheRedirectPage}
+                  loggedIn={loggedIn}
+                  repoClient={repoClient}
+                />
+              )}
+              path='/EditManageConfiguration/:name'
+            />
+          </Switch>
+        </StackItem>
+      </Stack>
+    </HashRouter>
+  );
 }

@@ -4,11 +4,13 @@ import {
   RepositoryApiClient,
 } from '@laserfiche/lf-repository-api-client';
 import { IRepositoryApiClientExInternal } from './repository-client-types';
+import { NgElement, WithProperties } from '@angular/elements';
+import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 
 export class RepositoryClientExInternal {
   public repoClient: IRepositoryApiClientExInternal;
 
-  constructor(private loginRef: React.RefObject<any>) {}
+  constructor() {}
 
   public addAuthorizationHeader(
     request: RequestInit,
@@ -25,12 +27,13 @@ export class RepositoryClientExInternal {
     request: RequestInit
   ) => {
     // TODO trigger authorization flow if no accessToken
-    const accessToken =
-      this.loginRef.current?.authorization_credentials?.accessToken;
+    const lfLogin = document.querySelector('lf-login') as NgElement &
+      WithProperties<LfLoginComponent>;
+    const accessToken = lfLogin.authorization_credentials?.accessToken;
     if (accessToken) {
       this.addAuthorizationHeader(request, accessToken);
       return {
-        regionalDomain: this.loginRef.current.account_endpoints.regionalDomain,
+        regionalDomain: lfLogin.account_endpoints.regionalDomain,
       }; // update this if you are using a different region
     } else {
       throw new Error('No access token');
@@ -43,10 +46,11 @@ export class RepositoryClientExInternal {
     request: RequestInit
   ) => {
     if (response.status === 401) {
-      const refresh = await this.loginRef.current?.refreshTokenAsync(true);
+      const lfLogin = document.querySelector('lf-login') as NgElement &
+        WithProperties<LfLoginComponent>;
+      const refresh = await lfLogin?.refreshTokenAsync(true);
       if (refresh) {
-        const accessToken =
-          this.loginRef.current?.authorization_credentials?.accessToken;
+        const accessToken = lfLogin?.authorization_credentials?.accessToken;
         this.addAuthorizationHeader(request, accessToken);
         return true;
       } else {

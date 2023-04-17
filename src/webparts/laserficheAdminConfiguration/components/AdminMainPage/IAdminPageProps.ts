@@ -1,8 +1,9 @@
 import { WebPartContext } from '@microsoft/sp-webpart-base';
+import { IRepositoryApiClientExInternal } from '../../../../repository-client/repository-client-types';
 
 export interface IAdminPageProps {
   context: WebPartContext;
   webPartTitle: string;
-  laserficheRedirectPage: string;
-  devMode: boolean;
+  loggedIn: boolean;
+  repoClient: IRepositoryApiClientExInternal;
 }
