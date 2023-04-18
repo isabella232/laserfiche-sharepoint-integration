@@ -64,7 +64,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
     );
     await SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14.1.1--preview-4721737901/cdn/lf-ui-components.js'
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
     );
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
