@@ -262,12 +262,14 @@ function RepositoryBrowserToolbar(props: {
         data-keyboard='false'
         hidden={!showUploadModal}
       >
-        <ImportFileModal
-          repoClient={props.repoClient}
-          loggedIn={props.loggedIn}
-          parentItem={props.parentItem}
-          closeImportModal={() => setShowUploadModal(false)}
-        />
+        {showUploadModal && (
+          <ImportFileModal
+            repoClient={props.repoClient}
+            loggedIn={props.loggedIn}
+            parentItem={props.parentItem}
+            closeImportModal={() => setShowUploadModal(false)}
+          />
+        )}
       </div>
       <div
         className='modal'
@@ -320,7 +322,7 @@ function ImportFileModal(props: {
   > = React.useRef();
   let lfFieldsService: LfFieldsService;
 
-  const [folderNameValidationMessage, setFolderNameValidationMessage] =
+  const [importFileValidationMessage, setImportFileValidationMessage] =
     React.useState<string | undefined>(undefined);
   const [fileUploadPercentage, setFileUploadPercentage] = React.useState(0);
   const [file, setFile] = React.useState<File | undefined>(undefined);
@@ -343,10 +345,7 @@ function ImportFileModal(props: {
   };
 
   const CloseImportFileModal = () => {
-    fieldContainer.current.clearAsync();
     props.closeImportModal();
-    // clear file, etc.?
-    setFolderNameValidationMessage(undefined);
   };
 
   const onDialogOpened = () => {
@@ -361,99 +360,85 @@ function ImportFileModal(props: {
     const fileData = file;
     const repoId = await props.repoClient.getCurrentRepoId();
     setFileUploadPercentage(5);
-    if (fileData != undefined) {
-      const fileDataSize = fileData.size;
-      if (fileDataSize < 100000000) {
-        if (fileName) {
-          const extension = PathUtils.getCleanedExtension(fileData.name);
-          const renamedFile = new File([fileData], fileName + extension);
-          setFolderNameValidationMessage(undefined);
-          const fileContainsBacklash = fileName.includes('\\') ? 'Yes' : 'No';
-          if (fileContainsBacklash === 'No') {
-            const fieldValidation = fieldContainer.current.forceValidation();
-            if (fieldValidation == true) {
-              const fieldValues = fieldContainer.current.getFieldValues();
-              const formattedFieldValues:
-                | {
-                    [key: string]: FieldToUpdate;
-                  }
-                | undefined = {};
-
-              for (const key in fieldValues) {
-                const value = fieldValues[key];
-                formattedFieldValues[key] = new FieldToUpdate({
-                  ...value,
-                  values: value.values.map((val) => new ValueToUpdate(val)),
-                });
-              }
-
-              const templateValue = getTemplateName();
-              let templateName;
-              if (templateValue != undefined) {
-                templateName = templateValue;
-              }
-
-              setFileUploadPercentage(100);
-              const fieldsmetadata: PostEntryWithEdocMetadataRequest =
-                new PostEntryWithEdocMetadataRequest({
-                  template: templateName,
-                  metadata: new PutFieldValsRequest({
-                    fields: formattedFieldValues,
-                  }),
-                });
-              const fileNameWithExt = fileName + extension;
-              const fileextensionperiod = extension;
-              const fileNameNoPeriod = fileName;
-              const parentEntryId = props.parentItem.id;
-
-              const file: FileParameter = {
-                data: renamedFile,
-                fileName: fileNameWithExt,
-              };
-              const requestParameters = {
-                repoId,
-                parentEntryId: Number.parseInt(parentEntryId, 10),
-                electronicDocument: file,
-                autoRename: true,
-                fileName: fileNameNoPeriod,
-                request: fieldsmetadata,
-                extension: fileextensionperiod,
-              };
-
-              try {
-                const entryCreateResult: CreateEntryResult =
-                  await props.repoClient.entriesClient.importDocument(
-                    requestParameters
-                  );
-                const result = entryCreateResult.documentLink;
-                const parentId = parseInt(result.split('Entries/')[1]);
-                const entryResult = [];
-                const entry: Entry =
-                  await props.repoClient.entriesClient.getEntry({
-                    repoId,
-                    entryId: parentId,
-                    select:
-                      'name,parentId,creationTime,lastModifiedTime,entryType,templateName,pageCount,extension,id',
-                  });
-                entryResult.push(entry);
-                props.closeImportModal();
-              } catch (error) {
-                window.alert('Error uploding file:' + JSON.stringify(error));
-              }
-            } else {
-              fieldContainer.current.forceValidation();
-            }
-          } else {
-            setFolderNameValidationMessage(fileNameWithBacklash);
+    setImportFileValidationMessage(undefined);
+    if (!fileData) {
+      setImportFileValidationMessage(fileValidation);
+      return;
+    }
+    const fileDataSize = fileData.size;
+    if (fileDataSize > 100000000) {
+      setImportFileValidationMessage(fileSizeValidation);
+      return;
+    }
+    if (!fileName) {
+      setImportFileValidationMessage(fileNameValidation);
+      return;
+    }
+    const extension = PathUtils.getCleanedExtension(fileData.name);
+    const renamedFile = new File([fileData], fileName + extension);
+    const fileContainsBacklash = fileName.includes('\\') ? 'Yes' : 'No';
+    if (fileContainsBacklash) {
+      setImportFileValidationMessage(fileNameWithBacklash);
+      return;
+    }
+    const fieldValidation = fieldContainer.current.forceValidation();
+    if (fieldValidation == true) {
+      const fieldValues = fieldContainer.current.getFieldValues();
+      const formattedFieldValues:
+        | {
+            [key: string]: FieldToUpdate;
           }
-        } else {
-          setFolderNameValidationMessage(fileNameValidation);
-        }
-      } else {
-        setFolderNameValidationMessage(fileSizeValidation);
+        | undefined = {};
+
+      for (const key in fieldValues) {
+        const value = fieldValues[key];
+        formattedFieldValues[key] = new FieldToUpdate({
+          ...value,
+          values: value.values.map((val) => new ValueToUpdate(val)),
+        });
+      }
+
+      const templateValue = getTemplateName();
+      let templateName;
+      if (templateValue != undefined) {
+        templateName = templateValue;
+      }
+
+      setFileUploadPercentage(100);
+      const fieldsmetadata: PostEntryWithEdocMetadataRequest =
+        new PostEntryWithEdocMetadataRequest({
+          template: templateName,
+          metadata: new PutFieldValsRequest({
+            fields: formattedFieldValues,
+          }),
+        });
+      const fileNameWithExt = fileName + extension;
+      const fileextensionperiod = extension;
+      const fileNameNoPeriod = fileName;
+      const parentEntryId = props.parentItem.id;
+
+      const file: FileParameter = {
+        data: renamedFile,
+        fileName: fileNameWithExt,
+      };
+      const requestParameters = {
+        repoId,
+        parentEntryId: Number.parseInt(parentEntryId, 10),
+        electronicDocument: file,
+        autoRename: true,
+        fileName: fileNameNoPeriod,
+        request: fieldsmetadata,
+        extension: fileextensionperiod,
+      };
+
+      try {
+        await props.repoClient.entriesClient.importDocument(requestParameters);
+        props.closeImportModal();
+      } catch (error) {
+        window.alert('Error uploding file:' + JSON.stringify(error));
       }
     } else {
-      setFolderNameValidationMessage(fileValidation);
+      fieldContainer.current.forceValidation();
     }
   };
 
@@ -465,7 +450,6 @@ function ImportFileModal(props: {
     return undefined;
   }
 
-  //Set the input file Name
   function SetImportFile(e: ChangeEvent<HTMLInputElement>) {
     const inputFile = e.target.files[0];
     const filePath = e.target.value;
@@ -473,11 +457,11 @@ function ImportFileModal(props: {
     const newFileName = PathUtils.getLastPathSegment(filePath);
     const withoutExtension = PathUtils.removeFileExtension(newFileName);
     if (fileSize < 100000000) {
-      setFolderNameValidationMessage(undefined);
+      setImportFileValidationMessage(undefined);
       setFile(inputFile);
       setFileName(withoutExtension);
     } else {
-      setFolderNameValidationMessage(fileSizeValidation);
+      setImportFileValidationMessage(fileSizeValidation);
     }
   }
 
@@ -487,9 +471,9 @@ function ImportFileModal(props: {
     setFileName(newFileName);
   };
 
-  const validationError = folderNameValidationMessage ? (
+  const validationError = importFileValidationMessage ? (
     <div style={{ color: 'red' }}>
-      <span>{folderNameValidationMessage}</span>
+      <span>{importFileValidationMessage}</span>
     </div>
   ) : undefined;
   return (

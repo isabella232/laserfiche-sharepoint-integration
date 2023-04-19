@@ -13,6 +13,7 @@ require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 require('../../../Assets/CSS/custom.css');
 import './LaserficheRepositoryAccess.scss';
+import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 
 declare global {
   namespace JSX {
@@ -23,12 +24,7 @@ declare global {
   }
 }
 
-export default function LaserficheRepositoryAccessWebPart(props: {
-  context: WebPartContext;
-  devMode: boolean;
-  webPartTitle: string;
-  laserficheRedirectPage: string;
-}) {
+export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepositoryAccessWebPartProps) {
   const [webClientUrl, setWebClientUrl] = React.useState('');
   let loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
