@@ -21,7 +21,7 @@ import {
   LfFieldContainerComponent,
   LfRepositoryBrowserComponent,
 } from '@laserfiche/types-lf-ui-components';
-import { PathUtils } from '@laserfiche/lf-js-utils';
+import { PathUtils, UrlUtils } from '@laserfiche/lf-js-utils';
 import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { ChangeEvent, createRef } from 'react';
@@ -205,33 +205,16 @@ function RepositoryBrowserToolbar(props: {
   const OpenFileOrFolder = async () => {
     const repoId = await props.repoClient.getCurrentRepoId();
 
-    if (
-      props.selectedItem &&
-      props.selectedItem.entryType !== EntryType.Folder
-    ) {
-      if (props.selectedItem.id) {
-        window.open(
-          props.webClientUrl +
-            '/DocView.aspx?db=' +
-            repoId +
-            '&docid=' +
-            props.selectedItem.id
-        );
-      } else {
-        setShowAlertModal(true);
-      }
+    if (props.selectedItem?.id) {
+      const webClientNodeUrl = getEntryWebAccessUrl(
+        props.selectedItem.id,
+        repoId,
+        props.webClientUrl,
+        props.selectedItem.isContainer
+      );
+      window.open(webClientNodeUrl);
     } else {
-      if (props.selectedItem?.id) {
-        window.open(
-          props.webClientUrl +
-            '/browse.aspx?repo=' +
-            repoId +
-            '#?id=' +
-            props.selectedItem.id
-        );
-      } else {
-        setShowAlertModal(true);
-      }
+      setShowAlertModal(true);
     }
   };
   const ConfirmAlertButton = () => {
@@ -602,7 +585,7 @@ function ImportFileModal(props: {
 function CreateFolderModal(props: {
   repoClient: IRepositoryApiClientExInternal;
   closeCreateFolderModal: () => void;
-  parentItem: LfRepoTreeNode
+  parentItem: LfRepoTreeNode;
 }) {
   const [folderName, setFolderName] = React.useState('');
   const [
@@ -710,4 +693,28 @@ function CreateFolderModal(props: {
       </div>
     </div>
   );
+}
+
+function getEntryWebAccessUrl(
+  nodeId: string,
+  repoId: string,
+  waUrl: string,
+  isContainer: boolean
+): string | undefined {
+  if (nodeId?.length === 0 || repoId?.length === 0 || waUrl?.length === 0) {
+    return undefined;
+  }
+  let newUrl: string = '';
+  if (isContainer) {
+    const queryParams: UrlUtils.QueryParameter[] = [['repo', repoId]];
+    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', queryParams);
+    newUrl += `#?id=${encodeURIComponent(nodeId)}`;
+  } else {
+    const queryParams: UrlUtils.QueryParameter[] = [
+      ['repo', repoId],
+      ['docid', nodeId],
+    ];
+    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
+  }
+  return newUrl;
 }
