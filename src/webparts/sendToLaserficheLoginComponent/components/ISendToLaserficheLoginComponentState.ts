@@ -6,4 +6,5 @@ export interface ISendToLaserficheLoginComponentState {
   filelink: string;
   baseurl: string;
   region: string;
+  webClientUrl: string;
 }

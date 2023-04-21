@@ -22,6 +22,7 @@ import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ActionTypes } from '../../laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 import { TempStorageKeys } from '../../../Utils/Enums';
+import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 
 declare global {
   namespace JSX {
@@ -57,6 +58,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       region: this.props.devMode
         ? 'a.clouddev.laserfiche.com'
         : 'laserfiche.com',
+      webClientUrl: '',
     };
   }
   public async componentDidMount(): Promise<void> {
@@ -85,18 +87,21 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       this.loginComponent.current.state === LoginState.LoggedOut;
 
     if (!loggedOut) {
-      dialog.show();
       document.getElementById('remve').innerText =
         'You are signed in to Laserfiche';
       document.getElementById('remveHeading').innerText = 'Sign out';
-      if (window.localStorage.getItem(TempStorageKeys.LContType) == null || undefined) {
-        dialog.close();
+      if (window.localStorage.getItem(TempStorageKeys.LContType)) {
+        dialog.show();
       }
       this.getAndInitializeRepositoryClientAndServicesAsync().then(() => {
         this.GetFileData().then(async (results) => {
           this.setState({ filedata: results });
-          const DocTemplate = window.localStorage.getItem(TempStorageKeys.DocTemplate);
-          const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
+          const DocTemplate = window.localStorage.getItem(
+            TempStorageKeys.DocTemplate
+          );
+          const LContType = window.localStorage.getItem(
+            TempStorageKeys.LContType
+          );
           if (LContType != 'undefined' && LContType !== null) {
             if (DocTemplate != 'None') {
               this.SendToLaserficheWithMetadata();
@@ -106,7 +111,6 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           } else if (LContType !== null) {
             this.SendtoLaserficheNoMapping();
           } else {
-            //document.getElementById('remvefile').style.display='none';
             dialog.close();
           }
         });
@@ -115,18 +119,21 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   }
 
   public loginCompleted = async () => {
-    dialog.show();
     document.getElementById('remve').innerText =
       'You are signed in to Laserfiche';
     document.getElementById('remveHeading').innerText = 'Sign out';
-    if (window.localStorage.getItem(TempStorageKeys.LContType) == null || undefined) {
-      dialog.close();
+    if (window.localStorage.getItem(TempStorageKeys.LContType)) {
+      dialog.show();
     }
     this.getAndInitializeRepositoryClientAndServicesAsync().then(() => {
       this.GetFileData().then(async (results) => {
         this.setState({ filedata: results });
-        const DocTemplate = window.localStorage.getItem(TempStorageKeys.DocTemplate);
-        const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
+        const DocTemplate = window.localStorage.getItem(
+          TempStorageKeys.DocTemplate
+        );
+        const LContType = window.localStorage.getItem(
+          TempStorageKeys.LContType
+        );
         if (LContType != 'undefined' && LContType !== null) {
           if (DocTemplate != 'None') {
             this.SendToLaserficheWithMetadata();
@@ -136,7 +143,6 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         } else if (LContType !== null) {
           this.SendtoLaserficheNoMapping();
         } else {
-          //document.getElementById('remvefile').style.display='none';
           dialog.close();
           //alert('Please go back to library and select a file to upload');
         }
@@ -160,6 +166,8 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       this.setState({
         accessToken:
           this.loginComponent.current.authorization_credentials.accessToken,
+        webClientUrl:
+          this.loginComponent.current.account_endpoints.webClientUrl,
       });
     } else {
       // user is not logged in
@@ -173,20 +181,29 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   }
 
   public async SendToLaserficheWithMetadata() {
-    dialog.show();
-    const filenameWithExt = window.localStorage.getItem(TempStorageKeys.Filename);
+    const filenameWithExt = window.localStorage.getItem(
+      TempStorageKeys.Filename
+    );
 
     const fileNameSplitByDot = (filenameWithExt as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
     const filenameWithoutExt = fileNameSplitByDot.join('.');
-    const Parentid = window.localStorage.getItem(TempStorageKeys.Destinationfolder);
-    const Filemetadata1 = window.localStorage.getItem(TempStorageKeys.Filemetadata);
+    const Parentid = window.localStorage.getItem(
+      TempStorageKeys.Destinationfolder
+    );
+    const Filemetadata1 = window.localStorage.getItem(
+      TempStorageKeys.Filemetadata
+    );
     const Filemetadata = JSON.parse(Filemetadata1);
     const Action = window.localStorage.getItem(TempStorageKeys.Action);
-    const Documentname = window.localStorage.getItem(TempStorageKeys.Documentname);
+    const Documentname = window.localStorage.getItem(
+      TempStorageKeys.Documentname
+    );
     const docfilenamecheck = Documentname.includes('FileName');
     const fileUrl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const contextPageAbsoluteUrl = window.localStorage.getItem(TempStorageKeys.ContextPageAbsoluteUrl);
+    const contextPageAbsoluteUrl = window.localStorage.getItem(
+      TempStorageKeys.ContextPageAbsoluteUrl
+    );
     const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
     const fieldsAlone = Filemetadata['metadata']['fields'];
     const formattedFieldValues:
@@ -233,15 +250,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const entryCreateResult: CreateEntryResult =
           await this.repoClient.entriesClient.importDocument(entryRequest);
         const Entryid = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid}`;
+        const fileLink = getEntryWebAccessUrl(
+          Entryid.toString(),
+          repoId,
+          this.state.webClientUrl,
+          false
+        );
+        await dialog.close();
+        dialog.fileLink = fileLink;
+        dialog.isLoading = false;
+        dialog.metadataSaved = true;
+        dialog.show();
 
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
         if (Action === ActionTypes.COPY) {
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
@@ -263,16 +283,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
           error.operations.setFields.exceptions[0].statusCode === 409;
         if (conflict409) {
           const entryidConflict1 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict1}`;
 
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
+          const fileLink = getEntryWebAccessUrl(
+            entryidConflict1.toString(),
+            repoId,
+            this.state.webClientUrl,
+            false
+          );
+          await dialog.close();
+          dialog.fileLink = fileLink;
+          dialog.isLoading = false;
+          dialog.metadataSaved = false;
+          dialog.show();
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
@@ -299,15 +321,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const entryCreateResult: CreateEntryResult =
           await this.repoClient.entriesClient.importDocument(entryRequest);
         const Entryid3 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid3}`;
+        const fileLink = getEntryWebAccessUrl(
+          Entryid3.toString(),
+          repoId,
+          this.state.webClientUrl,
+          false
+        );
 
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
+        await dialog.close();
+        dialog.fileLink = fileLink;
+        dialog.isLoading = false;
+        dialog.metadataSaved = true;
+        dialog.show();
         if (Action === ActionTypes.COPY) {
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
@@ -327,16 +352,19 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       } catch (error) {
         if (error.operations.setFields.exceptions[0].statusCode === 409) {
           const entryidConflict2 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict2}`;
 
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
+          const fileLink = getEntryWebAccessUrl(
+            entryidConflict2.toString(),
+            repoId,
+            this.state.webClientUrl,
+            false
+          );
+
+          await dialog.close();
+          dialog.fileLink = fileLink;
+          dialog.isLoading = false;
+          dialog.metadataSaved = false;
+          dialog.show();
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
@@ -366,17 +394,19 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       try {
         const entryCreateResult: CreateEntryResult =
           await this.repoClient.entriesClient.importDocument(entryRequest);
-        //dialog.show();
         const Entryid6 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
+        const fileLink = getEntryWebAccessUrl(
+          Entryid6.toString(),
+          repoId,
+          this.state.webClientUrl,
+          false
+        );
 
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
+        await dialog.close();
+        dialog.fileLink = fileLink;
+        dialog.isLoading = false;
+        dialog.metadataSaved = true;
+        dialog.show();
         if (Action === ActionTypes.COPY) {
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
@@ -396,16 +426,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       } catch (error) {
         if (error.operations.setFields.exceptions[0].statusCode === 409) {
           const entryidConflict3 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict3}`;
+          const fileLink = getEntryWebAccessUrl(
+            entryidConflict3.toString(),
+            repoId,
+            this.state.webClientUrl,
+            false
+          );
 
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
+          await dialog.close();
+          dialog.fileLink = fileLink;
+          dialog.isLoading = false;
+          dialog.metadataSaved = false;
+          dialog.show();
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
@@ -417,19 +449,26 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   }
 
   public async SendToLaserficheNoTemplate() {
-    dialog.show();
-    const Filenamewithext = window.localStorage.getItem(TempStorageKeys.Filename);
+    const Filenamewithext = window.localStorage.getItem(
+      TempStorageKeys.Filename
+    );
 
     const fileNameSplitByDot = (Filenamewithext as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
     const Filenamewithoutext = fileNameSplitByDot.join('.');
 
-    const Parentid = window.localStorage.getItem(TempStorageKeys.Destinationfolder);
+    const Parentid = window.localStorage.getItem(
+      TempStorageKeys.Destinationfolder
+    );
     const Action = window.localStorage.getItem(TempStorageKeys.Action);
-    const Documentname = window.localStorage.getItem(TempStorageKeys.Documentname);
+    const Documentname = window.localStorage.getItem(
+      TempStorageKeys.Documentname
+    );
     const docfilenamecheck = Documentname.includes('FileName');
     const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const contextPageAbsoluteUrl = window.localStorage.getItem(TempStorageKeys.ContextPageAbsoluteUrl);
+    const contextPageAbsoluteUrl = window.localStorage.getItem(
+      TempStorageKeys.ContextPageAbsoluteUrl
+    );
     const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
 
     const edocBlob: Blob = this.state.filedata as unknown as Blob;
@@ -454,15 +493,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const entryCreateResult: CreateEntryResult =
           await this.repoClient.entriesClient.importDocument(entryRequest);
         const Entryid6 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
+        const fileLink = getEntryWebAccessUrl(
+          Entryid6.toString(),
+          repoId,
+          this.state.webClientUrl,
+          false
+        );
 
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
+        await dialog.close();
+        dialog.fileLink = fileLink;
+        dialog.isLoading = false;
+        dialog.metadataSaved = true;
+        dialog.show();
         if (Action === ActionTypes.COPY) {
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
@@ -480,16 +522,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       } catch (error) {
         if (error.operations.setFields.exceptions[0].statusCode === 409) {
           const entryidConflict4 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict4}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
+          const fileLink = getEntryWebAccessUrl(
+            entryidConflict4.toString(),
+            repoId,
+            this.state.webClientUrl,
+            false
+          );
+          await dialog.close();
+          dialog.fileLink = fileLink;
+          dialog.isLoading = false;
+          dialog.metadataSaved = false;
+          dialog.show();
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
@@ -516,15 +559,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const entryCreateResult: CreateEntryResult =
           await this.repoClient.entriesClient.importDocument(entryRequest);
         const Entryid9 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid9}`;
+        const fileLink = getEntryWebAccessUrl(
+          Entryid9.toString(),
+          repoId,
+          this.state.webClientUrl,
+          false
+        );
 
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
+        await dialog.close();
+        dialog.fileLink = fileLink;
+        dialog.isLoading = false;
+        dialog.metadataSaved = true;
+        dialog.show();
         if (Action === ActionTypes.COPY) {
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
@@ -544,16 +590,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       } catch (error) {
         if (error.operations.setFields.exceptions[0].statusCode === 409) {
           const entryidConflict5 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict5}`;
+          const fileLink = getEntryWebAccessUrl(
+            entryidConflict5.toString(),
+            repoId,
+            this.state.webClientUrl,
+            false
+          );
 
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
+          await dialog.close();
+          dialog.fileLink = fileLink;
+          dialog.isLoading = false;
+          dialog.metadataSaved = false;
+          dialog.show();
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
@@ -585,15 +633,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         const entryCreateResult: CreateEntryResult =
           await this.repoClient.entriesClient.importDocument(entryRequest);
         const Entryid14 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
+        const fileLink = getEntryWebAccessUrl(
+          Entryid14.toString(),
+          repoId,
+          this.state.webClientUrl,
+          false
+        );
 
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
+        await dialog.close();
+        dialog.fileLink = fileLink;
+        dialog.isLoading = false;
+        dialog.metadataSaved = true;
+        dialog.show();
         if (Action === ActionTypes.COPY) {
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else if (Action === ActionTypes.MOVE_AND_DELETE) {
@@ -613,16 +664,17 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       } catch (error) {
         if (error.operations.setFields.exceptions[0].statusCode === 409) {
           const entryidConflict6 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict6}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
+          const fileLink = getEntryWebAccessUrl(
+            entryidConflict6.toString(),
+            repoId,
+            this.state.webClientUrl,
+            false
+          );
+          await dialog.close();
+          dialog.fileLink = fileLink;
+          dialog.isLoading = false;
+          dialog.metadataSaved = false;
+          dialog.show();
           window.localStorage.removeItem(TempStorageKeys.LContType);
         } else {
           window.alert(`Error uploding file: ${JSON.stringify(error)}`);
@@ -634,8 +686,9 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   }
 
   public async SendtoLaserficheNoMapping() {
-    dialog.show();
-    const Filenamewithext = window.localStorage.getItem(TempStorageKeys.Filename);
+    const Filenamewithext = window.localStorage.getItem(
+      TempStorageKeys.Filename
+    );
 
     const fileNameSplitByDot = (Filenamewithext as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
@@ -663,15 +716,18 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       const entryCreateResult: CreateEntryResult =
         await this.repoClient.entriesClient.importDocument(entryRequest);
       const Entryid14 = entryCreateResult.operations.entryCreate.entryId;
-      filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
+      const fileLink = getEntryWebAccessUrl(
+        Entryid14.toString(),
+        repoId,
+        this.state.webClientUrl,
+        false
+      );
 
-      document.getElementById('it').innerHTML = 'Document uploaded';
-      document.getElementById('imgid').style.display = 'none';
-      document.getElementById('divid').style.display = 'block';
-      document.getElementById('divid1').onclick = this.Dc;
-      document.getElementById('divid13').style.display = 'block';
-      document.getElementById('divid13').onclick = this.viewfile;
-      document.getElementById('divid14').onclick = this.Redirect;
+      await dialog.close();
+      dialog.fileLink = fileLink;
+      dialog.isLoading = false;
+      dialog.metadataSaved = true;
+      dialog.show();
       window.localStorage.removeItem(TempStorageKeys.LContType);
     } catch (error) {
       window.alert(`Error uploding file: ${JSON.stringify(error)}`);
@@ -683,7 +739,9 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   public async GetFileData() {
     const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
     const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-    const Filenamewithext2 = window.localStorage.getItem(TempStorageKeys.Filename);
+    const Filenamewithext2 = window.localStorage.getItem(
+      TempStorageKeys.Filename
+    );
     const encde = encodeURIComponent(Filenamewithext2);
     const fileur = Fileurl?.replace(Filenamewithext2, encde);
     const Filedataurl = pageOrigin + fileur;
@@ -699,7 +757,6 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       return results;
     } catch (error) {
       dialog.close();
-      //document.getElementById('remvefile').style.display='none';
       console.log('error occured' + error);
     }
   }
@@ -707,7 +764,9 @@ export default class SendToLaserficheLoginComponent extends React.Component<
   public Redirect() {
     const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
     const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const Filenamewithext1 = window.localStorage.getItem(TempStorageKeys.Filename);
+    const Filenamewithext1 = window.localStorage.getItem(
+      TempStorageKeys.Filename
+    );
     const fileeee = Fileurl.replace(Filenamewithext1, '');
     const path = pageOrigin + fileeee;
     Navigation.navigate(path, true);
@@ -717,11 +776,11 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     dialog.close();
   }
 
-  private viewfile() {
-    window.open(filelink);
-  }
-
-  public async DeleteFile(pageOrigin: string, fileUrl: string, filenameWithExt: string) {
+  public async DeleteFile(
+    pageOrigin: string,
+    fileUrl: string,
+    filenameWithExt: string
+  ) {
     const encde = encodeURIComponent(filenameWithExt);
     const fileur = fileUrl.replace(filenameWithExt, encde);
     const fileUrl1 = pageOrigin + fileur;

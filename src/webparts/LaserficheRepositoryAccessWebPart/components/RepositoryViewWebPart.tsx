@@ -21,10 +21,11 @@ import {
   LfFieldContainerComponent,
   LfRepositoryBrowserComponent,
 } from '@laserfiche/types-lf-ui-components';
-import { PathUtils, UrlUtils } from '@laserfiche/lf-js-utils';
+import { PathUtils } from '@laserfiche/lf-js-utils';
 import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { ChangeEvent, createRef } from 'react';
+import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 
 const cols: ColumnDef[] = [
   {
@@ -677,28 +678,4 @@ function CreateFolderModal(props: {
       </div>
     </div>
   );
-}
-
-function getEntryWebAccessUrl(
-  nodeId: string,
-  repoId: string,
-  waUrl: string,
-  isContainer: boolean
-): string | undefined {
-  if (nodeId?.length === 0 || repoId?.length === 0 || waUrl?.length === 0) {
-    return undefined;
-  }
-  let newUrl: string = '';
-  if (isContainer) {
-    const queryParams: UrlUtils.QueryParameter[] = [['repo', repoId]];
-    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', queryParams);
-    newUrl += `#?id=${encodeURIComponent(nodeId)}`;
-  } else {
-    const queryParams: UrlUtils.QueryParameter[] = [
-      ['repo', repoId],
-      ['docid', nodeId],
-    ];
-    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
-  }
-  return newUrl;
 }

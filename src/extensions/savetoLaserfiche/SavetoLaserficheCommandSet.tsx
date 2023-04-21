@@ -1,5 +1,5 @@
 import { Log } from '@microsoft/sp-core-library';
-import CustomDailog from './CustomDailog';
+import CustomDailog from './CustomDialog';
 import {
   BaseListViewCommandSet,
   Command,
@@ -223,6 +223,8 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     fileExtensionOnly: string,
     pageOrigin: string
   ) {
+    dialog.textInside = <span>Saving your document to Laserfiche</span>;
+    dialog.isLoading = true;
     dialog.show();
     const contextPageAbsoluteUrl = this.context.pageContext.web.absoluteUrl;
 
@@ -266,7 +268,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
               .then((response1: SPHttpClientResponse) => {
                 return response1.json();
               })
-              .then((response1) => {
+              .then(async (response1) => {
                 const allConfigs: ProfileConfiguration[] = JSON.parse(
                   response1.value[0]['JsonValue']
                 );
@@ -386,17 +388,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       );
                       Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
                     } else {
-                      document.getElementById('it').innerHTML =
-                        'The following SharePoint field values are blank and are mapped to required Laserfiche fields:<br/>&ensp;-' +
-                        missingRequiredFields
-                          .map((field) => field.Title)
-                          .join('<br/>&ensp;-') +
-                        '<br/><br/>Please fill out these required fields and try again.';
-                      document.getElementById('imgid').style.display = 'none';
-                      //document.getElementById("ref").style.display='block';
-                      document.getElementById('divid').style.display = 'block';
-                      document.getElementById('divid1').onclick = this.Dc;
-                      document.getElementById('divid13').style.display = 'none';
+                      await dialog.close();
+                      const listFields = missingRequiredFields.map((field) => <div>- {field.Title}</div>);
+                      dialog.textInside =
+                        <span>'The following SharePoint field values are blank and are mapped to required Laserfiche fields:
+                          {listFields}Please fill out these required fields and try again.</span>;
+                      dialog.isLoading = false;
+                      dialog.show();
                       this.spFieldNameDefs = [];
                       this.allFieldValueStore = {};
                     }
@@ -462,11 +460,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
           Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
         }
       });
-  }
-  //
-
-  private Dc() {
-    dialog.close();
   }
 }
 function forceTruncateToFieldTypeLength(
