@@ -11,7 +11,6 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
 import * as strings from 'SendToLaserficheLoginComponentWebPartStrings';
 import SendToLaserficheLoginComponent from './components/SendToLaserficheLoginComponent';
-import { ISendToLaserficheLoginComponentProps } from './components/ISendToLaserficheLoginComponentProps';
 
 export interface ISendToLaserficheLoginComponentWebPartProps {
   LaserficheRedirectPage: string;
@@ -20,9 +19,9 @@ export interface ISendToLaserficheLoginComponentWebPartProps {
 
 export default class SendToLaserficheLoginComponentWebPart extends BaseClientSideWebPart<ISendToLaserficheLoginComponentWebPartProps> {
   public render(): void {
-    const element: React.ReactElement<ISendToLaserficheLoginComponentProps> =
+    const element: React.ReactElement =
       React.createElement(SendToLaserficheLoginComponent, {
-        laserficheRedirectPage: this.properties.LaserficheRedirectPage,
+        laserficheRedirectUrl: this.properties.LaserficheRedirectPage,
         context: this.context,
         devMode: this.properties.devMode,
       });
