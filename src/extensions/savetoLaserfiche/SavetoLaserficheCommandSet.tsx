@@ -363,7 +363,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                         TempStorageKeys.Destinationfolder,
                         matchingLFConfig.selectedFolder?.id
                       );
-                      window.localStorage.setItem(TempStorageKeys.Filedataurl, requestUrl);
                       window.localStorage.setItem(
                         TempStorageKeys.Fileextension,
                         fileExtensionOnly
@@ -419,7 +418,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                     TempStorageKeys.Destinationfolder,
                     matchingLFConfig.selectedFolder?.id
                   );
-                  window.localStorage.setItem(TempStorageKeys.Filedataurl, requestUrl);
                   window.localStorage.setItem(
                     TempStorageKeys.Fileextension,
                     fileExtensionOnly
@@ -452,7 +450,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
           // window.localStorage.setItem('Maping', Maping); // TODO this doesn't exist because it is per manageMappingDetails
           window.localStorage.setItem(TempStorageKeys.Filecontenttype, filecontenttypename);
           window.localStorage.setItem(TempStorageKeys.Fileurl, fileUrl);
-          window.localStorage.setItem(TempStorageKeys.Filedataurl, requestUrl);
           window.localStorage.setItem(TempStorageKeys.Fileextension, fileExtensionOnly);
           window.localStorage.setItem(TempStorageKeys.ContextPageAbsoluteUrl, contextPageAbsoluteUrl);
           window.localStorage.setItem(TempStorageKeys.PageOrigin, pageOrigin);

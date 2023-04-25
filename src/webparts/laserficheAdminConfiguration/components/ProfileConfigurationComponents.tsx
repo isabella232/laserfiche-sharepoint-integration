@@ -18,7 +18,7 @@ export interface ProfileConfiguration {
   DocumentName: string;
   selectedTemplateName?: string;
   selectedFolder?: LfFolder;
-  Action: string;
+  Action: ActionTypes;
   mappedFields: MappedFields[];
 }
 
@@ -95,7 +95,7 @@ export function ConfigurationBody(props: {
     const value = (event.target as HTMLSelectElement).value;
     const actionName = value;
     const profileConfig = { ...props.profileConfig };
-    profileConfig.Action = actionName;
+    profileConfig.Action = actionName as ActionTypes;
     props.handleProfileConfigUpdate(profileConfig);
   }
 

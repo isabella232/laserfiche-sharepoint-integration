@@ -5,7 +5,6 @@ export enum TempStorageKeys {
   Action = 'Action',
   Fileurl = 'Fileurl',
   Destinationfolder = 'Destinationfolder',
-  Filedataurl = 'Filedataurl',
   Fileextension = 'Fileextension',
   ContextPageAbsoluteUrl = 'ContextPageAbsoluteUrl',
   PageOrigin = 'PageOrigin',
