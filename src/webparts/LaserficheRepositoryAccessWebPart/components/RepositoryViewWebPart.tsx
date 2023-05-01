@@ -33,18 +33,28 @@ const cols: ColumnDef[] = [
     displayName: 'Creation Date',
     defaultWidth: '100px',
     resizable: true,
+    sortable: true,
   },
   {
     id: 'lastModifiedTime',
     displayName: 'Last Modified Date',
     defaultWidth: '100px',
     resizable: true,
+    sortable: true,
   },
-  { id: 'pageCount', displayName: 'Page', defaultWidth: '100px' },
+  {
+    id: 'pageCount',
+    displayName: 'Page',
+    defaultWidth: '100px',
+    resizable: true,
+    sortable: true,
+  },
   {
     id: 'templateName',
     displayName: 'Template Name',
     defaultWidth: '100px',
+    resizable: true,
+    sortable: true,
   },
 ];
 
@@ -224,8 +234,8 @@ function RepositoryBrowserToolbar(props: {
 
   return (
     <>
-      <div className='p-3' id='mainWebpartContent'>
-        <div className='d-flex justify-content-between border p-2 file-option'>
+      <div id='mainWebpartContent'>
+        <div>
           <a
             href='javascript:;'
             className='mr-3'
@@ -377,7 +387,7 @@ function ImportFileModal(props: {
     }
     const extension = PathUtils.getCleanedExtension(fileData.name);
     const renamedFile = new File([fileData], fileName + extension);
-    const fileContainsBacklash = fileName.includes('\\') ? 'Yes' : 'No';
+    const fileContainsBacklash = fileName.includes('\\');
     if (fileContainsBacklash) {
       setImportFileValidationMessage(fileNameWithBacklash);
       return;

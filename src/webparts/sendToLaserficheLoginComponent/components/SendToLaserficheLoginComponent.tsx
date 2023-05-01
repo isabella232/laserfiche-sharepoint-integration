@@ -35,7 +35,9 @@ declare global {
 }
 
 const dialog = new SendToLaserficheCustomDialog();
-export default function SendToLaserficheLoginComponent(props: ISendToLaserficheLoginComponentProps) {
+export default function SendToLaserficheLoginComponent(
+  props: ISendToLaserficheLoginComponentProps
+) {
   let loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
   > = React.useRef();
@@ -45,7 +47,7 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
   const [webClientUrl, setWebClientUrl] = React.useState<string | undefined>(
     undefined
   );
-  const [loggedIn, setLoggedIn]= React.useState<boolean>(false);
+  const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
 
   const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
 
@@ -75,8 +77,7 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
           loginComponent.current.state === LoginState.LoggedOut;
 
         if (!loggedOut) {
-          setLoggedIn(true);
-          if (window.localStorage.getItem(TempStorageKeys.LContType)) {
+          if (window.localStorage.getItem(TempStorageKeys.Filename)) {
             dialog.show();
           }
           getAndInitializeRepositoryClientAndServicesAsync().then(() => {
@@ -90,12 +91,12 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
   }, [repoClient]);
 
   const loginCompleted = () => {
-    setLoggedIn(true);
-    if (window.localStorage.getItem(TempStorageKeys.LContType)) {
+    if (window.localStorage.getItem(TempStorageKeys.Filename)) {
       dialog.show();
     }
     getAndInitializeRepositoryClientAndServicesAsync().then(() => {
       GetFileData().then(async (fileData) => {
+        // TODO repoclient isn't always assigned here bc of state..
         saveFileToLaserfiche(fileData);
       });
     });
@@ -104,20 +105,21 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
   //Laserfiche LF logoutCompleted
   const logoutCompleted = () => {
     //dialog.close();
-    
+
     setLoggedIn(false);
     window.location.href =
       props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
   };
 
   function saveFileToLaserfiche(fileData: Blob) {
-    const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
-    if (LContType != 'undefined' && LContType) {
-      SendToLaserficheWithMapping(fileData);
-    } else if (LContType !== null) {
-      SendtoLaserficheNoMapping(fileData);
-    } else {
-      dialog.close();
+    const fileName = window.localStorage.getItem(TempStorageKeys.Filename);
+    if (fileName && fileData && repoClient) {
+      const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
+      if (LContType) {
+        SendToLaserficheWithMapping(fileData);
+      } else {
+        SendtoLaserficheNoMapping(fileData);
+      }
     }
   }
 
@@ -137,6 +139,7 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
       const repoClientCreator = new RepositoryClientExInternal();
       const repoClient = await repoClientCreator.createRepositoryClientAsync();
       setRepoClient(repoClient);
+      setLoggedIn(true);
     }
   };
 
@@ -156,7 +159,8 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
     const filenameWithoutExt = PathUtils.removeFileExtension(
       fileDataStuff.Filename
     );
-    const docNameIncludesFileName = fileDataStuff.Documentname.includes('FileName');
+    const docNameIncludesFileName =
+      fileDataStuff.Documentname.includes('FileName');
 
     const edocBlob: Blob = fileData as unknown as Blob;
     const parentEntryId = Number(fileDataStuff.Destinationfolder);
@@ -212,7 +216,7 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
       dialog.show();
 
       if (fileDataStuff.Action === ActionTypes.COPY) {
-        window.localStorage.removeItem(TempStorageKeys.LContType);
+        window.localStorage.removeItem(TempStorageKeys.Filename);
       } else if (fileDataStuff.Action === ActionTypes.MOVE_AND_DELETE) {
         DeleteFile(
           fileDataStuff.PageOrigin,
@@ -248,25 +252,38 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
         dialog.isLoading = false;
         dialog.metadataSaved = false;
         dialog.show();
-        window.localStorage.removeItem(TempStorageKeys.LContType);
+        window.localStorage.removeItem(TempStorageKeys.Filename);
       } else {
         window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-        //window.localStorage.clear();
-        window.localStorage.removeItem(TempStorageKeys.LContType);
+        window.localStorage.removeItem(TempStorageKeys.Filename);
         dialog.close();
       }
     }
   }
 
-  function getRequestMetadata(fileDataStuff: { Filename: string; Destinationfolder: string; Filemetadata: string; Action: string; Documentname: string; Fileurl: string; ContextPageAbsoluteUrl: string; PageOrigin: string; DocTemplate: string; }, request: PostEntryWithEdocMetadataRequest) {
+  function getRequestMetadata(
+    fileDataStuff: {
+      Filename: string;
+      Destinationfolder: string;
+      Filemetadata: string;
+      Action: string;
+      Documentname: string;
+      Fileurl: string;
+      ContextPageAbsoluteUrl: string;
+      PageOrigin: string;
+      DocTemplate: string;
+    },
+    request: PostEntryWithEdocMetadataRequest
+  ) {
     const Filemetadata: IPostEntryWithEdocMetadataRequest = JSON.parse(
       fileDataStuff.Filemetadata
     );
     const fieldsAlone = Filemetadata.metadata.fields;
-    const formattedFieldValues: {
-      [key: string]: FieldToUpdate;
-    } |
-      undefined = {};
+    const formattedFieldValues:
+      | {
+          [key: string]: FieldToUpdate;
+        }
+      | undefined = {};
 
     for (const key in fieldsAlone) {
       const value = fieldsAlone[key];
@@ -345,10 +362,10 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
       dialog.isLoading = false;
       dialog.metadataSaved = true;
       dialog.show();
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
     } catch (error) {
       window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
       dialog.close();
     }
   }
@@ -405,11 +422,11 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
     };
     const response = await fetch(fileUrl1, init);
     if (response.ok) {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
       //Perform further activity upon success, like displaying a notification
       alert('File deleted successfully');
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
       console.log('An error occurred. Please try again.');
     }
   }
@@ -441,7 +458,7 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
         contexPageAbsoluteUrl
       );
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
       console.log('An error occurred. Please try again.');
     }
   }
@@ -469,7 +486,7 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
         FormDigestValue
       );
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
       console.log('Failed');
     }
   }
@@ -498,11 +515,11 @@ export default function SendToLaserficheLoginComponent(props: ISendToLaserficheL
       },
     });
     if (resp.ok) {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
       console.log('Item Inserted..!!');
       console.log(await resp.json());
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem(TempStorageKeys.Filename);
       console.log('API Error');
       console.log(await resp.json());
     }

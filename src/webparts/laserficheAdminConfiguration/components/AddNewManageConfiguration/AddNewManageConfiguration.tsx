@@ -178,10 +178,6 @@ export default function AddNewManageConfiguration(
       configNameValidation = (
         <span>Please specify a name for this configuration</span>
       );
-    } else if (/[^A-Za-z0-9]/.test(profileConfig.ConfigurationName)) {
-      configNameValidation = (
-        <span>Invalid Name, only alphanumeric are allowed without space.</span>
-      );
     }
   }
 

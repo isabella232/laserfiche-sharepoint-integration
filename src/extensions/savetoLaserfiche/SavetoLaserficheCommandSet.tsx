@@ -73,6 +73,9 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     this.fieldContainer = React.createRef();
+    for (const key in TempStorageKeys) {
+      window.localStorage.removeItem(key);
+    }
     return Promise.resolve();
   }
 
