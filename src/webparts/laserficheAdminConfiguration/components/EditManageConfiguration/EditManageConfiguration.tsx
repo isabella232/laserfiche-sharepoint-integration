@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as bootstrap from 'bootstrap';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IEditManageConfigurationProps } from './IEditManageConfigurationProps';
 import { IListItem } from '../IListItem';
@@ -16,9 +15,12 @@ require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-login']: any;
+      // eslint-disable-next-line
       ['lf-repository-browser']: any;
     }
   }

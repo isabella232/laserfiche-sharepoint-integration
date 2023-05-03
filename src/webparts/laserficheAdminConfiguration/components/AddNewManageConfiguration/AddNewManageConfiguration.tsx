@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as bootstrap from 'bootstrap';
 import { IAddNewManageConfigurationProps } from './IAddNewManageConfigurationProps';
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { useState } from 'react';
@@ -11,8 +10,10 @@ require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-repository-browser']: any;
     }
   }

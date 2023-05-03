@@ -9,7 +9,7 @@ export function getEntryWebAccessUrl(
   if (nodeId?.length === 0 || repoId?.length === 0 || waUrl?.length === 0) {
     return undefined;
   }
-  let newUrl: string = '';
+  let newUrl: string;
   if (isContainer) {
     const queryParams: UrlUtils.QueryParameter[] = [['repo', repoId]];
     newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', queryParams);

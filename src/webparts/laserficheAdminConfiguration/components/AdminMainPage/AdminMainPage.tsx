@@ -6,15 +6,16 @@ import {
   SPHttpClientResponse,
   ISPHttpClientOptions,
 } from '@microsoft/sp-http';
-import { SPComponentLoader } from '@microsoft/sp-loader';
 import { IAdminPageProps } from './IAdminPageProps';
 import { WebPartContext } from '@microsoft/sp-webpart-base';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-login']: any;
     }
   }

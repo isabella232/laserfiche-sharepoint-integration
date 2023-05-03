@@ -63,13 +63,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     NgElement & WithProperties<LfFieldContainerComponent>
   >;
   spFieldNameDefs: {
-    InternalName: String;
+    InternalName: string;
     Title: string;
     StaticName: string;
   }[] = [];
   allFieldValueStore: object;
-  hasSignInPage: boolean = false;
-  hasAdminPage: boolean = false
+  hasSignInPage = false;
+  hasAdminPage = false
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     this.fieldContainer = React.createRef();
@@ -317,7 +317,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                           missingRequiredFields.push(mapping.spField);
                         }
 
-                        let valueToUpdate: IValueToUpdate = {
+                        const valueToUpdate: IValueToUpdate = {
                           value: spDocFieldValue,
                           position: 1,
                         };
@@ -391,9 +391,9 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
                     } else {
                       await dialog.close();
-                      const listFields = missingRequiredFields.map((field) => <div>- {field.Title}</div>);
+                      const listFields = missingRequiredFields.map((field) => <div key={field.Title}>- {field.Title}</div>);
                       dialog.textInside =
-                        <span>'The following SharePoint field values are blank and are mapped to required Laserfiche fields:
+                        <span>The following SharePoint field values are blank and are mapped to required Laserfiche fields:
                           {listFields}Please fill out these required fields and try again.</span>;
                       dialog.isLoading = false;
                       dialog.show();

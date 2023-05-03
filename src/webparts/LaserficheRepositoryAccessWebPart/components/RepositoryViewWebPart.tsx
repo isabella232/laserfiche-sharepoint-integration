@@ -9,7 +9,6 @@ import {
   PostEntryWithEdocMetadataRequest,
   PutFieldValsRequest,
   FileParameter,
-  CreateEntryResult,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfRepoTreeNodeService,
@@ -24,7 +23,7 @@ import {
 import { PathUtils } from '@laserfiche/lf-js-utils';
 import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import { ChangeEvent, createRef } from 'react';
+import { ChangeEvent } from 'react';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 
 const cols: ColumnDef[] = [
@@ -170,7 +169,7 @@ export default function RepositoryViewComponent(props: {
                 parentItem={parentItem}
                 loggedIn={props.loggedIn}
                 webClientUrl={props.webClientUrl}
-              ></RepositoryBrowserToolbar>
+              />
               <div
                 className='lf-folder-browser-sample-container'
                 style={{ height: '400px' }}
@@ -477,7 +476,7 @@ function ImportFileModal(props: {
   }
 
   const SetNewFileName = (e: ChangeEvent<HTMLInputElement>) => {
-    let newFileName = e.target.value;
+    const newFileName = e.target.value;
 
     setFileName(newFileName);
   };
@@ -545,7 +544,7 @@ function ImportFileModal(props: {
           <div className='card'>
             <div
               className={`lf-component-container${
-                adhocDialogOpened ? ' lf-adhoc-min-height' : ''
+                adhocDialogOpened ? ' lfAdhocMinHeight' : ''
               }`}
             >
               <lf-field-container

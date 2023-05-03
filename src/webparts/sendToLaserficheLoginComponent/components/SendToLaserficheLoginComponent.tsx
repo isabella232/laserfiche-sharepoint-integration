@@ -23,12 +23,13 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { ActionTypes } from '../../laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 import { TempStorageKeys } from '../../../Utils/Enums';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
-import { WebPartContext } from '@microsoft/sp-webpart-base';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-login']: any;
     }
   }
@@ -38,7 +39,7 @@ const dialog = new SendToLaserficheCustomDialog();
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ) {
-  let loginComponent: React.RefObject<
+  const loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
   > = React.useRef();
   const [repoClient, setRepoClient] = React.useState<
@@ -143,7 +144,7 @@ export default function SendToLaserficheLoginComponent(
     }
   };
 
-  async function SendToLaserficheWithMapping(fileData: any) {
+  async function SendToLaserficheWithMapping(fileData: Blob) {
     const fileDataStuff = getFileDataFromLocalStorage();
 
     let request: PostEntryWithEdocMetadataRequest;
@@ -319,7 +320,7 @@ export default function SendToLaserficheLoginComponent(
     };
   }
 
-  async function SendtoLaserficheNoMapping(fileData: any) {
+  async function SendtoLaserficheNoMapping(fileData: Blob) {
     const Filenamewithext = window.localStorage.getItem(
       TempStorageKeys.Filename
     );
