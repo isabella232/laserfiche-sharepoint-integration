@@ -43,7 +43,7 @@ export default class SendToLaserficheLoginComponentWebPart extends BaseClientSid
 
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devMode.toLocaleLowerCase() == 'true') {
+    if (devMode?.toLocaleLowerCase() == 'true') {
       conditionalGroupFields = [
         PropertyPaneTextField('LaserficheRedirectPage', {
           label: strings.LaserficheRedirectPage,
