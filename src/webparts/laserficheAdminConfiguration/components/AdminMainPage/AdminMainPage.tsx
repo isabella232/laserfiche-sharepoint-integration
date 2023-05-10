@@ -196,7 +196,7 @@ class CreateConfigurations {
       );
       const contextInfo = await res.json();
       const FormDigestValue =
-        contextInfo.GetContextWebInformation.FormDigestValue;
+        contextInfo.d.GetContextWebInformation.FormDigestValue;
       this.CreateColumns(context, listTitle, FormDigestValue);
     } catch {
       // TODO handle

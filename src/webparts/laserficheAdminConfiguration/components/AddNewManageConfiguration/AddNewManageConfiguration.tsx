@@ -142,7 +142,7 @@ export default function AddNewManageConfiguration(
   }
 
   async function SaveNewPageConfiguration() {
-    const profileConfigAsString = JSON.stringify(profileConfig);
+    const profileConfigAsString = JSON.stringify([profileConfig]);
     const restApiUrl: string =
       props.context.pageContext.web.absoluteUrl +
       "/_api/web/lists/getByTitle('AdminConfigurationList')/items";
