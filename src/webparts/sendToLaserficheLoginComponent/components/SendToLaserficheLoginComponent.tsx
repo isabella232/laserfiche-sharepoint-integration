@@ -148,7 +148,7 @@ export default function SendToLaserficheLoginComponent(
     const fileDataStuff = getFileDataFromLocalStorage();
 
     let request: PostEntryWithEdocMetadataRequest;
-    if (fileDataStuff.DocTemplate?.length > 0 && fileDataStuff.DocTemplate !== 'undefined') {
+    if (fileDataStuff.DocTemplate?.length > 0 && fileDataStuff.DocTemplate !== 'undefined' && fileDataStuff.DocTemplate !== 'None') {
       request = getRequestMetadata(fileDataStuff, request);
     } else {
       request = new PostEntryWithEdocMetadataRequest({});

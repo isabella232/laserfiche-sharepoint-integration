@@ -278,7 +278,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                 const matchingLFConfig = allConfigs.find(
                   (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
                 );
-                if (matchingLFConfig.selectedTemplateName) {
+                if (matchingLFConfig.selectedTemplateName && matchingLFConfig.selectedTemplateName!=='None') {
                     const metadata: IPostEntryWithEdocMetadataRequest = {
                       template: matchingLFConfig.selectedTemplateName,
                     };
