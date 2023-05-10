@@ -278,8 +278,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                 const matchingLFConfig = allConfigs.find(
                   (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
                 );
-                if (matchingLFConfig) {
-                  if (matchingLFConfig.selectedTemplateName) {
+                if (matchingLFConfig.selectedTemplateName) {
                     const metadata: IPostEntryWithEdocMetadataRequest = {
                       template: matchingLFConfig.selectedTemplateName,
                     };
@@ -400,7 +399,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       this.spFieldNameDefs = [];
                       this.allFieldValueStore = {};
                     }
-                  }
                 } else {
                   // No template mapped
                   window.localStorage.setItem(TempStorageKeys.Filename, fileName);
@@ -446,7 +444,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
           }
         }
         if (
-          manageMappingDetails.findIndex((el) => el.SharePointContentType) ===
+          manageMappingDetails.findIndex((el) => el.SharePointContentType === filecontenttypename) ===
           -1
         ) {
           window.localStorage.setItem(TempStorageKeys.Filename, fileName);

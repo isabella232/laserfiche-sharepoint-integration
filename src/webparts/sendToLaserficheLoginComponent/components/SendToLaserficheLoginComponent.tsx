@@ -148,7 +148,7 @@ export default function SendToLaserficheLoginComponent(
     const fileDataStuff = getFileDataFromLocalStorage();
 
     let request: PostEntryWithEdocMetadataRequest;
-    if (fileDataStuff.DocTemplate?.length > 0) {
+    if (fileDataStuff.DocTemplate?.length > 0 && fileDataStuff.DocTemplate !== 'undefined') {
       request = getRequestMetadata(fileDataStuff, request);
     } else {
       request = new PostEntryWithEdocMetadataRequest({});
@@ -164,7 +164,8 @@ export default function SendToLaserficheLoginComponent(
       fileDataStuff.Documentname.includes('FileName');
 
     const edocBlob: Blob = fileData as unknown as Blob;
-    const parentEntryId = Number(fileDataStuff.Destinationfolder);
+    const destinationFolder = (!fileDataStuff.Destinationfolder || fileDataStuff.Destinationfolder==='undefined') ? '1': fileDataStuff.Destinationfolder;
+    const parentEntryId = Number(destinationFolder);
     const repoId = await repoClient.getCurrentRepoId();
 
     let fileName: string | undefined;
@@ -203,7 +204,7 @@ export default function SendToLaserficheLoginComponent(
     try {
       const entryCreateResult: CreateEntryResult =
         await repoClient.entriesClient.importDocument(entryRequest);
-      const Entryid = entryCreateResult.operations.entryCreate.entryId;
+      const Entryid = entryCreateResult.operations.entryCreate.entryId ?? 1;
       const fileLink = getEntryWebAccessUrl(
         Entryid.toString(),
         repoId,
@@ -279,7 +280,7 @@ export default function SendToLaserficheLoginComponent(
     const Filemetadata: IPostEntryWithEdocMetadataRequest = JSON.parse(
       fileDataStuff.Filemetadata
     );
-    const fieldsAlone = Filemetadata.metadata.fields;
+    const fieldsAlone = Filemetadata?.metadata?.fields;
     const formattedFieldValues:
       | {
           [key: string]: FieldToUpdate;
@@ -294,7 +295,7 @@ export default function SendToLaserficheLoginComponent(
       });
     }
     request = new PostEntryWithEdocMetadataRequest({
-      template: Filemetadata.template,
+      template: fileDataStuff.DocTemplate,
       metadata: new PutFieldValsRequest({
         fields: formattedFieldValues,
       }),
