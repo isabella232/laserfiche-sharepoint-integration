@@ -11,11 +11,10 @@ import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import * as React from 'react';
 import { Navigation } from 'spfx-navigation';
 import { NgElement, WithProperties } from '@angular/elements';
-import {
-  LfFieldContainerComponent,
-} from '@laserfiche/types-lf-ui-components';
+import { LfFieldContainerComponent } from '@laserfiche/types-lf-ui-components';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import {
+  ActionTypes,
   ProfileConfiguration,
   SPProfileConfigurationData,
 } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
@@ -30,7 +29,7 @@ import {
   ValueToUpdate,
   WFieldType,
 } from '@laserfiche/lf-repository-api-client';
-import { TempStorageKeys } from '../../Utils/Enums';
+import { ISPDocumentData } from '../../Utils/Types';
 
 interface ProfileMappingConfiguration {
   id: string;
@@ -69,13 +68,11 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   }[] = [];
   allFieldValueStore: object;
   hasSignInPage = false;
-  hasAdminPage = false
+  hasAdminPage = false;
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     this.fieldContainer = React.createRef();
-    for (const key in TempStorageKeys) {
-      window.localStorage.removeItem(key);
-    }
+    window.localStorage.removeItem('spdocdata');
     return Promise.resolve();
   }
 
@@ -161,7 +158,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       console.log(sitePages);
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages['value'][o]['Title'];
-        if (pageName ===  SpWebPartNames.LaserficheSpSignIn) {
+        if (pageName === SpWebPartNames.LaserficheSpSignIn) {
           this.hasSignInPage = true;
         } else if (pageName === SpWebPartNames.LaserficheSpAdministration) {
           this.hasAdminPage = true;
@@ -344,57 +341,39 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       metadata.metadata = new PutFieldValsRequest(
                         metadataFields
                       );
+                      const fileData: ISPDocumentData = {
+                        action: matchingLFConfig.Action,
+                        contextPageAbsoluteUrl,
+                        documentName: matchingLFConfig.DocumentName,
+                        templateName: matchingLFConfig.selectedTemplateName,
+                        entryId: matchingLFConfig.selectedFolder.id,
+                        fileUrl,
+                        fileName,
+                        metadata,
+                        pageOrigin,
+                        lfProfile: laserficheProfile,
+                      };
                       window.localStorage.setItem(
-                        TempStorageKeys.Filemetadata,
-                        JSON.stringify(metadata)
+                        'spdocdata',
+                        JSON.stringify(fileData)
                       );
-                      window.localStorage.setItem(TempStorageKeys.Filename, fileName);
-                      window.localStorage.setItem(
-                        TempStorageKeys.Documentname,
-                        matchingLFConfig.DocumentName
+                      Navigation.navigate(
+                        contextPageAbsoluteUrl + Redirectpagelink,
+                        true
                       );
-                      window.localStorage.setItem(
-                        TempStorageKeys.DocTemplate,
-                        matchingLFConfig.selectedTemplateName
-                      );
-                      window.localStorage.setItem(
-                        TempStorageKeys.Action,
-                        matchingLFConfig.Action
-                      );
-                      window.localStorage.setItem(TempStorageKeys.Fileurl, fileUrl);
-                      window.localStorage.setItem(
-                        TempStorageKeys.Destinationfolder,
-                        matchingLFConfig.selectedFolder?.id
-                      );
-                      window.localStorage.setItem(
-                        TempStorageKeys.Fileextension,
-                        fileExtensionOnly
-                      );
-                      window.localStorage.setItem(TempStorageKeys.ContextPageAbsoluteUrl, contextPageAbsoluteUrl);
-                      window.localStorage.setItem(TempStorageKeys.PageOrigin, pageOrigin);
-                      window.localStorage.setItem(
-                        TempStorageKeys.Maping,
-                        mapping.SharePointContentType
-                      );
-                      window.localStorage.setItem(
-                        TempStorageKeys.Filecontenttype,
-                        filecontenttypename
-                      );
-                      window.localStorage.setItem(
-                        TempStorageKeys.LContType,
-                        laserficheProfile
-                      );
-                      window.localStorage.setItem(
-                        TempStorageKeys.configname,
-                        matchingLFConfig.ConfigurationName
-                      );
-                      Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
                     } else {
                       await dialog.close();
-                      const listFields = missingRequiredFields.map((field) => <div key={field.Title}>- {field.Title}</div>);
-                      dialog.textInside =
-                        <span>The following SharePoint field values are blank and are mapped to required Laserfiche fields:
-                          {listFields}Please fill out these required fields and try again.</span>;
+                      const listFields = missingRequiredFields.map((field) => (
+                        <div key={field.Title}>- {field.Title}</div>
+                      ));
+                      dialog.textInside = (
+                        <span>
+                          The following SharePoint field values are blank and
+                          are mapped to required Laserfiche fields:
+                          {listFields}Please fill out these required fields and
+                          try again.
+                        </span>
+                      );
                       dialog.isLoading = false;
                       dialog.show();
                       this.spFieldNameDefs = [];
@@ -402,45 +381,25 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                     }
                   }
                 } else {
-                  // No template mapped
-                  window.localStorage.setItem(TempStorageKeys.Filename, fileName);
+                  const fileData: ISPDocumentData = {
+                    action: matchingLFConfig.Action,
+                    fileName,
+                    fileUrl,
+                    documentName: matchingLFConfig.DocumentName,
+                    templateName: matchingLFConfig.selectedTemplateName,
+                    entryId: matchingLFConfig.selectedFolder.id,
+                    contextPageAbsoluteUrl,
+                    pageOrigin,
+                    lfProfile: laserficheProfile,
+                  };
                   window.localStorage.setItem(
-                    TempStorageKeys.Documentname,
-                    matchingLFConfig.DocumentName
+                    'spdocdata',
+                    JSON.stringify(fileData)
                   );
-                  window.localStorage.setItem(
-                    TempStorageKeys.DocTemplate,
-                    matchingLFConfig.selectedTemplateName
+                  Navigation.navigate(
+                    contextPageAbsoluteUrl + Redirectpagelink,
+                    true
                   );
-                  window.localStorage.setItem(
-                    TempStorageKeys.Action,
-                    matchingLFConfig.Action
-                  );
-                  window.localStorage.setItem(TempStorageKeys.Fileurl, fileUrl);
-                  window.localStorage.setItem(
-                    TempStorageKeys.Destinationfolder,
-                    matchingLFConfig.selectedFolder?.id
-                  );
-                  window.localStorage.setItem(
-                    TempStorageKeys.Fileextension,
-                    fileExtensionOnly
-                  );
-                  window.localStorage.setItem(TempStorageKeys.ContextPageAbsoluteUrl, contextPageAbsoluteUrl);
-                  window.localStorage.setItem(TempStorageKeys.PageOrigin, pageOrigin);
-                  window.localStorage.setItem(
-                    TempStorageKeys.Maping,
-                    mapping.SharePointContentType
-                  );
-                  window.localStorage.setItem(
-                    TempStorageKeys.Filecontenttype,
-                    filecontenttypename
-                  );
-                  window.localStorage.setItem(TempStorageKeys.LContType, laserficheProfile);
-                  window.localStorage.setItem(
-                    TempStorageKeys.configname,
-                    matchingLFConfig.ConfigurationName
-                  );
-                  Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
                 }
               });
           }
@@ -449,15 +408,16 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
           manageMappingDetails.findIndex((el) => el.SharePointContentType) ===
           -1
         ) {
-          window.localStorage.setItem(TempStorageKeys.Filename, fileName);
-          // window.localStorage.setItem('Maping', Maping); // TODO this doesn't exist because it is per manageMappingDetails
-          window.localStorage.setItem(TempStorageKeys.Filecontenttype, filecontenttypename);
-          window.localStorage.setItem(TempStorageKeys.Fileurl, fileUrl);
-          window.localStorage.setItem(TempStorageKeys.Fileextension, fileExtensionOnly);
-          window.localStorage.setItem(TempStorageKeys.ContextPageAbsoluteUrl, contextPageAbsoluteUrl);
-          window.localStorage.setItem(TempStorageKeys.PageOrigin, pageOrigin);
-          // window.localStorage.setItem('LContType', laserficheProfile); // TODO this doesn't exist because it is per manageMappingDetails
-          Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
+          const fileData: ISPDocumentData = {
+            fileName,
+            documentName: fileName,
+            fileUrl,
+            entryId: '1',
+            contextPageAbsoluteUrl,
+            pageOrigin,
+            action: ActionTypes.COPY,
+          };
+          window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
         }
       });
   }

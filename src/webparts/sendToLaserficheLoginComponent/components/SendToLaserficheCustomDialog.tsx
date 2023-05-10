@@ -2,8 +2,8 @@ import { BaseDialog, IDialogConfiguration } from '@microsoft/sp-dialog';
 import styles from './SendToLaserficheLoginComponent.module.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { TempStorageKeys } from '../../../Utils/Enums';
 import { Navigation } from 'spfx-navigation';
+import { ISPDocumentData } from '../../../Utils/Types';
 
 export default class SendToLaserficheCustomDialog extends BaseDialog {
   isLoading = true;
@@ -13,9 +13,10 @@ export default class SendToLaserficheCustomDialog extends BaseDialog {
   public render(): void {
     ReactDOM.render(
       <SendToLaserficheDialog
+      pathBack='hello'
         loading={this.isLoading}
         metadataSaved={this.metadataSaved}
-        fileLink={this.fileLink}
+        lfFileLink={this.fileLink}
         closeDialog={() => this.close()}
       />,
       this.domElement
@@ -34,19 +35,21 @@ export default class SendToLaserficheCustomDialog extends BaseDialog {
 function SendToLaserficheDialog(props: {
   loading: boolean;
   metadataSaved: boolean;
-  fileLink?: string;
+  lfFileLink?: string;
+  pathBack: string;
   closeDialog: () => void;
 }) {
   function viewFile() {
-    window.open(props.fileLink);
+    window.open(props.lfFileLink);
   }
 
   function redirect() {
-    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
+    const docData: ISPDocumentData = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData;
+    const pageOrigin = docData.pageOrigin;
+    const Fileurl = docData.fileUrl;
     const fileUrlWithoutDocName = Fileurl.slice(0, Fileurl.lastIndexOf('/'));
     const path = pageOrigin + fileUrlWithoutDocName;
-    Navigation.navigate(path, true);
+    Navigation.navigate(props.pathBack, true);
   }
 
   return (
@@ -85,7 +88,7 @@ function SendToLaserficheDialog(props: {
             <button id='divid1' className={styles.button1} onClick={props.closeDialog}>
               Close
             </button>
-            {props.fileLink && (
+            {props.lfFileLink && (
               <button
                 id='divid13'
                 className={styles.button2}

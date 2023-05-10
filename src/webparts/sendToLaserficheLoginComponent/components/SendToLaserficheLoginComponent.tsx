@@ -24,6 +24,7 @@ import { ActionTypes } from '../../laserficheAdminConfiguration/components/Profi
 import { TempStorageKeys } from '../../../Utils/Enums';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
+import { ISPDocumentData } from '../../../Utils/Types';
 
 declare global {
   // eslint-disable-next-line
@@ -52,6 +53,8 @@ export default function SendToLaserficheLoginComponent(
 
   const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
 
+  let spFileMetadata: ISPDocumentData;
+
   React.useEffect(() => {
     SPComponentLoader.loadScript(
       'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
@@ -74,11 +77,13 @@ export default function SendToLaserficheLoginComponent(
           logoutCompleted
         );
 
+        spFileMetadata = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData
+
         const loggedOut: boolean =
           loginComponent.current.state === LoginState.LoggedOut;
 
         if (!loggedOut) {
-          if (window.localStorage.getItem(TempStorageKeys.Filename)) {
+          if (spFileMetadata) {
             dialog.show();
           }
           getAndInitializeRepositoryClientAndServicesAsync().then(() => {
@@ -92,7 +97,7 @@ export default function SendToLaserficheLoginComponent(
   }, [repoClient]);
 
   const loginCompleted = () => {
-    if (window.localStorage.getItem(TempStorageKeys.Filename)) {
+    if (spFileMetadata) {
       dialog.show();
     }
     getAndInitializeRepositoryClientAndServicesAsync().then(() => {
@@ -103,23 +108,19 @@ export default function SendToLaserficheLoginComponent(
     });
   };
 
-  //Laserfiche LF logoutCompleted
   const logoutCompleted = () => {
-    //dialog.close();
-
     setLoggedIn(false);
     window.location.href =
       props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
   };
 
   function saveFileToLaserfiche(fileData: Blob) {
-    const fileName = window.localStorage.getItem(TempStorageKeys.Filename);
-    if (fileName && fileData && repoClient) {
-      const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
+    if (spFileMetadata.fileName && fileData && repoClient) {
+      const LContType = spFileMetadata.lfProfile;
       if (LContType) {
-        SendToLaserficheWithMapping(fileData);
+        SendToLaserficheWithMapping(fileData, spFileMetadata);
       } else {
-        SendtoLaserficheNoMapping(fileData);
+        SendtoLaserficheNoMapping(fileData, spFileMetadata);
       }
     }
   }
@@ -144,42 +145,41 @@ export default function SendToLaserficheLoginComponent(
     }
   };
 
-  async function SendToLaserficheWithMapping(fileData: Blob) {
-    const fileDataStuff = getFileDataFromLocalStorage();
+  async function SendToLaserficheWithMapping(fileData: Blob, spFileMetadata: ISPDocumentData) {
 
     let request: PostEntryWithEdocMetadataRequest;
-    if (fileDataStuff.DocTemplate?.length > 0) {
-      request = getRequestMetadata(fileDataStuff, request);
+    if (spFileMetadata.templateName) {
+      request = getRequestMetadata(spFileMetadata, request);
     } else {
       request = new PostEntryWithEdocMetadataRequest({});
     }
 
     const fileExtensionPeriod = PathUtils.getCleanedExtension(
-      fileDataStuff.Filename
+      spFileMetadata.fileName
     );
     const filenameWithoutExt = PathUtils.removeFileExtension(
-      fileDataStuff.Filename
+      spFileMetadata.fileName
     );
     const docNameIncludesFileName =
-      fileDataStuff.Documentname.includes('FileName');
+      spFileMetadata.documentName.includes('FileName');
 
     const edocBlob: Blob = fileData as unknown as Blob;
-    const parentEntryId = Number(fileDataStuff.Destinationfolder);
+    const parentEntryId = Number(spFileMetadata.entryId);
     const repoId = await repoClient.getCurrentRepoId();
 
     let fileName: string | undefined;
     let fileNameInEdoc: string | undefined;
     let extension: string | undefined;
-    if (fileDataStuff.Documentname === '') {
+    if (!spFileMetadata.documentName) {
       fileName = filenameWithoutExt;
-      fileNameInEdoc = fileDataStuff.Filename;
+      fileNameInEdoc = spFileMetadata.fileName;
       extension = fileExtensionPeriod;
     } else if (docNameIncludesFileName === false) {
-      fileName = fileDataStuff.Documentname;
-      fileNameInEdoc = fileDataStuff.Documentname;
+      fileName = spFileMetadata.documentName;
+      fileNameInEdoc = spFileMetadata.documentName;
       extension = fileExtensionPeriod;
     } else {
-      const DocnameReplacedwithfilename = fileDataStuff.Documentname.replace(
+      const DocnameReplacedwithfilename = spFileMetadata.documentName.replace(
         'FileName',
         filenameWithoutExt
       );
@@ -216,22 +216,22 @@ export default function SendToLaserficheLoginComponent(
       dialog.metadataSaved = true;
       dialog.show();
 
-      if (fileDataStuff.Action === ActionTypes.COPY) {
-        window.localStorage.removeItem(TempStorageKeys.Filename);
-      } else if (fileDataStuff.Action === ActionTypes.MOVE_AND_DELETE) {
+      if (spFileMetadata.action === ActionTypes.COPY) {
+        window.localStorage.removeItem('spdocdata');
+      } else if (spFileMetadata.action === ActionTypes.MOVE_AND_DELETE) {
         DeleteFile(
-          fileDataStuff.PageOrigin,
-          fileDataStuff.Fileurl,
-          fileDataStuff.Filename
+          spFileMetadata.pageOrigin,
+          spFileMetadata.fileUrl,
+          spFileMetadata.fileName
         );
-      } else if (fileDataStuff.Action === ActionTypes.REPLACE) {
+      } else if (spFileMetadata.action === ActionTypes.REPLACE) {
         deletefileandreplace(
-          fileDataStuff.PageOrigin,
-          fileDataStuff.Fileurl,
+          spFileMetadata.pageOrigin,
+          spFileMetadata.fileUrl,
           filenameWithoutExt,
-          fileDataStuff.Filename,
+          spFileMetadata.fileName,
           fileLink,
-          fileDataStuff.ContextPageAbsoluteUrl
+          spFileMetadata.contextPageAbsoluteUrl
         );
       } else {
         // TODO what should happen?
@@ -253,32 +253,20 @@ export default function SendToLaserficheLoginComponent(
         dialog.isLoading = false;
         dialog.metadataSaved = false;
         dialog.show();
-        window.localStorage.removeItem(TempStorageKeys.Filename);
+        window.localStorage.removeItem('spdocdata');
       } else {
         window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-        window.localStorage.removeItem(TempStorageKeys.Filename);
+        window.localStorage.removeItem('spdocdata');
         dialog.close();
       }
     }
   }
 
   function getRequestMetadata(
-    fileDataStuff: {
-      Filename: string;
-      Destinationfolder: string;
-      Filemetadata: string;
-      Action: string;
-      Documentname: string;
-      Fileurl: string;
-      ContextPageAbsoluteUrl: string;
-      PageOrigin: string;
-      DocTemplate: string;
-    },
+    fileDataStuff: ISPDocumentData,
     request: PostEntryWithEdocMetadataRequest
   ) {
-    const Filemetadata: IPostEntryWithEdocMetadataRequest = JSON.parse(
-      fileDataStuff.Filemetadata
-    );
+    const Filemetadata: IPostEntryWithEdocMetadataRequest = fileDataStuff.metadata;
     const fieldsAlone = Filemetadata.metadata.fields;
     const formattedFieldValues:
       | {
@@ -302,28 +290,8 @@ export default function SendToLaserficheLoginComponent(
     return request;
   }
 
-  function getFileDataFromLocalStorage() {
-    return {
-      Filename: window.localStorage.getItem(TempStorageKeys.Filename),
-      Destinationfolder: window.localStorage.getItem(
-        TempStorageKeys.Destinationfolder
-      ),
-      Filemetadata: window.localStorage.getItem(TempStorageKeys.Filemetadata),
-      Action: window.localStorage.getItem(TempStorageKeys.Action),
-      Documentname: window.localStorage.getItem(TempStorageKeys.Documentname),
-      Fileurl: window.localStorage.getItem(TempStorageKeys.Fileurl),
-      ContextPageAbsoluteUrl: window.localStorage.getItem(
-        TempStorageKeys.ContextPageAbsoluteUrl
-      ),
-      PageOrigin: window.localStorage.getItem(TempStorageKeys.PageOrigin),
-      DocTemplate: window.localStorage.getItem(TempStorageKeys.DocTemplate),
-    };
-  }
-
-  async function SendtoLaserficheNoMapping(fileData: Blob) {
-    const Filenamewithext = window.localStorage.getItem(
-      TempStorageKeys.Filename
-    );
+  async function SendtoLaserficheNoMapping(fileData: Blob, spFileMetadata: ISPDocumentData) {
+    const Filenamewithext = spFileMetadata.fileName;
 
     const fileNameSplitByDot = (Filenamewithext as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
@@ -363,20 +331,18 @@ export default function SendToLaserficheLoginComponent(
       dialog.isLoading = false;
       dialog.metadataSaved = true;
       dialog.show();
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
     } catch (error) {
       window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
       dialog.close();
     }
   }
 
   async function GetFileData() {
-    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-    const Filenamewithext2 = window.localStorage.getItem(
-      TempStorageKeys.Filename
-    );
+    const Fileurl = spFileMetadata.fileUrl;
+    const pageOrigin = spFileMetadata.pageOrigin;
+    const Filenamewithext2 = spFileMetadata.fileName;
     const encde = encodeURIComponent(Filenamewithext2);
     const fileur = Fileurl?.replace(Filenamewithext2, encde);
     const Filedataurl = pageOrigin + fileur;
@@ -397,11 +363,9 @@ export default function SendToLaserficheLoginComponent(
   }
 
   function Redirect() {
-    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const Filenamewithext1 = window.localStorage.getItem(
-      TempStorageKeys.Filename
-    );
+    const Fileurl = spFileMetadata.fileUrl;
+    const pageOrigin = spFileMetadata.pageOrigin;
+    const Filenamewithext1 = spFileMetadata.fileName;
     const fileeee = Fileurl.replace(Filenamewithext1, '');
     const path = pageOrigin + fileeee;
     Navigation.navigate(path, true);
@@ -463,7 +427,7 @@ export default function SendToLaserficheLoginComponent(
       console.log('An error occurred. Please try again.');
     }
   }
-  //
+
   async function GetFormDigestValue(
     fileUrl: string,
     filenameWithoutExt: string,
@@ -491,7 +455,7 @@ export default function SendToLaserficheLoginComponent(
       console.log('Failed');
     }
   }
-  //
+  
   async function postlink(
     fileUrl: string,
     filenameWithoutExt: string,

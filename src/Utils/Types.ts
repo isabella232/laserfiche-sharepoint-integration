@@ -2,13 +2,14 @@ import { IPostEntryWithEdocMetadataRequest } from '@laserfiche/lf-repository-api
 import { ActionTypes } from '../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 
 export interface ISPDocumentData {
-    metadata: IPostEntryWithEdocMetadataRequest;
+    metadata?: IPostEntryWithEdocMetadataRequest;
     fileName: string;
     documentName: string;
-    templateName: string;
+    templateName?: string;
     action: ActionTypes;
     fileUrl: string;
     entryId: string;
     contextPageAbsoluteUrl: string;
     pageOrigin: string;
+    lfProfile?: string;
 }
