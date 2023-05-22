@@ -21,7 +21,6 @@ import { RepositoryClientExInternal } from '../../../repository-client/repositor
 import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ActionTypes } from '../../laserficheAdminConfiguration/components/ProfileConfigurationComponents';
-import { TempStorageKeys } from '../../../Utils/Enums';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
@@ -77,7 +76,7 @@ export default function SendToLaserficheLoginComponent(
           logoutCompleted
         );
 
-        spFileMetadata = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData
+        spFileMetadata = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData;
 
         const loggedOut: boolean =
           loginComponent.current.state === LoginState.LoggedOut;
@@ -210,8 +209,13 @@ export default function SendToLaserficheLoginComponent(
         webClientUrl,
         false
       );
+      const pageOrigin = spFileMetadata.pageOrigin;
+      const fileUrl = spFileMetadata.fileUrl;
+      const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
+      const path = pageOrigin + fileUrlWithoutDocName;
       await dialog.close();
       dialog.fileLink = fileLink;
+      dialog.pathBack = path;
       dialog.isLoading = false;
       dialog.metadataSaved = true;
       dialog.show();
@@ -248,8 +252,13 @@ export default function SendToLaserficheLoginComponent(
           webClientUrl,
           false
         );
+        const pageOrigin = spFileMetadata.pageOrigin;
+        const fileUrl = spFileMetadata.fileUrl;
+        const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
+        const path = pageOrigin + fileUrlWithoutDocName;
         await dialog.close();
         dialog.fileLink = fileLink;
+        dialog.pathBack = path;
         dialog.isLoading = false;
         dialog.metadataSaved = false;
         dialog.show();
@@ -325,9 +334,14 @@ export default function SendToLaserficheLoginComponent(
         webClientUrl,
         false
       );
+      const pageOrigin = spFileMetadata.pageOrigin;
+      const fileUrl = spFileMetadata.fileUrl;
+      const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
+      const path = pageOrigin + fileUrlWithoutDocName;
 
       await dialog.close();
       dialog.fileLink = fileLink;
+      dialog.pathBack = path;
       dialog.isLoading = false;
       dialog.metadataSaved = true;
       dialog.show();
@@ -387,11 +401,11 @@ export default function SendToLaserficheLoginComponent(
     };
     const response = await fetch(fileUrl1, init);
     if (response.ok) {
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
       //Perform further activity upon success, like displaying a notification
       alert('File deleted successfully');
     } else {
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
       console.log('An error occurred. Please try again.');
     }
   }
@@ -423,7 +437,7 @@ export default function SendToLaserficheLoginComponent(
         contexPageAbsoluteUrl
       );
     } else {
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
       console.log('An error occurred. Please try again.');
     }
   }
@@ -451,7 +465,7 @@ export default function SendToLaserficheLoginComponent(
         FormDigestValue
       );
     } else {
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
       console.log('Failed');
     }
   }
@@ -480,11 +494,11 @@ export default function SendToLaserficheLoginComponent(
       },
     });
     if (resp.ok) {
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
       console.log('Item Inserted..!!');
       console.log(await resp.json());
     } else {
-      window.localStorage.removeItem(TempStorageKeys.Filename);
+      window.localStorage.removeItem('spdocdata');
       console.log('API Error');
       console.log(await resp.json());
     }

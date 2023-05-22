@@ -413,7 +413,7 @@ export function TemplateSelector(props: {
           onChange={(e) => props.onChangeTemplate(e)}
           value={props.selectedTemplateName}
         >
-          <option>None</option>
+          <option value=''>None</option>
           {laserficheTemplateOptions}
         </select>
       </div>

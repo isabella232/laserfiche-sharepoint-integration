@@ -3,17 +3,17 @@ import styles from './SendToLaserficheLoginComponent.module.scss';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Navigation } from 'spfx-navigation';
-import { ISPDocumentData } from '../../../Utils/Types';
 
 export default class SendToLaserficheCustomDialog extends BaseDialog {
   isLoading = true;
   metadataSaved = false;
   fileLink?: string;
+  pathBack?: string;
 
   public render(): void {
     ReactDOM.render(
       <SendToLaserficheDialog
-      pathBack='hello'
+      pathBack={this.pathBack}
         loading={this.isLoading}
         metadataSaved={this.metadataSaved}
         lfFileLink={this.fileLink}
@@ -44,11 +44,6 @@ function SendToLaserficheDialog(props: {
   }
 
   function redirect() {
-    const docData: ISPDocumentData = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData;
-    const pageOrigin = docData.pageOrigin;
-    const Fileurl = docData.fileUrl;
-    const fileUrlWithoutDocName = Fileurl.slice(0, Fileurl.lastIndexOf('/'));
-    const path = pageOrigin + fileUrlWithoutDocName;
     Navigation.navigate(props.pathBack, true);
   }
 

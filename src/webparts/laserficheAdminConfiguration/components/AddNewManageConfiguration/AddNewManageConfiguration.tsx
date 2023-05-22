@@ -2,7 +2,7 @@ import * as React from 'react';
 import { IAddNewManageConfigurationProps } from './IAddNewManageConfigurationProps';
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { useState } from 'react';
-import { ActionTypes, ProfileConfiguration, validateNewConfiguration } from '../ProfileConfigurationComponents';
+import { ActionTypes, LfFolder, ProfileConfiguration, validateNewConfiguration } from '../ProfileConfigurationComponents';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
 require('../../../../Assets/CSS/bootstrap.min.css');
@@ -19,8 +19,13 @@ declare global {
   }
 }
 
+const rootFolder: LfFolder = {
+  id: '1',
+  path: '\\'
+}
+
 const initialConfig: ProfileConfiguration = {
-  selectedFolder: undefined,
+  selectedFolder: rootFolder,
   DocumentName: 'FileName',
   ConfigurationName: '',
   selectedTemplateName: undefined,

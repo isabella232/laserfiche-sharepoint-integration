@@ -84,7 +84,7 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
   }
   const OnChangeTemplate = async (templateName: string) => {
     const templateFields = await GetLaserficheFields(templateName);
-    if (templateFields != null) {
+    if (templateFields) {
       const array = [];
       for (let index = 0; index < templateFields.length; index++) {
         const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(
@@ -116,7 +116,7 @@ export default function ManageConfiguration(props: IManageConfigurationProps) {
   const GetLaserficheFields: (
     templateName: string
   ) => Promise<TemplateFieldInfo[]> = async (templateName: string) => {
-    if (templateName != 'None') {
+    if (templateName?.length > 0) {
       const repoId = await props.repoClient.getCurrentRepoId();
       const apiTemplateResponse: ODataValueOfIListOfTemplateFieldInfo =
         await props.repoClient.templateDefinitionsClient.getTemplateFieldDefinitionsByTemplateName(

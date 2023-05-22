@@ -30,6 +30,7 @@ import {
   WFieldType,
 } from '@laserfiche/lf-repository-api-client';
 import { ISPDocumentData } from '../../Utils/Types';
+import { CreateConfigurations } from '../../Utils/CreateConfigurations';
 
 interface ProfileMappingConfiguration {
   id: string;
@@ -73,6 +74,8 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     this.fieldContainer = React.createRef();
     window.localStorage.removeItem('spdocdata');
+    CreateConfigurations.CreateAdminConfigList(this.context);
+    CreateConfigurations.CreateDocumentConfigList(this.context);
     return Promise.resolve();
   }
 
@@ -106,7 +109,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     const fileExtensionOnly = PathUtils.getFileExtension(fileName);
     const fileNoName = PathUtils.removeFileExtension(fileName);
     const pageOrigin = window.location.origin;
-    const requestUrl = pageOrigin + fileUrl;
     if (filecontenttypename === 'Folder') {
       alert('Cannot Send a Folder To Laserfiche');
     } else if (!fileNoName || fileNoName.length === 0) {
@@ -134,8 +136,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         fileName,
         filecontenttypename,
         fileUrl,
-        requestUrl,
-        fileExtensionOnly,
         pageOrigin
       );
     }
@@ -219,8 +219,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     fileName: string,
     filecontenttypename: string,
     fileUrl: string,
-    requestUrl: string,
-    fileExtensionOnly: string,
     pageOrigin: string
   ) {
     dialog.textInside = <span>Saving your document to Laserfiche</span>;
@@ -243,150 +241,117 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         return response.json();
       })
       .then(async (response) => {
-        const SPListItem: IListItem = response.value[0];
-        const manageMappingDetails: ProfileMappingConfiguration[] = JSON.parse(
-          SPListItem.JsonValue
-        );
-        for (const mapping of manageMappingDetails) {
-          // we check whether the contentype of selected file is have a mapping or not
-          const fileTypeHasMapping =
-            filecontenttypename === mapping.SharePointContentType;
-          if (fileTypeHasMapping) {
-            const laserficheProfile = mapping.LaserficheContentType;
+        let matchingMapping = undefined;
+        if (response.value?.length > 0) {
+          const SPListItem: IListItem = response.value[0];
+          const manageMappingDetails: ProfileMappingConfiguration[] =
+            JSON.parse(SPListItem.JsonValue);
+          matchingMapping = manageMappingDetails.find(
+            (el) => el.SharePointContentType === filecontenttypename
+          );
+        }
 
-            this.context.spHttpClient
-              .get(
-                contextPageAbsoluteUrl +
-                  "/_api/web/lists/getByTitle('AdminConfigurationList')/items?$filter=Title eq 'ManageConfigurations'&$top=1",
-                SPHttpClient.configurations.v1,
-                {
-                  headers: {
-                    Accept: 'application/json',
-                  },
-                }
-              )
-              .then((response1: SPHttpClientResponse) => {
-                return response1.json();
-              })
-              .then(async (response1) => {
-                const allConfigs: ProfileConfiguration[] = JSON.parse(
-                  response1.value[0]['JsonValue']
-                );
-                const matchingLFConfig = allConfigs.find(
-                  (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
-                );
-                if (matchingLFConfig.selectedTemplateName && matchingLFConfig.selectedTemplateName!=='None') {
-                    const metadata: IPostEntryWithEdocMetadataRequest = {
-                      template: matchingLFConfig.selectedTemplateName,
+        if (!matchingMapping) {
+          const fileData: ISPDocumentData = {
+            fileName,
+            documentName: fileName,
+            fileUrl,
+            entryId: '1',
+            contextPageAbsoluteUrl,
+            pageOrigin,
+            action: ActionTypes.COPY,
+          };
+          window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
+          
+          Navigation.navigate(
+            contextPageAbsoluteUrl + Redirectpagelink,
+            true
+          );
+        } else {
+          const laserficheProfile = matchingMapping.LaserficheContentType;
+
+          this.context.spHttpClient
+            .get(
+              contextPageAbsoluteUrl +
+                "/_api/web/lists/getByTitle('AdminConfigurationList')/items?$filter=Title eq 'ManageConfigurations'&$top=1",
+              SPHttpClient.configurations.v1,
+              {
+                headers: {
+                  Accept: 'application/json',
+                },
+              }
+            )
+            .then((response1: SPHttpClientResponse) => {
+              return response1.json();
+            })
+            .then(async (response1) => {
+              const allConfigs: ProfileConfiguration[] = JSON.parse(
+                response1.value[0]['JsonValue']
+              );
+              const matchingLFConfig = allConfigs.find(
+                (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
+              );
+              if (
+                matchingLFConfig.selectedTemplateName?.length > 0
+              ) {
+                const metadata: IPostEntryWithEdocMetadataRequest = {
+                  template: matchingLFConfig.selectedTemplateName,
+                };
+                const missingRequiredFields: SPProfileConfigurationData[] = [];
+                const fields: { [key: string]: FieldToUpdate } = {};
+                for (const mapping of matchingLFConfig.mappedFields) {
+                  const spFieldName = mapping.spField.Title;
+                  let spDocFieldValue = this.allFieldValueStore[spFieldName];
+
+                  if (spDocFieldValue != undefined || spDocFieldValue != null) {
+                    const lfField = mapping.lfField;
+
+                    spDocFieldValue = forceTruncateToFieldTypeLength(
+                      lfField,
+                      spDocFieldValue
+                    );
+                    spDocFieldValue = spDocFieldValue.replace(/[\\]/g, `\\\\`);
+                    spDocFieldValue = spDocFieldValue.replace(/["]/g, `\\"`);
+
+                    if (
+                      lfField.isRequired &&
+                      (!spDocFieldValue || spDocFieldValue.length === 0)
+                    ) {
+                      missingRequiredFields.push(mapping.spField);
+                    }
+
+                    const valueToUpdate: IValueToUpdate = {
+                      value: spDocFieldValue,
+                      position: 1,
                     };
-                    const missingRequiredFields: SPProfileConfigurationData[] =
-                      [];
-                    const fields: { [key: string]: FieldToUpdate } = {};
-                    for (const mapping of matchingLFConfig.mappedFields) {
-                      const spFieldName = mapping.spField.Title;
-                      let spDocFieldValue =
-                        this.allFieldValueStore[spFieldName];
-
-                      if (
-                        spDocFieldValue != undefined ||
-                        spDocFieldValue != null
-                      ) {
-                        const lfField = mapping.lfField;
-
-                        spDocFieldValue = forceTruncateToFieldTypeLength(
-                          lfField,
-                          spDocFieldValue
-                        );
-                        spDocFieldValue = spDocFieldValue.replace(
-                          /[\\]/g,
-                          `\\\\`
-                        );
-                        spDocFieldValue = spDocFieldValue.replace(
-                          /["]/g,
-                          `\\"`
-                        );
-
-                        if (
-                          lfField.isRequired &&
-                          (!spDocFieldValue || spDocFieldValue.length === 0)
-                        ) {
-                          missingRequiredFields.push(mapping.spField);
-                        }
-
-                        const valueToUpdate: IValueToUpdate = {
-                          value: spDocFieldValue,
-                          position: 1,
-                        };
-                        const newValueToUpdate = new ValueToUpdate(
-                          valueToUpdate
-                        );
-                        fields[lfField.name] = new FieldToUpdate({
-                          values: [newValueToUpdate],
-                        });
-                        spDocFieldValue = '';
-                      } else {
-                        if (mapping.lfField.isRequired) {
-                          missingRequiredFields.push(mapping.spField);
-                        }
-
-                        spDocFieldValue = '';
-                      }
+                    const newValueToUpdate = new ValueToUpdate(valueToUpdate);
+                    fields[lfField.name] = new FieldToUpdate({
+                      values: [newValueToUpdate],
+                    });
+                    spDocFieldValue = '';
+                  } else {
+                    if (mapping.lfField.isRequired) {
+                      missingRequiredFields.push(mapping.spField);
                     }
 
-                    if (missingRequiredFields.length === 0) {
-                      const metadataFields: IPutFieldValsRequest = {
-                        fields,
-                      };
-                      metadata.metadata = new PutFieldValsRequest(
-                        metadataFields
-                      );
-                      const fileData: ISPDocumentData = {
-                        action: matchingLFConfig.Action,
-                        contextPageAbsoluteUrl,
-                        documentName: matchingLFConfig.DocumentName,
-                        templateName: matchingLFConfig.selectedTemplateName,
-                        entryId: matchingLFConfig.selectedFolder.id,
-                        fileUrl,
-                        fileName,
-                        metadata,
-                        pageOrigin,
-                        lfProfile: laserficheProfile,
-                      };
-                      window.localStorage.setItem(
-                        'spdocdata',
-                        JSON.stringify(fileData)
-                      );
-                      Navigation.navigate(
-                        contextPageAbsoluteUrl + Redirectpagelink,
-                        true
-                      );
-                    } else {
-                      await dialog.close();
-                      const listFields = missingRequiredFields.map((field) => (
-                        <div key={field.Title}>- {field.Title}</div>
-                      ));
-                      dialog.textInside = (
-                        <span>
-                          The following SharePoint field values are blank and
-                          are mapped to required Laserfiche fields:
-                          {listFields}Please fill out these required fields and
-                          try again.
-                        </span>
-                      );
-                      dialog.isLoading = false;
-                      dialog.show();
-                      this.spFieldNameDefs = [];
-                      this.allFieldValueStore = {};
-                    }
-                } else {
+                    spDocFieldValue = '';
+                  }
+                }
+
+                if (missingRequiredFields.length === 0) {
+                  const metadataFields: IPutFieldValsRequest = {
+                    fields,
+                  };
+                  metadata.metadata = new PutFieldValsRequest(metadataFields);
                   const fileData: ISPDocumentData = {
                     action: matchingLFConfig.Action,
-                    fileName,
-                    fileUrl,
+                    contextPageAbsoluteUrl,
                     documentName: matchingLFConfig.DocumentName,
                     templateName: matchingLFConfig.selectedTemplateName,
                     entryId: matchingLFConfig.selectedFolder.id,
-                    contextPageAbsoluteUrl,
+                    fileUrl,
+                    fileName,
+                    metadata,
                     pageOrigin,
                     lfProfile: laserficheProfile,
                   };
@@ -398,28 +363,51 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                     contextPageAbsoluteUrl + Redirectpagelink,
                     true
                   );
+                } else {
+                  await dialog.close();
+                  const listFields = missingRequiredFields.map((field) => (
+                    <div key={field.Title}>- {field.Title}</div>
+                  ));
+                  dialog.textInside = (
+                    <span>
+                      The following SharePoint field values are blank and are
+                      mapped to required Laserfiche fields:
+                      {listFields}Please fill out these required fields and try
+                      again.
+                    </span>
+                  );
+                  dialog.isLoading = false;
+                  dialog.show();
+                  this.spFieldNameDefs = [];
+                  this.allFieldValueStore = {};
                 }
-              });
-          }
-        }
-        if (
-          manageMappingDetails.findIndex((el) => el.SharePointContentType === filecontenttypename) ===
-          -1
-        ) {
-          const fileData: ISPDocumentData = {
-            fileName,
-            documentName: fileName,
-            fileUrl,
-            entryId: '1',
-            contextPageAbsoluteUrl,
-            pageOrigin,
-            action: ActionTypes.COPY,
-          };
-          window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
+              } else {
+                const fileData: ISPDocumentData = {
+                  action: matchingLFConfig.Action,
+                  fileName,
+                  fileUrl,
+                  documentName: matchingLFConfig.DocumentName,
+                  templateName: matchingLFConfig.selectedTemplateName,
+                  entryId: matchingLFConfig.selectedFolder.id,
+                  contextPageAbsoluteUrl,
+                  pageOrigin,
+                  lfProfile: laserficheProfile,
+                };
+                window.localStorage.setItem(
+                  'spdocdata',
+                  JSON.stringify(fileData)
+                );
+                Navigation.navigate(
+                  contextPageAbsoluteUrl + Redirectpagelink,
+                  true
+                );
+              }
+            });
         }
       });
   }
 }
+
 function forceTruncateToFieldTypeLength(
   lfField: TemplateFieldInfo,
   spDocFieldValue: string
