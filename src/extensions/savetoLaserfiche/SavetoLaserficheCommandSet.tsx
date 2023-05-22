@@ -275,8 +275,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                 const matchingLFConfig = allConfigs.find(
                   (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
                 );
-                if (matchingLFConfig) {
-                  if (matchingLFConfig.selectedTemplateName) {
+                if (matchingLFConfig.selectedTemplateName && matchingLFConfig.selectedTemplateName!=='None') {
                     const metadata: IPostEntryWithEdocMetadataRequest = {
                       template: matchingLFConfig.selectedTemplateName,
                     };
@@ -379,7 +378,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                       this.spFieldNameDefs = [];
                       this.allFieldValueStore = {};
                     }
-                  }
                 } else {
                   const fileData: ISPDocumentData = {
                     action: matchingLFConfig.Action,
@@ -405,7 +403,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
           }
         }
         if (
-          manageMappingDetails.findIndex((el) => el.SharePointContentType) ===
+          manageMappingDetails.findIndex((el) => el.SharePointContentType === filecontenttypename) ===
           -1
         ) {
           const fileData: ISPDocumentData = {

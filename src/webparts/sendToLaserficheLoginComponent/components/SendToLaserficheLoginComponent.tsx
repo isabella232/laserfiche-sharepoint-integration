@@ -203,7 +203,7 @@ export default function SendToLaserficheLoginComponent(
     try {
       const entryCreateResult: CreateEntryResult =
         await repoClient.entriesClient.importDocument(entryRequest);
-      const Entryid = entryCreateResult.operations.entryCreate.entryId;
+      const Entryid = entryCreateResult.operations.entryCreate.entryId ?? 1;
       const fileLink = getEntryWebAccessUrl(
         Entryid.toString(),
         repoId,

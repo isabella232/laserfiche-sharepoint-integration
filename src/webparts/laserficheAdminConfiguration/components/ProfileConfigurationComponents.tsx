@@ -522,8 +522,8 @@ export function SharePointLaserficheColumnMatching(props: {
   let fullValidationError = undefined;
   if (props.validate) {
     if (
-      (props.profileConfig.mappedFields.some((item) => !item.spField) ||
-        props.profileConfig.mappedFields.some((items) => !items.lfField)) &&
+      (props.profileConfig.mappedFields?.some((item) => !item.spField) ||
+        props.profileConfig.mappedFields?.some((items) => !items.lfField)) &&
       props.profileConfig.selectedTemplateName
     ) {
       fullValidationError = (
@@ -745,12 +745,14 @@ export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
   if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0) {
     return false;
   }
-  for (const mapped of profileConfig.mappedFields) {
-    if (!mapped.spField || !mapped.lfField) {
-      return false;
-    }
-    if(hasFieldTypeMismatch(mapped)) {
-      return false;
+  if (profileConfig.mappedFields) {
+    for (const mapped of profileConfig.mappedFields) {
+      if (!mapped.spField || !mapped.lfField) {
+        return false;
+      }
+      if(hasFieldTypeMismatch(mapped)) {
+        return false;
+      }
     }
   }
   return true;
