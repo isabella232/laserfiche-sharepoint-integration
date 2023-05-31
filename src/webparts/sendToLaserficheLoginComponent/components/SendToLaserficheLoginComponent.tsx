@@ -36,12 +36,14 @@ declare global {
 }
 
 const dialog = new SendToLaserficheCustomDialog();
+
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ) {
   const loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
   > = React.useRef();
+
   const [repoClient, setRepoClient] = React.useState<
     IRepositoryApiClientExInternal | undefined
   >(undefined);

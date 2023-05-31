@@ -64,8 +64,9 @@ enum SpWebPartNames {
 const LOG_SOURCE = 'SendToLfCommandSet';
 const dialog: SaveToLaserficheCustomDialog = new SaveToLaserficheCustomDialog();
 const Redirectpagelink = '/SitePages/LaserficheSpSignIn.aspx';
+
 export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLfCommandSetProperties> {
-  public fieldContainer: React.RefObject<
+  fieldContainer: React.RefObject<
     NgElement & WithProperties<LfFieldContainerComponent>
   >;
   spFieldNameDefs: {
@@ -76,12 +77,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   allFieldValueStore: object;
   hasSignInPage = false;
   hasAdminPage = false;
+
   public onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     this.fieldContainer = React.createRef();
     window.localStorage.removeItem('spdocdata');
-    CreateConfigurations.CreateAdminConfigList(this.context);
-    CreateConfigurations.CreateDocumentConfigList(this.context);
+    CreateConfigurations.ensureAdminConfigListCreated(this.context);
+    CreateConfigurations.ensureDocumentConfigListCreated(this.context);
     return Promise.resolve();
   }
 
@@ -96,6 +98,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         event.selectedRows[0].getValueByName('ContentType') !== 'Folder';
     }
   }
+
   public async onExecute(
     event: IListViewCommandSetExecuteEventParameters
   ): Promise<void> {
@@ -114,6 +117,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
 
     const fileExtensionOnly = PathUtils.getFileExtension(fileName);
     const fileNoName = PathUtils.removeFileExtension(fileName);
+
     const pageOrigin = window.location.origin;
     if (filecontenttypename === 'Folder') {
       alert('Cannot Send a Folder To Laserfiche');
@@ -256,18 +260,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         }
 
         if (!matchingMapping) {
-          const fileData: ISPDocumentData = {
-            fileName,
-            documentName: fileName,
-            fileUrl,
-            entryId: '1',
-            contextPageAbsoluteUrl,
-            pageOrigin,
-            action: ActionTypes.COPY,
-          };
-          window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
-
-          Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
+          this.sendToLaserficheWithNoMetadata(fileName, fileUrl, contextPageAbsoluteUrl, pageOrigin);
         } else {
           const laserficheProfile = matchingMapping.LaserficheContentType;
 
@@ -300,70 +293,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                 };
                 const missingRequiredFields: SPProfileConfigurationData[] = [];
                 const fields: { [key: string]: FieldToUpdate } = {};
-                for (const mapping of matchingLFConfig.mappedFields) {
-                  const spFieldName = mapping.spField.Title;
-                  let spDocFieldValue = this.allFieldValueStore[spFieldName];
-
-                  if (spDocFieldValue != undefined || spDocFieldValue != null) {
-                    const lfField = mapping.lfField;
-
-                    spDocFieldValue = forceTruncateToFieldTypeLength(
-                      lfField,
-                      spDocFieldValue
-                    );
-                    spDocFieldValue = spDocFieldValue.replace(/[\\]/g, `\\\\`);
-                    spDocFieldValue = spDocFieldValue.replace(/["]/g, `\\"`);
-
-                    if (
-                      lfField.isRequired &&
-                      (!spDocFieldValue || spDocFieldValue.length === 0)
-                    ) {
-                      missingRequiredFields.push(mapping.spField);
-                    }
-
-                    const valueToUpdate: IValueToUpdate = {
-                      value: spDocFieldValue,
-                      position: 1,
-                    };
-                    const newValueToUpdate = new ValueToUpdate(valueToUpdate);
-                    fields[lfField.name] = new FieldToUpdate({
-                      values: [newValueToUpdate],
-                    });
-                    spDocFieldValue = '';
-                  } else {
-                    if (mapping.lfField.isRequired) {
-                      missingRequiredFields.push(mapping.spField);
-                    }
-
-                    spDocFieldValue = '';
-                  }
-                }
+                this.formatMetadata(matchingLFConfig, missingRequiredFields, fields);
 
                 if (missingRequiredFields.length === 0) {
-                  const metadataFields: IPutFieldValsRequest = {
-                    fields,
-                  };
-                  metadata.metadata = new PutFieldValsRequest(metadataFields);
-                  const fileData: ISPDocumentData = {
-                    action: matchingLFConfig.Action,
-                    contextPageAbsoluteUrl,
-                    documentName: matchingLFConfig.DocumentName,
-                    templateName: matchingLFConfig.selectedTemplateName,
-                    entryId: matchingLFConfig.selectedFolder.id,
-                    fileUrl,
-                    fileName,
-                    metadata,
-                    pageOrigin,
-                    lfProfile: laserficheProfile,
-                  };
-                  window.localStorage.setItem(
-                    'spdocdata',
-                    JSON.stringify(fileData)
-                  );
-                  Navigation.navigate(
-                    contextPageAbsoluteUrl + Redirectpagelink,
-                    true
-                  );
+                  this.sendToLaserficheWithMetadata(fields, metadata, matchingLFConfig, contextPageAbsoluteUrl, fileUrl, fileName, pageOrigin, laserficheProfile);
                 } else {
                   await dialog.close();
                   const listFields = missingRequiredFields.map((field) => (
@@ -406,6 +339,87 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
             });
         }
       });
+  }
+
+  private formatMetadata(matchingLFConfig: ProfileConfiguration, missingRequiredFields: SPProfileConfigurationData[], fields: { [key: string]: FieldToUpdate; }) {
+    for (const mapping of matchingLFConfig.mappedFields) {
+      const spFieldName = mapping.spField.Title;
+      let spDocFieldValue = this.allFieldValueStore[spFieldName];
+
+      if (spDocFieldValue != undefined || spDocFieldValue != null) {
+        const lfField = mapping.lfField;
+
+        spDocFieldValue = forceTruncateToFieldTypeLength(
+          lfField,
+          spDocFieldValue
+        );
+        spDocFieldValue = spDocFieldValue.replace(/[\\]/g, `\\\\`);
+        spDocFieldValue = spDocFieldValue.replace(/["]/g, `\\"`);
+
+        if (lfField.isRequired &&
+          (!spDocFieldValue || spDocFieldValue.length === 0)) {
+          missingRequiredFields.push(mapping.spField);
+        }
+
+        const valueToUpdate: IValueToUpdate = {
+          value: spDocFieldValue,
+          position: 1,
+        };
+        const newValueToUpdate = new ValueToUpdate(valueToUpdate);
+        fields[lfField.name] = new FieldToUpdate({
+          values: [newValueToUpdate],
+        });
+        spDocFieldValue = '';
+      } else {
+        if (mapping.lfField.isRequired) {
+          missingRequiredFields.push(mapping.spField);
+        }
+
+        spDocFieldValue = '';
+      }
+    }
+  }
+
+  private sendToLaserficheWithMetadata(fields: { [key: string]: FieldToUpdate; }, metadata: IPostEntryWithEdocMetadataRequest, matchingLFConfig: ProfileConfiguration, contextPageAbsoluteUrl: string, fileUrl: string, fileName: string, pageOrigin: string, laserficheProfile: any) {
+    const metadataFields: IPutFieldValsRequest = {
+      fields,
+    };
+    metadata.metadata = new PutFieldValsRequest(metadataFields);
+    const fileData: ISPDocumentData = {
+      action: matchingLFConfig.Action,
+      contextPageAbsoluteUrl,
+      documentName: matchingLFConfig.DocumentName,
+      templateName: matchingLFConfig.selectedTemplateName,
+      entryId: matchingLFConfig.selectedFolder.id,
+      fileUrl,
+      fileName,
+      metadata,
+      pageOrigin,
+      lfProfile: laserficheProfile,
+    };
+    window.localStorage.setItem(
+      'spdocdata',
+      JSON.stringify(fileData)
+    );
+    Navigation.navigate(
+      contextPageAbsoluteUrl + Redirectpagelink,
+      true
+    );
+  }
+
+  private sendToLaserficheWithNoMetadata(fileName: string, fileUrl: string, contextPageAbsoluteUrl: string, pageOrigin: string) {
+    const fileData: ISPDocumentData = {
+      fileName,
+      documentName: fileName,
+      fileUrl,
+      entryId: '1',
+      contextPageAbsoluteUrl,
+      pageOrigin,
+      action: ActionTypes.COPY,
+    };
+    window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
+
+    Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
   }
 }
 

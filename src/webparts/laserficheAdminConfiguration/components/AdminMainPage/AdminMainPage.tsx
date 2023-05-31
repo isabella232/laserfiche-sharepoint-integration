@@ -18,8 +18,8 @@ declare global {
 
 export default function AdminMainPage(props: IAdminPageProps) {
   useEffect(() => {
-    CreateConfigurations.CreateAdminConfigList(props.context);
-    CreateConfigurations.CreateDocumentConfigList(props.context);
+    CreateConfigurations.ensureAdminConfigListCreated(props.context);
+    CreateConfigurations.ensureDocumentConfigListCreated(props.context);
   }, []);
 
   const linkData: LinkInfo[] = [
