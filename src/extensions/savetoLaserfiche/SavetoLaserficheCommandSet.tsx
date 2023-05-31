@@ -31,6 +31,12 @@ import {
 } from '@laserfiche/lf-repository-api-client';
 import { ISPDocumentData } from '../../Utils/Types';
 import { CreateConfigurations } from '../../Utils/CreateConfigurations';
+import {
+  ADMIN_CONFIGURATION_LIST,
+  MANAGE_CONFIGURATIONS,
+  MANAGE_MAPPING,
+} from '../../webparts/constants';
+import { getSPListURL } from '../../Utils/Funcs';
 
 interface ProfileMappingConfiguration {
   id: string;
@@ -132,20 +138,14 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         'Missing "LaserficheSpAdministration" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
       );
     } else {
-      this.getAdminData(
-        fileName,
-        filecontenttypename,
-        fileUrl,
-        pageOrigin
-      );
+      this.getAdminData(fileName, filecontenttypename, fileUrl, pageOrigin);
     }
   }
-  //checking whether the Sign-in Page configured or not
+
   public async pageConfigurationCheck() {
     try {
       const res = await fetch(
-        this.context.pageContext.web.absoluteUrl +
-          `/_api/web/lists/getbytitle('Site Pages')/items`,
+        `${getSPListURL(this.context, 'Site Pages')}/items`,
         {
           method: 'GET',
           headers: {
@@ -168,12 +168,14 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       // TODO
     }
   }
-  // getting All Fields from the library and other properties
+
   public async GetAllFieldsProperties(libraryUrl) {
     try {
       const res = await fetch(
-        this.context.pageContext.web.absoluteUrl +
-          `/_api/web/lists/getbytitle('${libraryUrl}')/Fields?$filter=Group ne '_Hidden'`,
+        `${getSPListURL(
+          this.context,
+          libraryUrl
+        )}/Fields?$filter=Group ne '_Hidden'`,
         {
           method: 'GET',
           headers: {
@@ -191,12 +193,13 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  //getting all the Fields Values for the Selected file
   public async GetAllFieldsValues(libraryUrl, fileId) {
     try {
       const res = await fetch(
-        this.context.pageContext.web.absoluteUrl +
-          `/_api/web/lists/getbytitle('${libraryUrl}')/items(${fileId})/FieldValuesForEdit`,
+        `${getSPListURL(
+          this.context,
+          libraryUrl
+        )}/items(${fileId})/FieldValuesForEdit`,
         {
           method: 'GET',
           headers: {
@@ -214,7 +217,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  //Processing Admin Data and making All further validations to upload file with metadata
   public getAdminData(
     fileName: string,
     filecontenttypename: string,
@@ -228,8 +230,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
 
     this.context.spHttpClient
       .get(
-        contextPageAbsoluteUrl +
-          "/_api/web/lists/getByTitle('AdminConfigurationList')/items?$filter=Title eq 'ManageMapping'&$top=1",
+        `${getSPListURL(
+          this.context,
+          ADMIN_CONFIGURATION_LIST
+        )}/items?$filter=Title eq '${MANAGE_MAPPING}'&$top=1`,
         SPHttpClient.configurations.v1,
         {
           headers: {
@@ -262,18 +266,17 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
             action: ActionTypes.COPY,
           };
           window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
-          
-          Navigation.navigate(
-            contextPageAbsoluteUrl + Redirectpagelink,
-            true
-          );
+
+          Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
         } else {
           const laserficheProfile = matchingMapping.LaserficheContentType;
 
           this.context.spHttpClient
             .get(
-              contextPageAbsoluteUrl +
-                "/_api/web/lists/getByTitle('AdminConfigurationList')/items?$filter=Title eq 'ManageConfigurations'&$top=1",
+              `${getSPListURL(
+                this.context,
+                ADMIN_CONFIGURATION_LIST
+              )}/items?$filter=Title eq '${MANAGE_CONFIGURATIONS}'&$top=1`,
               SPHttpClient.configurations.v1,
               {
                 headers: {
@@ -291,9 +294,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
               const matchingLFConfig = allConfigs.find(
                 (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
               );
-              if (
-                matchingLFConfig.selectedTemplateName?.length > 0
-              ) {
+              if (matchingLFConfig.selectedTemplateName?.length > 0) {
                 const metadata: IPostEntryWithEdocMetadataRequest = {
                   template: matchingLFConfig.selectedTemplateName,
                 };

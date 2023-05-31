@@ -4,12 +4,20 @@ import { DeleteModal } from '../ProfileConfigurationComponents';
 import { ChangeEvent, useState } from 'react';
 import { IManageMappingsPageProps } from './IManageMappingsPageProps';
 import { IListItem } from '../IListItem';
+import {
+  ADMIN_CONFIGURATION_LIST,
+  MANAGE_CONFIGURATIONS,
+  MANAGE_MAPPING,
+} from '../../../constants';
+import { getSPListURL } from '../../../../Utils/Funcs';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
-const sharepointValidationMapping = 'Please select a content type from the SharePoint Content Type drop down';
-const laserficheValidationMapping = 'Please select a content type from the Laserfiche Profile dropdown';
+const sharepointValidationMapping =
+  'Please select a content type from the SharePoint Content Type drop down';
+const laserficheValidationMapping =
+  'Please select a content type from the Laserfiche Profile dropdown';
 const validationOf = 'Already Mapping exists for this SharePoint content type';
 
 export default function ManageMappingsPage(props: IManageMappingsPageProps) {
@@ -51,9 +59,10 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
 
   async function GetManageConfiguration(): Promise<IListItem[]> {
     const data: IListItem[] = [];
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -78,7 +87,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
 
   async function GetAllSharePointContentTypes() {
     const array = [];
-    const restApiUrl: string =
+    const restApiUrl =
       props.context.pageContext.web.absoluteUrl + '/_api/web/contenttypes';
     try {
       const res = await fetch(restApiUrl, {
@@ -126,11 +135,10 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
               AddNewInExistingMapping(jsonValue, rows, idx, itemId);
             }
           } else {
-            const restApiUrl: string =
-              props.context.pageContext.web.absoluteUrl +
-              "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-              itemId +
-              ')';
+            const restApiUrl = `${getSPListURL(
+              props.context,
+              ADMIN_CONFIGURATION_LIST
+            )}/items(${itemId})`;
             const row = [...mappingRows];
             const newjsonValue = [
               {
@@ -142,7 +150,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
             ];
             const jsonObject = JSON.stringify(newjsonValue);
             const body: string = JSON.stringify({
-              Title: 'ManageMapping',
+              Title: MANAGE_MAPPING,
               JsonValue: jsonObject,
             });
             const options: ISPHttpClientOptions = {
@@ -164,9 +172,10 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
             setMappingRows(rows);
           }
         } else {
-          const restApiUrl: string =
-            props.context.pageContext.web.absoluteUrl +
-            "/_api/web/lists/getByTitle('AdminConfigurationList')/items";
+          const restApiUrl = `${getSPListURL(
+            props.context,
+            ADMIN_CONFIGURATION_LIST
+          )}/items`;
           const newRow = [...mappingRows];
           const jsonValues = [
             {
@@ -178,7 +187,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
           ];
           const jsonObject = JSON.stringify(jsonValues);
           const body: string = JSON.stringify({
-            Title: 'ManageMapping',
+            Title: MANAGE_MAPPING,
             JsonValue: jsonObject,
           });
           const options: ISPHttpClientOptions = {
@@ -212,11 +221,10 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
       }
     }
     if (exitEntry == false) {
-      const restApiUrl: string =
-        props.context.pageContext.web.absoluteUrl +
-        "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-        itemId +
-        ')';
+      const restApiUrl = `${getSPListURL(
+        props.context,
+        ADMIN_CONFIGURATION_LIST
+      )}/items(${itemId})`;
       const newJsonValue = [
         ...jsonValue,
         {
@@ -228,7 +236,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
       ];
       const jsonObject = JSON.stringify(newJsonValue);
       const body: string = JSON.stringify({
-        Title: 'ManageMapping',
+        Title: MANAGE_MAPPING,
         JsonValue: jsonObject,
       });
       const options: ISPHttpClientOptions = {
@@ -280,15 +288,14 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
           break;
         }
       }
-      const restApiUrl: string =
-        props.context.pageContext.web.absoluteUrl +
-        "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-        itemId +
-        ')';
+      const restApiUrl = `${getSPListURL(
+        props.context,
+        ADMIN_CONFIGURATION_LIST
+      )}/items(${itemId})`;
       const newJsonValue = [...jsonValue];
       const jsonObject = JSON.stringify(newJsonValue);
       const body: string = JSON.stringify({
-        Title: 'ManageMapping',
+        Title: MANAGE_MAPPING,
         JsonValue: jsonObject,
       });
       const options: ISPHttpClientOptions = {
@@ -334,15 +341,14 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
         }
         if (entryExists > -1) {
           jsonValue.splice(entryExists, 1);
-          const restApiUrl: string =
-            props.context.pageContext.web.absoluteUrl +
-            "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-            itemId +
-            ')';
+          const restApiUrl = `${getSPListURL(
+            props.context,
+            ADMIN_CONFIGURATION_LIST
+          )}/items(${itemId})`;
           const newJsonValue = [...jsonValue];
           const jsonObject = JSON.stringify(newJsonValue);
           const body: string = JSON.stringify({
-            Title: 'ManageMapping',
+            Title: MANAGE_MAPPING,
             JsonValue: jsonObject,
           });
           const options: ISPHttpClientOptions = {
@@ -390,9 +396,10 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
 
   async function GetItemIdByTitle(): Promise<IListItem[]> {
     const array: IListItem[] = [];
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageMapping'";
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_MAPPING}'`;
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -493,10 +500,14 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
   };
 
   const SharePointContents = sharePointContentTypes.map((v) => (
-    <option key={v.name} value={v.name}>{v.name}</option>
+    <option key={v.name} value={v.name}>
+      {v.name}
+    </option>
   ));
   const LaserficheContents = laserficheContentTypes.map((v) => (
-    <option key={v.name} value={v.name}>{v.name}</option>
+    <option key={v.name} value={v.name}>
+      {v.name}
+    </option>
   ));
   const renderTableData = mappingRows.map((item, index) => {
     if (item.toggle) {
@@ -522,7 +533,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
               className='custom-select'
               value={mappingRows[index].LaserficheContentType}
               id={mappingRows[index].id}
-              onChange={(e) => handleChange(e,index)}
+              onChange={(e) => handleChange(e, index)}
             >
               <option>Select</option>
               {LaserficheContents}
@@ -635,11 +646,11 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
               </table>
             </div>
 
-            {validationMessage && <div id='sharePointValidationMapping' style={{ color: 'red' }}>
-              <span>
-                {validationMessage}
-              </span>
-            </div>}
+            {validationMessage && (
+              <div id='sharePointValidationMapping' style={{ color: 'red' }}>
+                <span>{validationMessage}</span>
+              </div>
+            )}
             <div className='card-footer bg-transparent'>
               <a
                 className='btn btn-primary pl-5 pr-5 float-right'

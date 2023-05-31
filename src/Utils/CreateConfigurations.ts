@@ -1,16 +1,18 @@
-import { WebPartContext } from '@microsoft/sp-webpart-base';
 import {
   SPHttpClient,
   SPHttpClientResponse,
   ISPHttpClientOptions,
 } from '@microsoft/sp-http';
-import { ListViewCommandSetContext } from '@microsoft/sp-listview-extensibility';
+import {
+  ADMIN_CONFIGURATION_LIST,
+  DOCUMENT_NAME_CONFIG_LIST,
+} from '../webparts/constants';
+import { getSPListURL } from './Funcs';
+import { BaseComponentContext } from '@microsoft/sp-component-base';
 
 export class CreateConfigurations {
-  public static CreateDocumentConfigList(context: WebPartContext | ListViewCommandSetContext) {
-    const listUrl: string =
-      context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/GetByTitle('DocumentNameConfigList')";
+  public static CreateDocumentConfigList(context: BaseComponentContext) {
+    const listUrl: string = getSPListURL(context, DOCUMENT_NAME_CONFIG_LIST);
     context.spHttpClient
       .get(listUrl, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => {
@@ -21,7 +23,7 @@ export class CreateConfigurations {
           const url: string =
             context.pageContext.web.absoluteUrl + '/_api/web/lists';
           const listDefinition = {
-            Title: 'DocumentNameConfigList',
+            Title: DOCUMENT_NAME_CONFIG_LIST,
             Description: 'My description',
             BaseTemplate: 100,
           };
@@ -43,7 +45,7 @@ export class CreateConfigurations {
   }
 
   private static AddItemsInDocumentConfigList(
-    context: WebPartContext | ListViewCommandSetContext,
+    context: BaseComponentContext,
     documentList: string
   ) {
     const arary = [
@@ -63,11 +65,7 @@ export class CreateConfigurations {
       '%(uuid)',
     ];
     for (let i = 0; i < arary.length; i++) {
-      const restApiUrl: string =
-        context.pageContext.web.absoluteUrl +
-        "/_api/web/lists/getByTitle('" +
-        documentList +
-        "')/items";
+      const restApiUrl: string = getSPListURL(context, documentList) + '/items';
       const body: string = JSON.stringify({ Title: arary[i] });
       const options: ISPHttpClientOptions = {
         headers: {
@@ -85,10 +83,8 @@ export class CreateConfigurations {
     }
   }
 
-  public static CreateAdminConfigList(context: WebPartContext | ListViewCommandSetContext) {
-    const listUrl: string =
-      context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/GetByTitle('AdminConfigurationList')";
+  public static CreateAdminConfigList(context: BaseComponentContext) {
+    const listUrl: string = getSPListURL(context, ADMIN_CONFIGURATION_LIST);
     context.spHttpClient
       .get(listUrl, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => {
@@ -99,7 +95,7 @@ export class CreateConfigurations {
           const url: string =
             context.pageContext.web.absoluteUrl + '/_api/web/lists';
           const listDefinition = {
-            Title: 'AdminConfigurationList',
+            Title: ADMIN_CONFIGURATION_LIST,
             Description: 'My description',
             BaseTemplate: 100,
           };
@@ -120,7 +116,7 @@ export class CreateConfigurations {
   }
 
   private static async GetFormDigestValue(
-    context: WebPartContext | ListViewCommandSetContext,
+    context: BaseComponentContext,
     listTitle: string
   ) {
     try {
@@ -141,15 +137,11 @@ export class CreateConfigurations {
   }
 
   private static async CreateColumns(
-    context: WebPartContext | ListViewCommandSetContext,
+    context: BaseComponentContext,
     listTitle: string,
     formDigestValue: string
   ) {
-    const siteUrl: string =
-      context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('" +
-      listTitle +
-      "')/fields";
+    const siteUrl: string = getSPListURL(context, listTitle) + '/fields';
     try {
       await fetch(siteUrl, {
         method: 'POST',

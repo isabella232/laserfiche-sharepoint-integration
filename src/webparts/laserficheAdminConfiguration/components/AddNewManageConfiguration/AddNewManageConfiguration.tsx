@@ -2,9 +2,19 @@ import * as React from 'react';
 import { IAddNewManageConfigurationProps } from './IAddNewManageConfigurationProps';
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { useState } from 'react';
-import { ActionTypes, LfFolder, ProfileConfiguration, validateNewConfiguration } from '../ProfileConfigurationComponents';
+import {
+  ActionTypes,
+  LfFolder,
+  ProfileConfiguration,
+  validateNewConfiguration,
+} from '../ProfileConfigurationComponents';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
+import {
+  ADMIN_CONFIGURATION_LIST,
+  MANAGE_CONFIGURATIONS,
+} from '../../../constants';
+import { getSPListURL } from '../../../../Utils/Funcs';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -21,8 +31,8 @@ declare global {
 
 const rootFolder: LfFolder = {
   id: '1',
-  path: '\\'
-}
+  path: '\\',
+};
 
 const initialConfig: ProfileConfiguration = {
   selectedFolder: rootFolder,
@@ -55,13 +65,12 @@ export default function AddNewManageConfiguration(
     Id: string,
     configsToSave: ProfileConfiguration[]
   ) {
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-      Id +
-      ')';
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/items(${Id})`;
     const body: string = JSON.stringify({
-      Title: 'ManageConfigurations',
+      Title: MANAGE_CONFIGURATIONS,
       JsonValue: JSON.stringify(configsToSave),
     });
     const options: ISPHttpClientOptions = {
@@ -110,10 +119,12 @@ export default function AddNewManageConfiguration(
           );
           return succeeeded;
         } else {
-          setConfigNameError(<span>
-            Profile with this name already exists, please provide
-            different name
-          </span>)
+          setConfigNameError(
+            <span>
+              Profile with this name already exists, please provide different
+              name
+            </span>
+          );
         }
       } else {
         const suceeded = await SaveNewPageConfiguration();
@@ -124,9 +135,10 @@ export default function AddNewManageConfiguration(
   }
 
   async function GetItemIdByTitle(): Promise<IListItem[]> {
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -148,11 +160,12 @@ export default function AddNewManageConfiguration(
 
   async function SaveNewPageConfiguration() {
     const profileConfigAsString = JSON.stringify([profileConfig]);
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/items";
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/items`;
     const body: string = JSON.stringify({
-      Title: 'ManageConfigurations',
+      Title: MANAGE_CONFIGURATIONS,
       JsonValue: profileConfigAsString,
     });
     const options: ISPHttpClientOptions = {
@@ -177,10 +190,9 @@ export default function AddNewManageConfiguration(
 
   let configNameValidation: JSX.Element | undefined;
   if (validate) {
-    if(configNameError) {
+    if (configNameError) {
       configNameValidation = configNameError;
-    }
-    else if (profileConfig.ConfigurationName == '') {
+    } else if (profileConfig.ConfigurationName == '') {
       configNameValidation = (
         <span>Please specify a name for this configuration</span>
       );

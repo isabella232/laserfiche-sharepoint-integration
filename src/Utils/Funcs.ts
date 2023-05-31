@@ -1,4 +1,5 @@
 import { UrlUtils } from '@laserfiche/lf-js-utils';
+import { BaseComponentContext } from '@microsoft/sp-component-base';
 
 export function getEntryWebAccessUrl(
   nodeId: string,
@@ -22,4 +23,14 @@ export function getEntryWebAccessUrl(
     newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
   }
   return newUrl;
+}
+
+export function getSPListURL(
+  context: BaseComponentContext,
+  listName: string
+) {
+  return (
+    context.pageContext.web.absoluteUrl +
+    `/_api/web/lists/GetByTitle('${listName}')`
+  );
 }
