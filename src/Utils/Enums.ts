@@ -1,0 +1,17 @@
+export enum TempStorageKeys {
+  Filename = 'Filename',
+  Documentname = 'Documentname',
+  DocTemplate = 'DocTemplate',
+  Action = 'Action',
+  Fileurl = 'Fileurl',
+  Destinationfolder = 'Destinationfolder',
+  Filedataurl = 'Filedataurl',
+  Fileextension = 'Fileextension',
+  ContextPageAbsoluteUrl = 'ContextPageAbsoluteUrl',
+  PageOrigin = 'PageOrigin',
+  Maping = 'Maping',
+  Filecontenttype = 'Filecontenttype',
+  LContType = 'LContType',
+  configname = 'configname',
+  Filemetadata = 'Filemetadata',
+}

@@ -18,16 +18,7 @@ export default class CustomDailog extends BaseDialog {
     html += `<button id="divid1" class="${styles.button1}">Close</button>`;
     html += `<button id="divid13" class="${styles.button2}" title="Click here to view the file in Laserfiche">View File</button>`;
     html += `</div>`;
-    //html+=  `<div id="divid12" class="${ styles.button }">`;
-    //html+=  `<button id="divid13" class="${ styles.button1 }" title="Click here to view File in Laserfiche">View File</button>`;
-    //html+=  `</div>`;
     html += `</div>`;
-    /* html+= ` <div className="card">
-        <div className="lf-component-container">
-          <lf-field-container collapsible="true" startCollapsed="true" ref={this.fieldContainer}>
-            </lf-field-container>
-          </div>
-        </div>` */
     this.domElement.innerHTML = html;
   }
   public getConfig(): IDialogConfiguration {

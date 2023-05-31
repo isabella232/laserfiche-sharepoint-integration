@@ -194,3 +194,6 @@ table.dataTable {
   overflow-y: auto;
   overflow-x: hidden;
 }
+.cdk-overlay-container {
+  z-index: 10000 !important;
+}

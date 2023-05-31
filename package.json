@@ -15,10 +15,8 @@
   },
   "dependencies": {
     "@laserfiche/lf-repository-api-client": "^1.0.12",
-    "@laserfiche/lf-ui-components-services": "^13.0.1",
-    "@laserfiche/types-lf-ui-components": "^13.1.3",
+    "@laserfiche/lf-ui-components-services": "^14.1.0",
     "bootstrap": "^5.1.3",
-    "jquery": "^3.6.0",
     "office-ui-fabric-react": "7.199.1",
     "react": "17.0.1",
     "react-dom": "17.0.1",
@@ -28,6 +26,7 @@
   },
   "devDependencies": {
     "@angular/elements": "^15.2.4",
+    "@laserfiche/types-lf-ui-components": "^14.1.3",
     "@microsoft/decorators": "1.16.1",
     "@microsoft/eslint-config-spfx": "1.16.1",
     "@microsoft/eslint-plugin-spfx": "1.16.1",
@@ -44,7 +43,6 @@
     "@microsoft/sp-webpart-base": "1.16.1",
     "@rushstack/eslint-config": "2.5.1",
     "@types/bootstrap": "^5.1.8",
-    "@types/jquery": "^3.5.10",
     "@types/react": "17.0.45",
     "@types/react-dom": "17.0.17",
     "@types/react-router-dom": "^5.3.3",
