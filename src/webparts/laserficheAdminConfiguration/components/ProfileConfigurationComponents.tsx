@@ -218,7 +218,7 @@ export function RepositoryBrowserModal(props: {
   const repositoryBrowser: React.RefObject<
     NgElement & WithProperties<LfRepositoryBrowserComponent>
   > = React.useRef();
-  let lfRepoTreeService;
+  let lfRepoTreeService: LfRepoTreeNodeService;
   React.useEffect(() => {
     if (props.repoClient) {
       lfRepoTreeService = new LfRepoTreeNodeService(props.repoClient);
@@ -250,27 +250,11 @@ export function RepositoryBrowserModal(props: {
       'entrySelected',
       onEntrySelected
     );
-    let focusedNode: LfRepoTreeNode | undefined;
-    if (props.selectedEntryNodePath) {
-      const repoId = await props.repoClient.getCurrentRepoId();
-      const focusedNodeByPath =
-        await props.repoClient.entriesClient.getEntryByPath({
-          repoId: repoId,
-          fullPath: props.selectedEntryNodePath,
-        });
-      const repoName = await props.repoClient.getCurrentRepoName();
-      const focusedNodeEntry = focusedNodeByPath?.entry;
-      if (focusedNodeEntry) {
-        focusedNode = lfRepoTreeService?.createLfRepoTreeNode(
-          focusedNodeEntry,
-          repoName
-        );
-      }
-    }
+
     if (lfRepoTreeService) {
       await repositoryBrowser?.current?.initAsync(
         lfRepoTreeService,
-        focusedNode
+        props.selectedEntryNodePath
       );
     } else {
       console.debug(
@@ -278,6 +262,7 @@ export function RepositoryBrowserModal(props: {
       );
     }
   }
+
   function getShouldShowSelect(): boolean {
     const showSelect =
       !entrySelected && !!repositoryBrowser?.current?.currentFolder;
