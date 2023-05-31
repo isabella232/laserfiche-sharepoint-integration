@@ -52,7 +52,7 @@ export default function SendToLaserficheLoginComponent(
 
   const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
 
-  let spFileMetadata: ISPDocumentData;
+  const spFileMetadata = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData;
 
   React.useEffect(() => {
     SPComponentLoader.loadScript(
@@ -76,35 +76,32 @@ export default function SendToLaserficheLoginComponent(
           logoutCompleted
         );
 
-        spFileMetadata = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData;
+        const loggedIn: boolean =
+          loginComponent.current.state === LoginState.LoggedIn;
 
-        const loggedOut: boolean =
-          loginComponent.current.state === LoginState.LoggedOut;
-
-        if (!loggedOut) {
+        if (loggedIn) {
           if (spFileMetadata) {
             dialog.show();
           }
-          getAndInitializeRepositoryClientAndServicesAsync().then(() => {
-            GetFileData().then(async (fileData) => {
-              saveFileToLaserfiche(fileData);
-            });
-          });
+          getAndInitializeRepositoryClientAndServicesAsync();
         }
       });
     });
-  }, [repoClient]);
+  }, []);
+
+  React.useEffect(() => {
+    if (repoClient && spFileMetadata) {
+      GetFileData().then(async (fileData) => {
+        saveFileToLaserfiche(fileData);
+      });
+    }
+  }, [repoClient, spFileMetadata]);
 
   const loginCompleted = () => {
     if (spFileMetadata) {
       dialog.show();
     }
-    getAndInitializeRepositoryClientAndServicesAsync().then(() => {
-      GetFileData().then(async (fileData) => {
-        // TODO repoclient isn't always assigned here bc of state..
-        saveFileToLaserfiche(fileData);
-      });
-    });
+    getAndInitializeRepositoryClientAndServicesAsync();
   };
 
   const logoutCompleted = () => {
@@ -115,8 +112,8 @@ export default function SendToLaserficheLoginComponent(
 
   function saveFileToLaserfiche(fileData: Blob) {
     if (spFileMetadata.fileName && fileData && repoClient) {
-      const LContType = spFileMetadata.lfProfile;
-      if (LContType) {
+      const laserficheProfileName = spFileMetadata.lfProfile;
+      if (laserficheProfileName) {
         SendToLaserficheWithMapping(fileData, spFileMetadata);
       } else {
         SendtoLaserficheNoMapping(fileData, spFileMetadata);
@@ -138,14 +135,13 @@ export default function SendToLaserficheLoginComponent(
   const ensureRepoClientInitializedAsync = async () => {
     if (!repoClient) {
       const repoClientCreator = new RepositoryClientExInternal();
-      const repoClient = await repoClientCreator.createRepositoryClientAsync();
-      setRepoClient(repoClient);
+      const newRepoClient = await repoClientCreator.createRepositoryClientAsync();
+      setRepoClient(newRepoClient);
       setLoggedIn(true);
     }
   };
 
   async function SendToLaserficheWithMapping(fileData: Blob, spFileMetadata: ISPDocumentData) {
-
     let request: PostEntryWithEdocMetadataRequest;
     if (spFileMetadata.templateName) {
       request = getRequestMetadata(spFileMetadata, request);
