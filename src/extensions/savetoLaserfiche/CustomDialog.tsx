@@ -1,16 +1,15 @@
 import { BaseDialog, IDialogConfiguration } from '@microsoft/sp-dialog';
 import styles from './SendToLaserFiche.module.scss';
-//import {} from './../../../lib/logo/laserfiche-logo.png';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 
-export default class CustomDailog extends BaseDialog {
+export default class SaveToLaserficheCustomDialog extends BaseDialog {
   textInside: JSX.Element = (<span>Saving your document to Laserfiche</span>);
   isLoading = true;
 
   public render(): void {
     const element: React.ReactElement = (
-      <CustomDialog
+      <SaveToLaserficheDialog
         textInside={this.textInside}
         loading={this.isLoading}
         handleCloseClick={() => this.close()}
@@ -18,18 +17,20 @@ export default class CustomDailog extends BaseDialog {
     );
     ReactDOM.render(element, this.domElement);
   }
+
   public getConfig(): IDialogConfiguration {
     return {
       isBlocking: false,
     };
   }
+
   protected onAfterClose(): void {
     ReactDOM.unmountComponentAtNode(this.domElement);
     super.onAfterClose();
   }
 }
 
-function CustomDialog(props: {
+function SaveToLaserficheDialog(props: {
   loading: boolean;
   textInside: JSX.Element;
   handleCloseClick: () => void;

@@ -1,5 +1,5 @@
 import { Log } from '@microsoft/sp-core-library';
-import CustomDailog from './CustomDialog';
+import SaveToLaserficheCustomDialog from './CustomDialog';
 import {
   BaseListViewCommandSet,
   Command,
@@ -62,7 +62,7 @@ enum SpWebPartNames {
 }
 
 const LOG_SOURCE = 'SendToLfCommandSet';
-const dialog: CustomDailog = new CustomDailog();
+const dialog: SaveToLaserficheCustomDialog = new SaveToLaserficheCustomDialog();
 const Redirectpagelink = '/SitePages/LaserficheSpSignIn.aspx';
 export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLfCommandSetProperties> {
   public fieldContainer: React.RefObject<
