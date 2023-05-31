@@ -102,7 +102,6 @@ export default function RepositoryViewComponent(props: {
     ];
     repoBrowser?.addEventListener('entrySelected', onEntrySelected);
     repoBrowser?.addEventListener('entryDblClicked', onEntryOpened);
-    let focusedNode: LfRepoTreeNode | undefined;
     if (lfRepoTreeService) {
       lfRepoTreeService.columnIds = [
         'creationTime',
@@ -110,7 +109,7 @@ export default function RepositoryViewComponent(props: {
         'pageCount',
         'templateName',
       ];
-      await repoBrowser?.initAsync(lfRepoTreeService, focusedNode);
+      await repoBrowser?.initAsync(lfRepoTreeService);
       setParentItem(repoBrowser?.currentFolder as LfRepoTreeNode);
       repoBrowser?.setColumnsToDisplay(cols);
       await repoBrowser?.refreshAsync();
