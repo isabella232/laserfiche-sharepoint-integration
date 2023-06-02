@@ -254,13 +254,13 @@ function SaveToLaserficheDialog(props: {
       if (props.spFileMetadata.action === ActionTypes.COPY) {
         window.localStorage.removeItem('spdocdata');
       } else if (props.spFileMetadata.action === ActionTypes.MOVE_AND_DELETE) {
-        DeleteFile(
+        await DeleteFile(
           props.spFileMetadata.pageOrigin,
           props.spFileMetadata.fileUrl,
           props.spFileMetadata.fileName
         );
       } else if (props.spFileMetadata.action === ActionTypes.REPLACE) {
-        deletefileandreplace(
+        await deletefileandreplace(
           props.spFileMetadata.pageOrigin,
           props.spFileMetadata.fileUrl,
           filenameWithoutExt,

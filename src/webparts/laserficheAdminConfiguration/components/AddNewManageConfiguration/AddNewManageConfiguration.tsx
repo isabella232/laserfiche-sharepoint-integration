@@ -38,7 +38,6 @@ const initialConfig: ProfileConfiguration = {
   selectedFolder: rootFolder,
   DocumentName: 'FileName',
   ConfigurationName: '',
-  selectedTemplateName: undefined,
   mappedFields: [],
   Action: ActionTypes.COPY,
 };
@@ -195,6 +194,11 @@ export default function AddNewManageConfiguration(
     } else if (profileConfig.ConfigurationName == '') {
       configNameValidation = (
         <span>Please specify a name for this configuration</span>
+      );
+    } else if (/[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName)) {
+      // TODO can we allow special characters
+      configNameValidation = (
+        <span>Invalid Name, only alphanumeric or space are allowed.</span>
       );
     }
   }
