@@ -428,10 +428,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     dialog.spMetadata = fileData;
     dialog.show().then(() => {
       if (!dialog.successful) {
-        Navigation.navigate(
-          contextPageAbsoluteUrl + Redirectpagelink,
-          true
-        );
+        Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
       }
     });
   }
@@ -457,10 +454,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     dialog.spMetadata = fileData;
     dialog.show().then(() => {
       if (!dialog.successful) {
-        Navigation.navigate(
-          contextPageAbsoluteUrl + Redirectpagelink,
-          true
-        );
+        Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
       }
     });
   }
