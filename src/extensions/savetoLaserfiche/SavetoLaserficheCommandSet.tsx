@@ -260,7 +260,12 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         }
 
         if (!matchingMapping) {
-          this.sendToLaserficheWithNoMetadata(fileName, fileUrl, contextPageAbsoluteUrl, pageOrigin);
+          this.sendToLaserficheWithNoMetadata(
+            fileName,
+            fileUrl,
+            contextPageAbsoluteUrl,
+            pageOrigin
+          );
         } else {
           const laserficheProfile = matchingMapping.LaserficheContentType;
 
@@ -293,10 +298,23 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                 };
                 const missingRequiredFields: SPProfileConfigurationData[] = [];
                 const fields: { [key: string]: FieldToUpdate } = {};
-                this.formatMetadata(matchingLFConfig, missingRequiredFields, fields);
+                this.formatMetadata(
+                  matchingLFConfig,
+                  missingRequiredFields,
+                  fields
+                );
 
                 if (missingRequiredFields.length === 0) {
-                  this.sendToLaserficheWithMetadata(fields, metadata, matchingLFConfig, contextPageAbsoluteUrl, fileUrl, fileName, pageOrigin, laserficheProfile);
+                  this.sendToLaserficheWithMetadata(
+                    fields,
+                    metadata,
+                    matchingLFConfig,
+                    contextPageAbsoluteUrl,
+                    fileUrl,
+                    fileName,
+                    pageOrigin,
+                    laserficheProfile
+                  );
                 } else {
                   await dialog.close();
                   const listFields = missingRequiredFields.map((field) => (
@@ -340,7 +358,11 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       });
   }
 
-  private formatMetadata(matchingLFConfig: ProfileConfiguration, missingRequiredFields: SPProfileConfigurationData[], fields: { [key: string]: FieldToUpdate; }) {
+  private formatMetadata(
+    matchingLFConfig: ProfileConfiguration,
+    missingRequiredFields: SPProfileConfigurationData[],
+    fields: { [key: string]: FieldToUpdate }
+  ) {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.Title;
       let spDocFieldValue = this.allFieldValueStore[spFieldName];
@@ -355,8 +377,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         spDocFieldValue = spDocFieldValue.replace(/[\\]/g, `\\\\`);
         spDocFieldValue = spDocFieldValue.replace(/["]/g, `\\"`);
 
-        if (lfField.isRequired &&
-          (!spDocFieldValue || spDocFieldValue.length === 0)) {
+        if (
+          lfField.isRequired &&
+          (!spDocFieldValue || spDocFieldValue.length === 0)
+        ) {
           missingRequiredFields.push(mapping.spField);
         }
 
@@ -376,7 +400,16 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  private sendToLaserficheWithMetadata(fields: { [key: string]: FieldToUpdate; }, metadata: IPostEntryWithEdocMetadataRequest, matchingLFConfig: ProfileConfiguration, contextPageAbsoluteUrl: string, fileUrl: string, fileName: string, pageOrigin: string, laserficheProfile: any) {
+  private sendToLaserficheWithMetadata(
+    fields: { [key: string]: FieldToUpdate },
+    metadata: IPostEntryWithEdocMetadataRequest,
+    matchingLFConfig: ProfileConfiguration,
+    contextPageAbsoluteUrl: string,
+    fileUrl: string,
+    fileName: string,
+    pageOrigin: string,
+    laserficheProfile: string
+  ) {
     const metadataFields: IPutFieldValsRequest = {
       fields,
     };
@@ -393,17 +426,16 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       pageOrigin,
       lfProfile: laserficheProfile,
     };
-    window.localStorage.setItem(
-      'spdocdata',
-      JSON.stringify(fileData)
-    );
-    Navigation.navigate(
-      contextPageAbsoluteUrl + Redirectpagelink,
-      true
-    );
+    window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
+    Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
   }
 
-  private sendToLaserficheWithNoMetadata(fileName: string, fileUrl: string, contextPageAbsoluteUrl: string, pageOrigin: string) {
+  private sendToLaserficheWithNoMetadata(
+    fileName: string,
+    fileUrl: string,
+    contextPageAbsoluteUrl: string,
+    pageOrigin: string
+  ) {
     const fileData: ISPDocumentData = {
       fileName,
       documentName: fileName,
