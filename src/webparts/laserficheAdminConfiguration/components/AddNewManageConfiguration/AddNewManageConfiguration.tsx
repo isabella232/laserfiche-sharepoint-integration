@@ -1,28 +1,43 @@
 import * as React from 'react';
-import * as bootstrap from 'bootstrap';
 import { IAddNewManageConfigurationProps } from './IAddNewManageConfigurationProps';
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { useState } from 'react';
-import { ActionTypes, ProfileConfiguration, validateNewConfiguration } from '../ProfileConfigurationComponents';
+import {
+  ActionTypes,
+  LfFolder,
+  ProfileConfiguration,
+  validateNewConfiguration,
+} from '../ProfileConfigurationComponents';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
+import {
+  ADMIN_CONFIGURATION_LIST,
+  MANAGE_CONFIGURATIONS,
+} from '../../../constants';
+import { getSPListURL } from '../../../../Utils/Funcs';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-repository-browser']: any;
     }
   }
 }
 
+const rootFolder: LfFolder = {
+  id: '1',
+  path: '\\',
+};
+
 const initialConfig: ProfileConfiguration = {
-  selectedFolder: undefined,
+  selectedFolder: rootFolder,
   DocumentName: 'FileName',
   ConfigurationName: '',
-  selectedTemplateName: undefined,
   mappedFields: [],
   Action: ActionTypes.COPY,
 };
@@ -49,13 +64,12 @@ export default function AddNewManageConfiguration(
     Id: string,
     configsToSave: ProfileConfiguration[]
   ) {
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-      Id +
-      ')';
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/items(${Id})`;
     const body: string = JSON.stringify({
-      Title: 'ManageConfigurations',
+      Title: MANAGE_CONFIGURATIONS,
       JsonValue: JSON.stringify(configsToSave),
     });
     const options: ISPHttpClientOptions = {
@@ -104,10 +118,12 @@ export default function AddNewManageConfiguration(
           );
           return succeeeded;
         } else {
-          setConfigNameError(<span>
-            Profile with this name already exists, please provide
-            different name
-          </span>)
+          setConfigNameError(
+            <span>
+              Profile with this name already exists, please provide different
+              name
+            </span>
+          );
         }
       } else {
         const suceeded = await SaveNewPageConfiguration();
@@ -118,9 +134,10 @@ export default function AddNewManageConfiguration(
   }
 
   async function GetItemIdByTitle(): Promise<IListItem[]> {
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -141,12 +158,13 @@ export default function AddNewManageConfiguration(
   }
 
   async function SaveNewPageConfiguration() {
-    const profileConfigAsString = JSON.stringify(profileConfig);
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/items";
+    const profileConfigAsString = JSON.stringify([profileConfig]);
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/items`;
     const body: string = JSON.stringify({
-      Title: 'ManageConfigurations',
+      Title: MANAGE_CONFIGURATIONS,
       JsonValue: profileConfigAsString,
     });
     const options: ISPHttpClientOptions = {
@@ -171,16 +189,16 @@ export default function AddNewManageConfiguration(
 
   let configNameValidation: JSX.Element | undefined;
   if (validate) {
-    if(configNameError) {
+    if (configNameError) {
       configNameValidation = configNameError;
-    }
-    else if (profileConfig.ConfigurationName == '') {
+    } else if (profileConfig.ConfigurationName == '') {
       configNameValidation = (
         <span>Please specify a name for this configuration</span>
       );
-    } else if (/[^A-Za-z0-9]/.test(profileConfig.ConfigurationName)) {
+    } else if (/[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName)) {
+      // TODO can we allow special characters
       configNameValidation = (
-        <span>Invalid Name, only alphanumeric are allowed without space.</span>
+        <span>Invalid Name, only alphanumeric or space are allowed.</span>
       );
     }
   }

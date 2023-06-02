@@ -1,6 +1,4 @@
 import * as React from 'react';
-import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
-import { ISendToLaserficheLoginComponentState } from './ISendToLaserficheLoginComponentState';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import SendToLaserficheCustomDialog from './SendToLaserficheCustomDialog';
 import { Navigation } from 'spfx-navigation';
@@ -11,184 +9,272 @@ import {
   FileParameter,
   FieldToUpdate,
   ValueToUpdate,
+  IPostEntryWithEdocMetadataRequest,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfLoginComponent,
   LoginState,
 } from '@laserfiche/types-lf-ui-components';
+import { PathUtils } from '@laserfiche/lf-js-utils';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ActionTypes } from '../../laserficheAdminConfiguration/components/ProfileConfigurationComponents';
-import { TempStorageKeys } from '../../../Utils/Enums';
+import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
+import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
+import { ISPDocumentData } from '../../../Utils/Types';
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-login']: any;
     }
   }
 }
 
 const dialog = new SendToLaserficheCustomDialog();
-let filelink = '';
-export default class SendToLaserficheLoginComponent extends React.Component<
-  ISendToLaserficheLoginComponentProps,
-  ISendToLaserficheLoginComponentState
-> {
-  public loginComponent: React.RefObject<
+
+export default function SendToLaserficheLoginComponent(
+  props: ISendToLaserficheLoginComponentProps
+) {
+  const loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
-  >;
-  public repoClient: IRepositoryApiClientExInternal;
+  > = React.useRef();
 
-  constructor(props: ISendToLaserficheLoginComponentProps) {
-    super(props);
-    this.loginComponent = React.createRef();
-    this.loginComponent = React.createRef();
+  const [repoClient, setRepoClient] = React.useState<
+    IRepositoryApiClientExInternal | undefined
+  >(undefined);
+  const [webClientUrl, setWebClientUrl] = React.useState<string | undefined>(
+    undefined
+  );
+  const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
 
-    this.state = {
-      baseurl: '',
-      filelink: '',
-      filedata: '',
-      accessToken: '',
-      parentItemId: 1,
-      repoId: '',
-      region: this.props.devMode
-        ? 'a.clouddev.laserfiche.com'
-        : 'laserfiche.com',
-    };
-  }
-  public async componentDidMount(): Promise<void> {
-    await SPComponentLoader.loadScript(
+  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+
+  const spFileMetadata = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData;
+
+  React.useEffect(() => {
+    SPComponentLoader.loadScript(
       'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    );
-    await SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
-    );
-    SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
-    );
-    this.loginComponent.current.addEventListener(
-      'loginCompleted',
-      this.loginCompleted
-    );
-    this.loginComponent.current.addEventListener(
-      'logoutCompleted',
-      this.logoutCompleted
-    );
+    ).then(() => {
+      SPComponentLoader.loadScript(
+        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
+      ).then(() => {
+        SPComponentLoader.loadCss(
+          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+        );
+        SPComponentLoader.loadCss(
+          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+        );
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompleted
+        );
+        loginComponent.current.addEventListener(
+          'logoutCompleted',
+          logoutCompleted
+        );
 
-    const loggedOut: boolean =
-      this.loginComponent.current.state === LoginState.LoggedOut;
+        const loggedIn: boolean =
+          loginComponent.current.state === LoginState.LoggedIn;
 
-    if (!loggedOut) {
-      dialog.show();
-      document.getElementById('remve').innerText =
-        'You are signed in to Laserfiche';
-      document.getElementById('remveHeading').innerText = 'Sign out';
-      if (window.localStorage.getItem(TempStorageKeys.LContType) == null || undefined) {
-        dialog.close();
-      }
-      this.getAndInitializeRepositoryClientAndServicesAsync().then(() => {
-        this.GetFileData().then(async (results) => {
-          this.setState({ filedata: results });
-          const DocTemplate = window.localStorage.getItem(TempStorageKeys.DocTemplate);
-          const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
-          if (LContType != 'undefined' && LContType !== null) {
-            if (DocTemplate != 'None') {
-              this.SendToLaserficheWithMetadata();
-            } else {
-              this.SendToLaserficheNoTemplate();
-            }
-          } else if (LContType !== null) {
-            this.SendtoLaserficheNoMapping();
-          } else {
-            //document.getElementById('remvefile').style.display='none';
-            dialog.close();
+        if (loggedIn) {
+          if (spFileMetadata) {
+            dialog.show();
           }
-        });
-      });
-    }
-  }
-
-  public loginCompleted = async () => {
-    dialog.show();
-    document.getElementById('remve').innerText =
-      'You are signed in to Laserfiche';
-    document.getElementById('remveHeading').innerText = 'Sign out';
-    if (window.localStorage.getItem(TempStorageKeys.LContType) == null || undefined) {
-      dialog.close();
-    }
-    this.getAndInitializeRepositoryClientAndServicesAsync().then(() => {
-      this.GetFileData().then(async (results) => {
-        this.setState({ filedata: results });
-        const DocTemplate = window.localStorage.getItem(TempStorageKeys.DocTemplate);
-        const LContType = window.localStorage.getItem(TempStorageKeys.LContType);
-        if (LContType != 'undefined' && LContType !== null) {
-          if (DocTemplate != 'None') {
-            this.SendToLaserficheWithMetadata();
-          } else {
-            this.SendToLaserficheNoTemplate();
-          }
-        } else if (LContType !== null) {
-          this.SendtoLaserficheNoMapping();
-        } else {
-          //document.getElementById('remvefile').style.display='none';
-          dialog.close();
-          //alert('Please go back to library and select a file to upload');
+          getAndInitializeRepositoryClientAndServicesAsync();
         }
       });
     });
-  };
+  }, []);
 
-  //Laserfiche LF logoutCompleted
-  public logoutCompleted = async () => {
-    //dialog.close();
-    window.location.href =
-      this.props.context.pageContext.web.absoluteUrl +
-      this.props.laserficheRedirectPage;
-  };
-  private async getAndInitializeRepositoryClientAndServicesAsync() {
-    const accessToken =
-      this.loginComponent?.current?.authorization_credentials?.accessToken;
-    if (accessToken) {
-      await this.ensureRepoClientInitializedAsync();
-
-      this.setState({
-        accessToken:
-          this.loginComponent.current.authorization_credentials.accessToken,
+  React.useEffect(() => {
+    if (repoClient && spFileMetadata) {
+      GetFileData().then(async (fileData) => {
+        saveFileToLaserfiche(fileData);
       });
+    }
+  }, [repoClient, spFileMetadata]);
+
+  const loginCompleted = () => {
+    if (spFileMetadata) {
+      dialog.show();
+    }
+    getAndInitializeRepositoryClientAndServicesAsync();
+  };
+
+  const logoutCompleted = () => {
+    setLoggedIn(false);
+    window.location.href =
+      props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
+  };
+
+  function saveFileToLaserfiche(fileData: Blob) {
+    if (spFileMetadata.fileName && fileData && repoClient) {
+      const laserficheProfileName = spFileMetadata.lfProfile;
+      if (laserficheProfileName) {
+        SendToLaserficheWithMapping(fileData, spFileMetadata);
+      } else {
+        SendtoLaserficheNoMapping(fileData, spFileMetadata);
+      }
+    }
+  }
+
+  const getAndInitializeRepositoryClientAndServicesAsync = async () => {
+    const accessToken =
+      loginComponent?.current?.authorization_credentials?.accessToken;
+    setWebClientUrl(loginComponent?.current?.account_endpoints.webClientUrl);
+    if (accessToken) {
+      await ensureRepoClientInitializedAsync();
     } else {
       // user is not logged in
     }
-  }
-  public async ensureRepoClientInitializedAsync(): Promise<void> {
-    if (!this.repoClient) {
+  };
+
+  const ensureRepoClientInitializedAsync = async () => {
+    if (!repoClient) {
       const repoClientCreator = new RepositoryClientExInternal();
-      this.repoClient = await repoClientCreator.createRepositoryClientAsync();
+      const newRepoClient = await repoClientCreator.createRepositoryClientAsync();
+      setRepoClient(newRepoClient);
+      setLoggedIn(true);
+    }
+  };
+
+  async function SendToLaserficheWithMapping(fileData: Blob, spFileMetadata: ISPDocumentData) {
+    let request: PostEntryWithEdocMetadataRequest;
+    if (spFileMetadata.templateName) {
+      request = getRequestMetadata(spFileMetadata, request);
+    } else {
+      request = new PostEntryWithEdocMetadataRequest({});
+    }
+
+    const fileExtensionPeriod = PathUtils.getCleanedExtension(
+      spFileMetadata.fileName
+    );
+    const filenameWithoutExt = PathUtils.removeFileExtension(
+      spFileMetadata.fileName
+    );
+    const docNameIncludesFileName =
+      spFileMetadata.documentName.includes('FileName');
+
+    const edocBlob: Blob = fileData as unknown as Blob;
+    const parentEntryId = Number(spFileMetadata.entryId);
+    const repoId = await repoClient.getCurrentRepoId();
+
+    let fileName: string | undefined;
+    let fileNameInEdoc: string | undefined;
+    let extension: string | undefined;
+    if (!spFileMetadata.documentName) {
+      fileName = filenameWithoutExt;
+      fileNameInEdoc = spFileMetadata.fileName;
+      extension = fileExtensionPeriod;
+    } else if (docNameIncludesFileName === false) {
+      fileName = spFileMetadata.documentName;
+      fileNameInEdoc = spFileMetadata.documentName;
+      extension = fileExtensionPeriod;
+    } else {
+      const DocnameReplacedwithfilename = spFileMetadata.documentName.replace(
+        'FileName',
+        filenameWithoutExt
+      );
+      fileName = DocnameReplacedwithfilename;
+      fileNameInEdoc = DocnameReplacedwithfilename + `.${fileExtensionPeriod}`;
+      extension = fileExtensionPeriod;
+    }
+    const electronicDocument: FileParameter = {
+      fileName: fileNameInEdoc,
+      data: edocBlob,
+    };
+    const entryRequest = {
+      repoId,
+      parentEntryId,
+      fileName,
+      autoRename: true,
+      electronicDocument,
+      request,
+      extension,
+    };
+    try {
+      const entryCreateResult: CreateEntryResult =
+        await repoClient.entriesClient.importDocument(entryRequest);
+      const Entryid = entryCreateResult.operations.entryCreate.entryId ?? 1;
+      const fileLink = getEntryWebAccessUrl(
+        Entryid.toString(),
+        repoId,
+        webClientUrl,
+        false
+      );
+      const pageOrigin = spFileMetadata.pageOrigin;
+      const fileUrl = spFileMetadata.fileUrl;
+      const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
+      const path = pageOrigin + fileUrlWithoutDocName;
+      await dialog.close();
+      dialog.fileLink = fileLink;
+      dialog.pathBack = path;
+      dialog.isLoading = false;
+      dialog.metadataSaved = true;
+      dialog.show();
+
+      if (spFileMetadata.action === ActionTypes.COPY) {
+        window.localStorage.removeItem('spdocdata');
+      } else if (spFileMetadata.action === ActionTypes.MOVE_AND_DELETE) {
+        await DeleteFile(
+          spFileMetadata.pageOrigin,
+          spFileMetadata.fileUrl,
+          spFileMetadata.fileName
+        );
+      } else if (spFileMetadata.action === ActionTypes.REPLACE) {
+        await deletefileandreplace(
+          spFileMetadata.pageOrigin,
+          spFileMetadata.fileUrl,
+          filenameWithoutExt,
+          spFileMetadata.fileName,
+          fileLink,
+          spFileMetadata.contextPageAbsoluteUrl
+        );
+      } else {
+        // TODO what should happen?
+      }
+    } catch (error) {
+      const conflict409 =
+        error.operations.setFields.exceptions[0].statusCode === 409;
+      if (conflict409) {
+        const entryidConflict1 = error.operations.entryCreate.entryId;
+
+        const fileLink = getEntryWebAccessUrl(
+          entryidConflict1.toString(),
+          repoId,
+          webClientUrl,
+          false
+        );
+        const pageOrigin = spFileMetadata.pageOrigin;
+        const fileUrl = spFileMetadata.fileUrl;
+        const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
+        const path = pageOrigin + fileUrlWithoutDocName;
+        await dialog.close();
+        dialog.fileLink = fileLink;
+        dialog.pathBack = path;
+        dialog.isLoading = false;
+        dialog.metadataSaved = false;
+        dialog.show();
+        window.localStorage.removeItem('spdocdata');
+      } else {
+        window.alert(`Error uploding file: ${JSON.stringify(error)}`);
+        window.localStorage.removeItem('spdocdata');
+        dialog.close();
+      }
     }
   }
 
-  public async SendToLaserficheWithMetadata() {
-    dialog.show();
-    const filenameWithExt = window.localStorage.getItem(TempStorageKeys.Filename);
-
-    const fileNameSplitByDot = (filenameWithExt as string).split('.');
-    const fileExtensionPeriod = fileNameSplitByDot.pop();
-    const filenameWithoutExt = fileNameSplitByDot.join('.');
-    const Parentid = window.localStorage.getItem(TempStorageKeys.Destinationfolder);
-    const Filemetadata1 = window.localStorage.getItem(TempStorageKeys.Filemetadata);
-    const Filemetadata = JSON.parse(Filemetadata1);
-    const Action = window.localStorage.getItem(TempStorageKeys.Action);
-    const Documentname = window.localStorage.getItem(TempStorageKeys.Documentname);
-    const docfilenamecheck = Documentname.includes('FileName');
-    const fileUrl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const contextPageAbsoluteUrl = window.localStorage.getItem(TempStorageKeys.ContextPageAbsoluteUrl);
-    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-    const fieldsAlone = Filemetadata['metadata']['fields'];
+  function getRequestMetadata(
+    fileDataStuff: ISPDocumentData,
+    request: PostEntryWithEdocMetadataRequest
+  ) {
+    const Filemetadata: IPostEntryWithEdocMetadataRequest = fileDataStuff.metadata;
+    const fieldsAlone = Filemetadata.metadata.fields;
     const formattedFieldValues:
       | {
           [key: string]: FieldToUpdate;
@@ -202,450 +288,27 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         values: value.values.map((val) => new ValueToUpdate(val)),
       });
     }
-
-    const edocBlob: Blob = this.state.filedata as unknown as Blob;
-    const parentEntryId = Number(Parentid);
-    const fieldsAndMetadata = Filemetadata; /* JSON.parse(Filemetadata); */
-    // TODO make sure this matches the correct format
-    const request: PostEntryWithEdocMetadataRequest =
-      new PostEntryWithEdocMetadataRequest({
-        template: fieldsAndMetadata['template'],
-        metadata: new PutFieldValsRequest({
-          fields: formattedFieldValues,
-        }),
-      });
-    const repoId = await this.repoClient.getCurrentRepoId();
-    if (Documentname === '') {
-      const electronicDocument: FileParameter = {
-        fileName: filenameWithExt,
-        data: edocBlob,
-      };
-      const entryRequest = {
-        repoId,
-        parentEntryId,
-        fileName: filenameWithoutExt,
-        autoRename: true,
-        electronicDocument,
-        request,
-        extension: fileExtensionPeriod,
-      };
-      try {
-        const entryCreateResult: CreateEntryResult =
-          await this.repoClient.entriesClient.importDocument(entryRequest);
-        const Entryid = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid}`;
-
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
-        if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(pageOrigin, fileUrl, filenameWithExt);
-        } else if (Action === ActionTypes.REPLACE) {
-          this.deletefileandreplace(
-            pageOrigin,
-            fileUrl,
-            filenameWithoutExt,
-            filenameWithExt,
-            filelink,
-            contextPageAbsoluteUrl
-          );
-        } else {
-          // TODO what should happen?
-        }
-      } catch (error) {
-        const conflict409 =
-          error.operations.setFields.exceptions[0].statusCode === 409;
-        if (conflict409) {
-          const entryidConflict1 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict1}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else {
-          window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          //window.localStorage.clear();
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-          dialog.close();
-        }
-      }
-    } else if (docfilenamecheck === false) {
-      const electronicDocument: FileParameter = {
-        fileName: Documentname,
-        data: edocBlob,
-      };
-      const entryRequest = {
-        repoId,
-        parentEntryId,
-        fileName: Documentname,
-        autoRename: true,
-        electronicDocument,
-        request,
-        extension: fileExtensionPeriod,
-      };
-      try {
-        const entryCreateResult: CreateEntryResult =
-          await this.repoClient.entriesClient.importDocument(entryRequest);
-        const Entryid3 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid3}`;
-
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
-        if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(pageOrigin, fileUrl, filenameWithExt);
-        } else if (Action === ActionTypes.REPLACE) {
-          this.deletefileandreplace(
-            pageOrigin,
-            fileUrl,
-            filenameWithoutExt,
-            filenameWithExt,
-            filelink,
-            contextPageAbsoluteUrl
-          );
-        } else {
-          // TODO what should happen?
-        }
-      } catch (error) {
-        if (error.operations.setFields.exceptions[0].statusCode === 409) {
-          const entryidConflict2 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict2}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else {
-          window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-          dialog.close();
-        }
-      }
-    } else {
-      const DocnameReplacedwithfilename = Documentname.replace(
-        'FileName',
-        filenameWithoutExt
-      );
-
-      const electronicDocument: FileParameter = {
-        fileName: DocnameReplacedwithfilename + `.${fileExtensionPeriod}`,
-        data: edocBlob,
-      };
-      const entryRequest = {
-        repoId,
-        parentEntryId,
-        fileName: DocnameReplacedwithfilename,
-        autoRename: true,
-        electronicDocument,
-        request,
-        extension: fileExtensionPeriod,
-      };
-      try {
-        const entryCreateResult: CreateEntryResult =
-          await this.repoClient.entriesClient.importDocument(entryRequest);
-        //dialog.show();
-        const Entryid6 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
-
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
-        if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(pageOrigin, fileUrl, filenameWithExt);
-        } else if (Action === ActionTypes.REPLACE) {
-          this.deletefileandreplace(
-            pageOrigin,
-            fileUrl,
-            filenameWithoutExt,
-            filenameWithExt,
-            filelink,
-            contextPageAbsoluteUrl
-          );
-        } else {
-          // TODO what to do here
-        }
-      } catch (error) {
-        if (error.operations.setFields.exceptions[0].statusCode === 409) {
-          const entryidConflict3 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict3}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else {
-          window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-          dialog.close();
-        }
-      }
-    }
+    request = new PostEntryWithEdocMetadataRequest({
+      template: Filemetadata.template,
+      metadata: new PutFieldValsRequest({
+        fields: formattedFieldValues,
+      }),
+    });
+    return request;
   }
 
-  public async SendToLaserficheNoTemplate() {
-    dialog.show();
-    const Filenamewithext = window.localStorage.getItem(TempStorageKeys.Filename);
+  async function SendtoLaserficheNoMapping(fileData: Blob, spFileMetadata: ISPDocumentData) {
+    const Filenamewithext = spFileMetadata.fileName;
 
     const fileNameSplitByDot = (Filenamewithext as string).split('.');
     const fileExtensionPeriod = fileNameSplitByDot.pop();
     const Filenamewithoutext = fileNameSplitByDot.join('.');
 
-    const Parentid = window.localStorage.getItem(TempStorageKeys.Destinationfolder);
-    const Action = window.localStorage.getItem(TempStorageKeys.Action);
-    const Documentname = window.localStorage.getItem(TempStorageKeys.Documentname);
-    const docfilenamecheck = Documentname.includes('FileName');
-    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const contextPageAbsoluteUrl = window.localStorage.getItem(TempStorageKeys.ContextPageAbsoluteUrl);
-    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-
-    const edocBlob: Blob = this.state.filedata as unknown as Blob;
-    const parentEntryId = Number(Parentid);
-    const repoId = await this.repoClient.getCurrentRepoId();
-    if (Documentname === '') {
-      const electronicDocument: FileParameter = {
-        fileName: Filenamewithext,
-        data: edocBlob,
-      };
-      const entryRequest = {
-        repoId,
-        parentEntryId,
-        fileName: Filenamewithoutext,
-        autoRename: true,
-        electronicDocument,
-        request: new PostEntryWithEdocMetadataRequest({}),
-        extension: fileExtensionPeriod,
-      };
-
-      try {
-        const entryCreateResult: CreateEntryResult =
-          await this.repoClient.entriesClient.importDocument(entryRequest);
-        const Entryid6 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid6}`;
-
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
-        if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(pageOrigin, Fileurl, Filenamewithext);
-        } else if (Action === ActionTypes.REPLACE) {
-          this.deletefileandreplace(
-            pageOrigin,
-            Fileurl,
-            Filenamewithoutext,
-            Filenamewithext,
-            filelink,
-            contextPageAbsoluteUrl
-          );
-        }
-      } catch (error) {
-        if (error.operations.setFields.exceptions[0].statusCode === 409) {
-          const entryidConflict4 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict4}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else {
-          window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-          dialog.close();
-        }
-      }
-    } else if (docfilenamecheck === false) {
-      const electronicDocument: FileParameter = {
-        fileName: Documentname,
-        data: edocBlob,
-      };
-      const entryRequest = {
-        repoId,
-        parentEntryId,
-        fileName: Documentname,
-        autoRename: true,
-        electronicDocument,
-        request: new PostEntryWithEdocMetadataRequest({}),
-        extension: fileExtensionPeriod,
-      };
-
-      try {
-        const entryCreateResult: CreateEntryResult =
-          await this.repoClient.entriesClient.importDocument(entryRequest);
-        const Entryid9 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid9}`;
-
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
-        if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(pageOrigin, Fileurl, Filenamewithext);
-        } else if (Action === ActionTypes.REPLACE) {
-          this.deletefileandreplace(
-            pageOrigin,
-            Fileurl,
-            Filenamewithoutext,
-            Filenamewithext,
-            filelink,
-            contextPageAbsoluteUrl
-          );
-        } else {
-          // TODO
-        }
-      } catch (error) {
-        if (error.operations.setFields.exceptions[0].statusCode === 409) {
-          const entryidConflict5 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict5}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else {
-          window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-          dialog.close();
-        }
-      }
-    } else {
-      const DocnameReplacedwithfilename = Documentname.replace(
-        'FileName',
-        Filenamewithoutext
-      );
-
-      const electronicDocument: FileParameter = {
-        fileName: DocnameReplacedwithfilename + `.${fileExtensionPeriod}`,
-        data: edocBlob,
-      };
-      const entryRequest = {
-        repoId,
-        parentEntryId,
-        fileName: DocnameReplacedwithfilename,
-        autoRename: true,
-        electronicDocument,
-        request: new PostEntryWithEdocMetadataRequest({}),
-        extension: fileExtensionPeriod,
-      };
-
-      try {
-        const entryCreateResult: CreateEntryResult =
-          await this.repoClient.entriesClient.importDocument(entryRequest);
-        const Entryid14 = entryCreateResult.operations.entryCreate.entryId;
-        filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
-
-        document.getElementById('it').innerHTML = 'Document uploaded';
-        document.getElementById('imgid').style.display = 'none';
-        document.getElementById('divid').style.display = 'block';
-        document.getElementById('divid1').onclick = this.Dc;
-        document.getElementById('divid13').style.display = 'block';
-        document.getElementById('divid13').onclick = this.viewfile;
-        document.getElementById('divid14').onclick = this.Redirect;
-        if (Action === ActionTypes.COPY) {
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else if (Action === ActionTypes.MOVE_AND_DELETE) {
-          this.DeleteFile(pageOrigin, Fileurl, Filenamewithext);
-        } else if (Action === ActionTypes.REPLACE) {
-          this.deletefileandreplace(
-            pageOrigin,
-            Fileurl,
-            Filenamewithoutext,
-            Filenamewithext,
-            filelink,
-            contextPageAbsoluteUrl
-          );
-        } else {
-          // TODO what to do
-        }
-      } catch (error) {
-        if (error.operations.setFields.exceptions[0].statusCode === 409) {
-          const entryidConflict6 = error.operations.entryCreate.entryId;
-          filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${entryidConflict6}`;
-
-          document.getElementById('it').innerHTML =
-            'Document uploaded to repository, updating metadata failed due to constraint mismatch<br/> <p style="color:red">The Laserfiche template and fields were not applied to this document</p>';
-          document.getElementById('imgid').style.display = 'none';
-          document.getElementById('divid').style.display = 'block';
-          document.getElementById('divid1').onclick = this.Dc;
-          document.getElementById('divid13').style.display = 'block';
-          document.getElementById('divid13').onclick = this.viewfile;
-          document.getElementById('divid14').onclick = this.Redirect;
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-        } else {
-          window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-          window.localStorage.removeItem(TempStorageKeys.LContType);
-          dialog.close();
-        }
-      }
-    }
-  }
-
-  public async SendtoLaserficheNoMapping() {
-    dialog.show();
-    const Filenamewithext = window.localStorage.getItem(TempStorageKeys.Filename);
-
-    const fileNameSplitByDot = (Filenamewithext as string).split('.');
-    const fileExtensionPeriod = fileNameSplitByDot.pop();
-    const Filenamewithoutext = fileNameSplitByDot.join('.');
-
-    const edocBlob: Blob = this.state.filedata as unknown as Blob;
+    const edocBlob: Blob = fileData as unknown as Blob;
     const parentEntryId = 1;
 
     try {
-      const repoId = await this.repoClient.getCurrentRepoId();
+      const repoId = await repoClient.getCurrentRepoId();
       const electronicDocument: FileParameter = {
         fileName: Filenamewithext,
         data: edocBlob,
@@ -661,29 +324,37 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       };
 
       const entryCreateResult: CreateEntryResult =
-        await this.repoClient.entriesClient.importDocument(entryRequest);
+        await repoClient.entriesClient.importDocument(entryRequest);
       const Entryid14 = entryCreateResult.operations.entryCreate.entryId;
-      filelink = `https://app.${this.state.region}/laserfiche/DocView.aspx?db=${repoId}&docid=${Entryid14}`;
+      const fileLink = getEntryWebAccessUrl(
+        Entryid14.toString(),
+        repoId,
+        webClientUrl,
+        false
+      );
+      const pageOrigin = spFileMetadata.pageOrigin;
+      const fileUrl = spFileMetadata.fileUrl;
+      const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
+      const path = pageOrigin + fileUrlWithoutDocName;
 
-      document.getElementById('it').innerHTML = 'Document uploaded';
-      document.getElementById('imgid').style.display = 'none';
-      document.getElementById('divid').style.display = 'block';
-      document.getElementById('divid1').onclick = this.Dc;
-      document.getElementById('divid13').style.display = 'block';
-      document.getElementById('divid13').onclick = this.viewfile;
-      document.getElementById('divid14').onclick = this.Redirect;
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      await dialog.close();
+      dialog.fileLink = fileLink;
+      dialog.pathBack = path;
+      dialog.isLoading = false;
+      dialog.metadataSaved = true;
+      dialog.show();
+      window.localStorage.removeItem('spdocdata');
     } catch (error) {
       window.alert(`Error uploding file: ${JSON.stringify(error)}`);
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem('spdocdata');
       dialog.close();
     }
   }
 
-  public async GetFileData() {
-    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-    const Filenamewithext2 = window.localStorage.getItem(TempStorageKeys.Filename);
+  async function GetFileData() {
+    const Fileurl = spFileMetadata.fileUrl;
+    const pageOrigin = spFileMetadata.pageOrigin;
+    const Filenamewithext2 = spFileMetadata.fileName;
     const encde = encodeURIComponent(Filenamewithext2);
     const fileur = Fileurl?.replace(Filenamewithext2, encde);
     const Filedataurl = pageOrigin + fileur;
@@ -699,29 +370,24 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       return results;
     } catch (error) {
       dialog.close();
-      //document.getElementById('remvefile').style.display='none';
       console.log('error occured' + error);
     }
   }
 
-  public Redirect() {
-    const pageOrigin = window.localStorage.getItem(TempStorageKeys.PageOrigin);
-    const Fileurl = window.localStorage.getItem(TempStorageKeys.Fileurl);
-    const Filenamewithext1 = window.localStorage.getItem(TempStorageKeys.Filename);
+  function Redirect() {
+    const Fileurl = spFileMetadata.fileUrl;
+    const pageOrigin = spFileMetadata.pageOrigin;
+    const Filenamewithext1 = spFileMetadata.fileName;
     const fileeee = Fileurl.replace(Filenamewithext1, '');
     const path = pageOrigin + fileeee;
     Navigation.navigate(path, true);
   }
 
-  private Dc() {
-    dialog.close();
-  }
-
-  private viewfile() {
-    window.open(filelink);
-  }
-
-  public async DeleteFile(pageOrigin: string, fileUrl: string, filenameWithExt: string) {
+  async function DeleteFile(
+    pageOrigin: string,
+    fileUrl: string,
+    filenameWithExt: string
+  ) {
     const encde = encodeURIComponent(filenameWithExt);
     const fileur = fileUrl.replace(filenameWithExt, encde);
     const fileUrl1 = pageOrigin + fileur;
@@ -733,16 +399,16 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     };
     const response = await fetch(fileUrl1, init);
     if (response.ok) {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem('spdocdata');
       //Perform further activity upon success, like displaying a notification
       alert('File deleted successfully');
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem('spdocdata');
       console.log('An error occurred. Please try again.');
     }
   }
 
-  public async deletefileandreplace(
+  async function deletefileandreplace(
     pageOrigin: string,
     fileUrl: string,
     filenameWithoutExt: string,
@@ -761,7 +427,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     });
     if (deleteFile.ok) {
       alert('File replaced with link successfully');
-      this.GetFormDigestValue(
+      GetFormDigestValue(
         fileUrl,
         filenameWithoutExt,
         filenameWithExt,
@@ -769,12 +435,12 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         contexPageAbsoluteUrl
       );
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem('spdocdata');
       console.log('An error occurred. Please try again.');
     }
   }
-  //
-  public async GetFormDigestValue(
+
+  async function GetFormDigestValue(
     fileUrl: string,
     filenameWithoutExt: string,
     filenameWithExt: string,
@@ -788,7 +454,7 @@ export default class SendToLaserficheLoginComponent extends React.Component<
     if (resp.ok) {
       const data = await resp.json();
       const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
-      this.postlink(
+      postlink(
         fileUrl,
         filenameWithoutExt,
         filenameWithExt,
@@ -797,12 +463,12 @@ export default class SendToLaserficheLoginComponent extends React.Component<
         FormDigestValue
       );
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem('spdocdata');
       console.log('Failed');
     }
   }
-  //
-  public async postlink(
+  
+  async function postlink(
     fileUrl: string,
     filenameWithoutExt: string,
     filenameWithExt: string,
@@ -826,68 +492,66 @@ export default class SendToLaserficheLoginComponent extends React.Component<
       },
     });
     if (resp.ok) {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem('spdocdata');
       console.log('Item Inserted..!!');
       console.log(await resp.json());
     } else {
-      window.localStorage.removeItem(TempStorageKeys.LContType);
+      window.localStorage.removeItem('spdocdata');
       console.log('API Error');
       console.log(await resp.json());
     }
   }
 
-  public render(): React.ReactElement {
-    return (
+  return (
+    <div>
+      <div
+        style={{ borderBottom: '3px solid #CE7A14', marginBlockEnd: '32px' }}
+      >
+        <img
+          src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
+          height={'46px'}
+          width={'45px'}
+          style={{ marginTop: '8px', marginLeft: '8px' }}
+        />
+        <span
+          id='remveHeading'
+          style={{ marginLeft: '10px', fontSize: '22px', fontWeight: 'bold' }}
+        >
+          {loggedIn ? 'Sign Out' : 'Sign In'}
+        </span>
+      </div>
+      <p
+        id='remve'
+        style={{ textAlign: 'center', fontWeight: '600', fontSize: '20px' }}
+      >
+        {loggedIn ? 'You are signed in to Laserfiche' : 'Welcome to Laserfiche'}
+      </p>
+      <div style={{ textAlign: 'center' }}>
+        <lf-login
+          redirect_uri={
+            props.context.pageContext.web.absoluteUrl +
+            props.laserficheRedirectUrl
+          }
+          authorize_url_host_name={region}
+          redirect_behavior='Replace'
+          client_id={clientId}
+          sign_in_text='Sign in'
+          sign_out_text='Sign out'
+          ref={loginComponent}
+        />
+      </div>
       <div>
         <div
-          style={{ borderBottom: '3px solid #CE7A14', marginBlockEnd: '32px' }}
+          /* className="lf-component-container lf-right-button" */ style={{
+            marginTop: '35px',
+            textAlign: 'center',
+          }}
         >
-          <img
-            src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
-            height={'46px'}
-            width={'45px'}
-            style={{ marginTop: '8px', marginLeft: '8px' }}
-          />
-          <span
-            id='remveHeading'
-            style={{ marginLeft: '10px', fontSize: '22px', fontWeight: 'bold' }}
-          >
-            Sign In
-          </span>
-        </div>
-        <p
-          id='remve'
-          style={{ textAlign: 'center', fontWeight: '600', fontSize: '20px' }}
-        >
-          Welcome to Laserfiche
-        </p>
-        {/* <p id="remvefile" style={{ "textAlign": "center", "fontWeight": "600", "fontSize": "18px","display":"none" }}>Please wait while we prepare your file to upload....</p> */}
-        <div style={{ textAlign: 'center' }}>
-          <lf-login
-            redirect_uri={
-              this.props.context.pageContext.web.absoluteUrl +
-              this.props.laserficheRedirectPage
-            }
-            authorize_url_host_name={this.state.region}
-            redirect_behavior='Replace'
-            client_id={clientId}
-            sign_in_text='Sign in'
-            ref={this.loginComponent}
-          />
-        </div>
-        <div>
-          <div
-            /* className="lf-component-container lf-right-button" */ style={{
-              marginTop: '35px',
-              textAlign: 'center',
-            }}
-          >
-            <button style={{ fontWeight: '600' }} onClick={this.Redirect}>
-              Go Back
-            </button>
-          </div>
+          <button style={{ fontWeight: '600' }} onClick={Redirect}>
+            Go Back
+          </button>
         </div>
       </div>
-    );
-  }
+    </div>
+  );
 }

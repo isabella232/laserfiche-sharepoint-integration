@@ -18,7 +18,7 @@ export interface ProfileConfiguration {
   DocumentName: string;
   selectedTemplateName?: string;
   selectedFolder?: LfFolder;
-  Action: string;
+  Action: ActionTypes;
   mappedFields: MappedFields[];
 }
 
@@ -95,7 +95,7 @@ export function ConfigurationBody(props: {
     const value = (event.target as HTMLSelectElement).value;
     const actionName = value;
     const profileConfig = { ...props.profileConfig };
-    profileConfig.Action = actionName;
+    profileConfig.Action = actionName as ActionTypes;
     props.handleProfileConfigUpdate(profileConfig);
   }
 
@@ -398,7 +398,7 @@ export function TemplateSelector(props: {
           onChange={(e) => props.onChangeTemplate(e)}
           value={props.selectedTemplateName}
         >
-          <option>None</option>
+          <option value=''>None</option>
           {laserficheTemplateOptions}
         </select>
       </div>
@@ -507,8 +507,8 @@ export function SharePointLaserficheColumnMatching(props: {
   let fullValidationError = undefined;
   if (props.validate) {
     if (
-      (props.profileConfig.mappedFields.some((item) => !item.spField) ||
-        props.profileConfig.mappedFields.some((items) => !items.lfField)) &&
+      (props.profileConfig.mappedFields?.some((item) => !item.spField) ||
+        props.profileConfig.mappedFields?.some((items) => !items.lfField)) &&
       props.profileConfig.selectedTemplateName
     ) {
       fullValidationError = (
@@ -727,15 +727,18 @@ export function hasFieldTypeMismatch(mapped: MappedFields) {
 }
 
 export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
-  if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0) {
+  const profileNameContainsSpecialCharacters = /[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName);
+  if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0 || profileNameContainsSpecialCharacters) {
     return false;
   }
-  for (const mapped of profileConfig.mappedFields) {
-    if (!mapped.spField || !mapped.lfField) {
-      return false;
-    }
-    if(hasFieldTypeMismatch(mapped)) {
-      return false;
+  if (profileConfig.mappedFields) {
+    for (const mapped of profileConfig.mappedFields) {
+      if (!mapped.spField || !mapped.lfField) {
+        return false;
+      }
+      if(hasFieldTypeMismatch(mapped)) {
+        return false;
+      }
     }
   }
   return true;

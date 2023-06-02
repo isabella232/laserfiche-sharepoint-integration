@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
   IRepositoryApiClient,
   RepositoryApiClient,
@@ -9,8 +8,6 @@ import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 
 export class RepositoryClientExInternal {
   public repoClient: IRepositoryApiClientExInternal;
-
-  constructor() {}
 
   public addAuthorizationHeader(
     request: RequestInit,

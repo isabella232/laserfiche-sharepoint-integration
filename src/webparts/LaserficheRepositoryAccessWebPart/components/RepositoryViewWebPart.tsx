@@ -9,7 +9,6 @@ import {
   PostEntryWithEdocMetadataRequest,
   PutFieldValsRequest,
   FileParameter,
-  CreateEntryResult,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfRepoTreeNodeService,
@@ -21,10 +20,11 @@ import {
   LfFieldContainerComponent,
   LfRepositoryBrowserComponent,
 } from '@laserfiche/types-lf-ui-components';
-import { PathUtils, UrlUtils } from '@laserfiche/lf-js-utils';
+import { PathUtils } from '@laserfiche/lf-js-utils';
 import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
-import { ChangeEvent, createRef } from 'react';
+import { ChangeEvent } from 'react';
+import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 
 const cols: ColumnDef[] = [
   {
@@ -32,18 +32,28 @@ const cols: ColumnDef[] = [
     displayName: 'Creation Date',
     defaultWidth: '100px',
     resizable: true,
+    sortable: true,
   },
   {
     id: 'lastModifiedTime',
     displayName: 'Last Modified Date',
     defaultWidth: '100px',
     resizable: true,
+    sortable: true,
   },
-  { id: 'pageCount', displayName: 'Page', defaultWidth: '100px' },
+  {
+    id: 'pageCount',
+    displayName: 'Page',
+    defaultWidth: '100px',
+    resizable: true,
+    sortable: true,
+  },
   {
     id: 'templateName',
     displayName: 'Template Name',
     defaultWidth: '100px',
+    resizable: true,
+    sortable: true,
   },
 ];
 
@@ -158,7 +168,7 @@ export default function RepositoryViewComponent(props: {
                 parentItem={parentItem}
                 loggedIn={props.loggedIn}
                 webClientUrl={props.webClientUrl}
-              ></RepositoryBrowserToolbar>
+              />
               <div
                 className='lf-folder-browser-sample-container'
                 style={{ height: '400px' }}
@@ -222,8 +232,8 @@ function RepositoryBrowserToolbar(props: {
 
   return (
     <>
-      <div className='p-3' id='mainWebpartContent'>
-        <div className='d-flex justify-content-between border p-2 file-option'>
+      <div id='mainWebpartContent'>
+        <div>
           <a
             href='javascript:;'
             className='mr-3'
@@ -375,7 +385,7 @@ function ImportFileModal(props: {
     }
     const extension = PathUtils.getCleanedExtension(fileData.name);
     const renamedFile = new File([fileData], fileName + extension);
-    const fileContainsBacklash = fileName.includes('\\') ? 'Yes' : 'No';
+    const fileContainsBacklash = fileName.includes('\\');
     if (fileContainsBacklash) {
       setImportFileValidationMessage(fileNameWithBacklash);
       return;
@@ -465,7 +475,7 @@ function ImportFileModal(props: {
   }
 
   const SetNewFileName = (e: ChangeEvent<HTMLInputElement>) => {
-    let newFileName = e.target.value;
+    const newFileName = e.target.value;
 
     setFileName(newFileName);
   };
@@ -533,7 +543,7 @@ function ImportFileModal(props: {
           <div className='card'>
             <div
               className={`lf-component-container${
-                adhocDialogOpened ? ' lf-adhoc-min-height' : ''
+                adhocDialogOpened ? ' lfAdhocMinHeight' : ''
               }`}
             >
               <lf-field-container
@@ -676,28 +686,4 @@ function CreateFolderModal(props: {
       </div>
     </div>
   );
-}
-
-function getEntryWebAccessUrl(
-  nodeId: string,
-  repoId: string,
-  waUrl: string,
-  isContainer: boolean
-): string | undefined {
-  if (nodeId?.length === 0 || repoId?.length === 0 || waUrl?.length === 0) {
-    return undefined;
-  }
-  let newUrl: string = '';
-  if (isContainer) {
-    const queryParams: UrlUtils.QueryParameter[] = [['repo', repoId]];
-    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'Browse.aspx', queryParams);
-    newUrl += `#?id=${encodeURIComponent(nodeId)}`;
-  } else {
-    const queryParams: UrlUtils.QueryParameter[] = [
-      ['repo', repoId],
-      ['docid', nodeId],
-    ];
-    newUrl = UrlUtils.combineURLs(waUrl ?? '', 'DocView.aspx', queryParams);
-  }
-  return newUrl;
 }

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import * as bootstrap from 'bootstrap';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IEditManageConfigurationProps } from './IEditManageConfigurationProps';
 import { IListItem } from '../IListItem';
@@ -11,14 +10,22 @@ import {
 } from '../ProfileConfigurationComponents';
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { ProfileConfiguration } from '../ProfileConfigurationComponents';
+import {
+  ADMIN_CONFIGURATION_LIST,
+  MANAGE_CONFIGURATIONS,
+} from '../../../constants';
+import { getSPListURL } from '../../../../Utils/Funcs';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-login']: any;
+      // eslint-disable-next-line
       ['lf-repository-browser']: any;
     }
   }
@@ -38,9 +45,10 @@ export default function EditManageConfiguration(
   };
 
   async function GetItemIdByTitle(): Promise<IListItem[]> {
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -88,7 +96,8 @@ export default function EditManageConfiguration(
           configWithCurrentName.JsonValue
         );
         const profileIndex = savedProfileConfigurations.findIndex(
-          (config) => config.ConfigurationName === profileConfig.ConfigurationName
+          (config) =>
+            config.ConfigurationName === profileConfig.ConfigurationName
         );
         if (profileIndex !== -1) {
           savedProfileConfigurations[profileIndex] = profileConfig;
@@ -110,13 +119,12 @@ export default function EditManageConfiguration(
     Id: string,
     configsToSave: ProfileConfiguration[]
   ) {
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-      Id +
-      ')';
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/items(${Id})`;
     const body: string = JSON.stringify({
-      Title: 'ManageConfigurations',
+      Title: MANAGE_CONFIGURATIONS,
       JsonValue: JSON.stringify(configsToSave),
     });
     const options: ISPHttpClientOptions = {
@@ -144,9 +152,7 @@ export default function EditManageConfiguration(
 
   const header = (
     <div>
-      <ProfileHeader
-        configurationName={profileConfig?.ConfigurationName}
-      />
+      <ProfileHeader configurationName={profileConfig?.ConfigurationName} />
     </div>
   );
   return profileConfig ? (

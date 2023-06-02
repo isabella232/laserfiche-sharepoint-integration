@@ -4,6 +4,11 @@ import { NavLink } from 'react-router-dom';
 import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
+import {
+  ADMIN_CONFIGURATION_LIST,
+  MANAGE_CONFIGURATIONS,
+} from '../../../constants';
+import { getSPListURL } from '../../../../Utils/Funcs';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -29,9 +34,10 @@ export default function ManageConfigurationsPage(
 
   async function GetItemIdByTitle(): Promise<IListItem[]> {
     const array: IListItem[] = [];
-    const restApiUrl: string =
-      props.context.pageContext.web.absoluteUrl +
-      "/_api/web/lists/getByTitle('AdminConfigurationList')/Items?$select=Id,Title,JsonValue&$filter=Title eq 'ManageConfigurations'";
+    const restApiUrl = `${getSPListURL(
+      props.context,
+      ADMIN_CONFIGURATION_LIST
+    )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
         method: 'GET',
@@ -89,14 +95,13 @@ export default function ManageConfigurationsPage(
           if (profileConfigurations[i].ConfigurationName == profileToRemove) {
             profileConfigurations.splice(i, 1);
             setConfigRows(profileConfigurations);
-            const restApiUrl: string =
-              props.context.pageContext.web.absoluteUrl +
-              "/_api/web/lists/getByTitle('AdminConfigurationList')/items(" +
-              itemId +
-              ')';
+            const restApiUrl = `${getSPListURL(
+              props.context,
+              ADMIN_CONFIGURATION_LIST
+            )}/items(${itemId})`;
             const jsonObject = JSON.stringify(profileConfigurations);
             const body: string = JSON.stringify({
-              Title: 'ManageConfigurations',
+              Title: MANAGE_CONFIGURATIONS,
               JsonValue: jsonObject,
             });
             const options: ISPHttpClientOptions = {
@@ -128,10 +133,7 @@ export default function ManageConfigurationsPage(
         <td className='text-center'>
           <span>
             <NavLink
-              to={
-                '/EditManageConfiguration/' +
-                item.ConfigurationName
-              }
+              to={'/EditManageConfiguration/' + item.ConfigurationName}
               style={{
                 marginRight: '18px',
                 fontWeight: '500',

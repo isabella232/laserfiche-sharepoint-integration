@@ -7,18 +7,20 @@ import { RepositoryClientExInternal } from '../../../repository-client/repositor
 import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { useEffect, useState } from 'react';
-import { WebPartContext } from '@microsoft/sp-webpart-base';
 import RepositoryViewComponent from './RepositoryViewWebPart';
 require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
 require('../../../Assets/CSS/custom.css');
-import './LaserficheRepositoryAccess.scss';
+import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 
 declare global {
+  // eslint-disable-next-line
   namespace JSX {
     interface IntrinsicElements {
+      // eslint-disable-next-line
       ['lf-field-container']: any;
+      // eslint-disable-next-line
       ['lf-login']: any;
     }
   }
@@ -26,7 +28,7 @@ declare global {
 
 export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepositoryAccessWebPartProps) {
   const [webClientUrl, setWebClientUrl] = React.useState('');
-  let loginComponent: React.RefObject<
+  const loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
   > = React.useRef();
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
@@ -122,7 +124,7 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
           repoClient={repoClient}
           webPartTitle={props.webPartTitle}
           loggedIn={loggedIn}
-        ></RepositoryViewComponent>
+        />
       </div>
     </div>
   );

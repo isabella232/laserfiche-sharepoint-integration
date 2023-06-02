@@ -46,7 +46,7 @@ export default class LaserficheAdminConfigurationWebPart extends BaseClientSideW
 
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devMode.toLocaleLowerCase() === 'true') {
+    if (devMode?.toLocaleLowerCase() === 'true') {
       conditionalGroupFields = [
         PropertyPaneTextField('WebPartTitle', {
           label: strings.WebPartTitle,
