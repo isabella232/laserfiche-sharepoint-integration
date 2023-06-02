@@ -727,7 +727,8 @@ export function hasFieldTypeMismatch(mapped: MappedFields) {
 }
 
 export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
-  if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0) {
+  const profileNameContainsSpecialCharacters = /[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName);
+  if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0 || profileNameContainsSpecialCharacters) {
     return false;
   }
   if (profileConfig.mappedFields) {

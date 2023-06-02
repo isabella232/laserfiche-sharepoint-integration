@@ -221,13 +221,13 @@ export default function SendToLaserficheLoginComponent(
       if (spFileMetadata.action === ActionTypes.COPY) {
         window.localStorage.removeItem('spdocdata');
       } else if (spFileMetadata.action === ActionTypes.MOVE_AND_DELETE) {
-        DeleteFile(
+        await DeleteFile(
           spFileMetadata.pageOrigin,
           spFileMetadata.fileUrl,
           spFileMetadata.fileName
         );
       } else if (spFileMetadata.action === ActionTypes.REPLACE) {
-        deletefileandreplace(
+        await deletefileandreplace(
           spFileMetadata.pageOrigin,
           spFileMetadata.fileUrl,
           filenameWithoutExt,

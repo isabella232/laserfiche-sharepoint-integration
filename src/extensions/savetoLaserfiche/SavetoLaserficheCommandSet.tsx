@@ -321,7 +321,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                   fileName,
                   fileUrl,
                   documentName: matchingLFConfig.DocumentName,
-                  templateName: matchingLFConfig.selectedTemplateName,
                   entryId: matchingLFConfig.selectedFolder.id,
                   contextPageAbsoluteUrl,
                   pageOrigin,
@@ -369,13 +368,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         fields[lfField.name] = new FieldToUpdate({
           values: [newValueToUpdate],
         });
-        spDocFieldValue = '';
       } else {
         if (mapping.lfField.isRequired) {
           missingRequiredFields.push(mapping.spField);
         }
-
-        spDocFieldValue = '';
       }
     }
   }
