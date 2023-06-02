@@ -1,10 +1,13 @@
 name: SPFx CI CD
 
 on:
-  workflow_dispatch:
+  push:
+    branches: ['\d+.x']
   pull_request:
-    branches:
-      - master
+    branches: ['\d+.x']
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 env:
   packagePath: sharepoint/solution/laserfiche-sharepoint-integration.sppkg
@@ -14,29 +17,28 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
 
-    - name: Setup Node.js environment
-      uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Build solution
+        run: gulp build
 
-    - name: Build solution
-      run: gulp build
+      - name: Bundle and package
+        run: |
+          gulp bundle --ship
+          gulp package-solution --ship
 
-    - name: Bundle and package
-      run: |
-        gulp bundle --ship
-        gulp package-solution --ship
-
-    - name: Upload Build Package
-      uses: actions/upload-artifact@v3
-      with:
-        path: |
-         ${{ env.packagePath }}
-         ${{ env.packagePathUserDocs }}
+      - name: Upload Build Package
+        uses: actions/upload-artifact@v3
+        with:
+          path: |
+            ${{ env.packagePath }}
+            ${{ env.packagePathUserDocs }}
