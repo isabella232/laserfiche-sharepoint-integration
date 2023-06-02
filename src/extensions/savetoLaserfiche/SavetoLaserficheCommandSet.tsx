@@ -9,7 +9,6 @@ import {
 } from '@microsoft/sp-listview-extensibility';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import * as React from 'react';
-import { Navigation } from 'spfx-navigation';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfFieldContainerComponent } from '@laserfiche/types-lf-ui-components';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
@@ -37,6 +36,7 @@ import {
   MANAGE_MAPPING,
 } from '../../webparts/constants';
 import { getSPListURL } from '../../Utils/Funcs';
+import { Navigation } from 'spfx-navigation';
 
 interface ProfileMappingConfiguration {
   id: string;
@@ -62,8 +62,9 @@ enum SpWebPartNames {
 }
 
 const LOG_SOURCE = 'SendToLfCommandSet';
-const dialog: SaveToLaserficheCustomDialog = new SaveToLaserficheCustomDialog();
 const Redirectpagelink = '/SitePages/LaserficheSpSignIn.aspx';
+
+const dialog: SaveToLaserficheCustomDialog = new SaveToLaserficheCustomDialog();
 
 export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLfCommandSetProperties> {
   fieldContainer: React.RefObject<
@@ -227,8 +228,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     fileUrl: string,
     pageOrigin: string
   ) {
-    dialog.textInside = <span>Saving your document to Laserfiche</span>;
-    dialog.isLoading = true;
     dialog.show();
     const contextPageAbsoluteUrl = this.context.pageContext.web.absoluteUrl;
 
@@ -260,7 +259,12 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         }
 
         if (!matchingMapping) {
-          this.sendToLaserficheWithNoMetadata(fileName, fileUrl, contextPageAbsoluteUrl, pageOrigin);
+          this.sendToLaserficheWithNoMetadata(
+            fileName,
+            fileUrl,
+            contextPageAbsoluteUrl,
+            pageOrigin
+          );
         } else {
           const laserficheProfile = matchingMapping.LaserficheContentType;
 
@@ -293,24 +297,29 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                 };
                 const missingRequiredFields: SPProfileConfigurationData[] = [];
                 const fields: { [key: string]: FieldToUpdate } = {};
-                this.formatMetadata(matchingLFConfig, missingRequiredFields, fields);
+                this.formatMetadata(
+                  matchingLFConfig,
+                  missingRequiredFields,
+                  fields
+                );
 
                 if (missingRequiredFields.length === 0) {
-                  this.sendToLaserficheWithMetadata(fields, metadata, matchingLFConfig, contextPageAbsoluteUrl, fileUrl, fileName, pageOrigin, laserficheProfile);
+                  this.sendToLaserficheWithMetadata(
+                    fields,
+                    metadata,
+                    matchingLFConfig,
+                    contextPageAbsoluteUrl,
+                    fileUrl,
+                    fileName,
+                    pageOrigin,
+                    laserficheProfile
+                  );
                 } else {
                   await dialog.close();
                   const listFields = missingRequiredFields.map((field) => (
                     <div key={field.Title}>- {field.Title}</div>
                   ));
-                  dialog.textInside = (
-                    <span>
-                      The following SharePoint field values are blank and are
-                      mapped to required Laserfiche fields:
-                      {listFields}Please fill out these required fields and try
-                      again.
-                    </span>
-                  );
-                  dialog.isLoading = false;
+                  dialog.missingFields = listFields;
                   dialog.show();
                   this.spFieldNameDefs = [];
                   this.allFieldValueStore = {};
@@ -331,17 +340,27 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
                   'spdocdata',
                   JSON.stringify(fileData)
                 );
-                Navigation.navigate(
-                  contextPageAbsoluteUrl + Redirectpagelink,
-                  true
-                );
+                await dialog.close();
+                dialog.spMetadata = fileData;
+                dialog.show().then(() => {
+                  if (!dialog.successful) {
+                    Navigation.navigate(
+                      contextPageAbsoluteUrl + Redirectpagelink,
+                      true
+                    );
+                  }
+                });
               }
             });
         }
       });
   }
 
-  private formatMetadata(matchingLFConfig: ProfileConfiguration, missingRequiredFields: SPProfileConfigurationData[], fields: { [key: string]: FieldToUpdate; }) {
+  private formatMetadata(
+    matchingLFConfig: ProfileConfiguration,
+    missingRequiredFields: SPProfileConfigurationData[],
+    fields: { [key: string]: FieldToUpdate }
+  ) {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.Title;
       let spDocFieldValue = this.allFieldValueStore[spFieldName];
@@ -356,8 +375,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         spDocFieldValue = spDocFieldValue.replace(/[\\]/g, `\\\\`);
         spDocFieldValue = spDocFieldValue.replace(/["]/g, `\\"`);
 
-        if (lfField.isRequired &&
-          (!spDocFieldValue || spDocFieldValue.length === 0)) {
+        if (
+          lfField.isRequired &&
+          (!spDocFieldValue || spDocFieldValue.length === 0)
+        ) {
           missingRequiredFields.push(mapping.spField);
         }
 
@@ -380,7 +401,16 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  private sendToLaserficheWithMetadata(fields: { [key: string]: FieldToUpdate; }, metadata: IPostEntryWithEdocMetadataRequest, matchingLFConfig: ProfileConfiguration, contextPageAbsoluteUrl: string, fileUrl: string, fileName: string, pageOrigin: string, laserficheProfile: any) {
+  private async sendToLaserficheWithMetadata(
+    fields: { [key: string]: FieldToUpdate },
+    metadata: IPostEntryWithEdocMetadataRequest,
+    matchingLFConfig: ProfileConfiguration,
+    contextPageAbsoluteUrl: string,
+    fileUrl: string,
+    fileName: string,
+    pageOrigin: string,
+    laserficheProfile: string
+  ) {
     const metadataFields: IPutFieldValsRequest = {
       fields,
     };
@@ -397,17 +427,25 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       pageOrigin,
       lfProfile: laserficheProfile,
     };
-    window.localStorage.setItem(
-      'spdocdata',
-      JSON.stringify(fileData)
-    );
-    Navigation.navigate(
-      contextPageAbsoluteUrl + Redirectpagelink,
-      true
-    );
+    window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
+    await dialog.close();
+    dialog.spMetadata = fileData;
+    dialog.show().then(() => {
+      if (!dialog.successful) {
+        Navigation.navigate(
+          contextPageAbsoluteUrl + Redirectpagelink,
+          true
+        );
+      }
+    });
   }
 
-  private sendToLaserficheWithNoMetadata(fileName: string, fileUrl: string, contextPageAbsoluteUrl: string, pageOrigin: string) {
+  private async sendToLaserficheWithNoMetadata(
+    fileName: string,
+    fileUrl: string,
+    contextPageAbsoluteUrl: string,
+    pageOrigin: string
+  ) {
     const fileData: ISPDocumentData = {
       fileName,
       documentName: fileName,
@@ -419,7 +457,16 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     };
     window.localStorage.setItem('spdocdata', JSON.stringify(fileData));
 
-    Navigation.navigate(contextPageAbsoluteUrl + Redirectpagelink, true);
+    await dialog.close();
+    dialog.spMetadata = fileData;
+    dialog.show().then(() => {
+      if (!dialog.successful) {
+        Navigation.navigate(
+          contextPageAbsoluteUrl + Redirectpagelink,
+          true
+        );
+      }
+    });
   }
 }
 
