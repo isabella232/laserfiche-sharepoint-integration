@@ -10,6 +10,5 @@ export interface ISPDocumentData {
     fileUrl: string;
     entryId: string;
     contextPageAbsoluteUrl: string;
-    pageOrigin: string;
     lfProfile?: string;
 }

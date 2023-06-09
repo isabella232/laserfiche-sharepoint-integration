@@ -5,11 +5,11 @@ import {
   LfLoginComponent,
   LoginState,
 } from '@laserfiche/types-lf-ui-components';
-import { clientId } from '../../constants';
+import { clientId, SP_LOCAL_STORAGE_KEY } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
-import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/CustomDialog';
+import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
 
 declare global {
   // eslint-disable-next-line
@@ -20,8 +20,6 @@ declare global {
     }
   }
 }
-
-const dialog = new SaveToLaserficheCustomDialog();
 
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
@@ -34,7 +32,9 @@ export default function SendToLaserficheLoginComponent(
 
   const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
 
-  const spFileMetadata = JSON.parse(window.localStorage.getItem('spdocdata')) as ISPDocumentData;
+  const spFileMetadata = JSON.parse(
+    window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)
+  ) as ISPDocumentData;
 
   React.useEffect(() => {
     SPComponentLoader.loadScript(
@@ -62,7 +62,7 @@ export default function SendToLaserficheLoginComponent(
           loginComponent.current.state === LoginState.LoggedIn;
 
         if (loggedIn && spFileMetadata) {
-          dialog.spMetadata = spFileMetadata;
+          const dialog = new SaveToLaserficheCustomDialog(spFileMetadata);
           dialog.show().then(() => {
             if (!dialog.successful) {
               console.warn('Could not login successfully');
@@ -75,7 +75,7 @@ export default function SendToLaserficheLoginComponent(
 
   const loginCompleted = () => {
     if (spFileMetadata) {
-      dialog.spMetadata = spFileMetadata;
+      const dialog = new SaveToLaserficheCustomDialog(spFileMetadata);
       dialog.show().then(() => {
         if (!dialog.successful) {
           console.warn('Could not login successfully');
@@ -90,13 +90,11 @@ export default function SendToLaserficheLoginComponent(
       props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
   };
 
-
   function Redirect() {
-    const Fileurl = spFileMetadata.fileUrl;
-    const pageOrigin = spFileMetadata.pageOrigin;
-    const Filenamewithext1 = spFileMetadata.fileName;
-    const fileeee = Fileurl.replace(Filenamewithext1, '');
-    const path = pageOrigin + fileeee;
+    const spFileUrl = spFileMetadata.fileUrl;
+    const fileNameWithExtension = spFileMetadata.fileName;
+    const spFileUrlWithoutFileName = spFileUrl.replace(fileNameWithExtension, '');
+    const path = window.location.origin + spFileUrlWithoutFileName;
     Navigation.navigate(path, true);
   }
 
