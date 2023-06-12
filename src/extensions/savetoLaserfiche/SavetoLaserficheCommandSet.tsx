@@ -7,7 +7,6 @@ import {
   IListViewCommandSetExecuteEventParameters,
   RowAccessor,
 } from '@microsoft/sp-listview-extensibility';
-import * as React from 'react';
 import { PathUtils } from '@laserfiche/lf-js-utils';
 import { CreateConfigurations } from '../../Utils/CreateConfigurations';
 import { getSPListURL } from '../../Utils/Funcs';
