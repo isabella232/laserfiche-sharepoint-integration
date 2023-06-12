@@ -141,6 +141,5 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       this.context
     );
     await saveToDialog.show();
-    // TODO need to check success?
   }
 }

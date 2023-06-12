@@ -73,7 +73,7 @@ function SaveToLaserficheDialog(props: {
           if (successSaveToLF) {
             setSuccess(successSaveToLF);
           } else {
-            // TODO Is this always true? -- what if this was error but after saving?
+            // TODO is this handled correctly when an error occured when deleting the file
             await props.closeClick(false);
           }
         } else {
