@@ -8,47 +8,49 @@ import { SaveDocumentToLaserfiche } from './SaveDocumentToLaserfiche';
 import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
-import { BaseDialog, IDialogConfiguration } from '@microsoft/sp-dialog';
+import { BaseDialog } from '@microsoft/sp-dialog';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
 
-  handleCloseClickAsync = async (success: boolean) => {
-    this.successful = success;
-    await this.close();
+  handleSuccessSave = (successful: boolean) => {
+    this.successful = successful;
   };
+  
+  closeClick = async () => {
+    await this.close();
+    if(this.closeParent) {
+      await this.closeParent();
+    }
+  }
 
-  constructor(private spFileData: ISPDocumentData) {
-    // TODO is there a way to make this not blocking and send success true if it has been saved successfully
-    super({
-      isBlocking: true,
-    });
+  constructor(private spFileData: ISPDocumentData, private closeParent?: () => Promise<void>) {
+    super();
   }
 
   public render(): void {
     const element: React.ReactElement = (
       <SaveToLaserficheDialog
         spFileMetadata={this.spFileData}
-        closeClick={this.handleCloseClickAsync}
+        successSave={this.handleSuccessSave}
+        closeClick={this.closeClick}
       />
     );
     ReactDOM.render(element, this.domElement);
   }
 
-  public getConfig(): IDialogConfiguration {
-    return {
-      isBlocking: true,
-    };
-  }
-
   protected onAfterClose(): void {
     ReactDOM.unmountComponentAtNode(this.domElement);
     super.onAfterClose();
+    if (this.closeParent) {
+      this.closeParent();
+    }
   }
 }
 
 function SaveToLaserficheDialog(props: {
-  closeClick: (success: boolean) => Promise<void>;
+  successSave: (success: boolean) => void;
+  closeClick: () => Promise<void>;
   spFileMetadata: ISPDocumentData;
 }) {
   const loginComponent = React.createRef<
@@ -58,6 +60,10 @@ function SaveToLaserficheDialog(props: {
   const [success, setSuccess] = React.useState<
     { fileLink: string; pathBack: string; metadataSaved: boolean } | undefined
   >();
+
+  const saveToDialogCloseClick = async () => {
+    await props.closeClick();
+  };
 
   React.useEffect(() => {
     SPComponentLoader.loadScript(
@@ -71,13 +77,16 @@ function SaveToLaserficheDialog(props: {
           const successSaveToLF =
             await saveToLF.trySaveDocumentToLaserficheAsync();
           if (successSaveToLF) {
+            props.successSave(true);
             setSuccess(successSaveToLF);
           } else {
             // TODO is this handled correctly when an error occured when deleting the file
-            await props.closeClick(false);
+            props.successSave(false);
+            props.closeClick();
           }
         } else {
-          await props.closeClick(false);
+          props.successSave(false);
+          props.closeClick();
         }
       });
     });
@@ -105,7 +114,7 @@ function SaveToLaserficheDialog(props: {
       {success && (
         <SavedToLaserficheSuccessDialog
           successfulSave={success}
-          closeClick={() => props.closeClick(true)}
+          closeClick={saveToDialogCloseClick}
         />
       )}
       {/* TODO error dialog */}

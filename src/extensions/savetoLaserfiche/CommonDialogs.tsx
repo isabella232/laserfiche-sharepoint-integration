@@ -33,7 +33,7 @@ const CLICK_HERE_GO_SHAREPOINT_LIBRARY =
   'Click here to go back to your SharePoint library';
 
 export function SavedToLaserficheSuccessDialog(props: {
-  closeClick: (success: boolean) => Promise<void>;
+  closeClick: () => Promise<void>;
   successfulSave: {
     fileLink: string;
     pathBack: string;
@@ -66,7 +66,7 @@ export function SavedToLaserficheSuccessDialog(props: {
       </div>
 
       <div className={styles.button}>
-        <button className={styles.button1} onClick={() => props.closeClick(true)}>
+        <button className={styles.button1} onClick={props.closeClick}>
           {CLOSE}
         </button>
         {props.successfulSave.fileLink && (

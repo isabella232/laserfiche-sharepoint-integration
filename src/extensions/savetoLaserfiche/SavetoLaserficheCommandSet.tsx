@@ -94,9 +94,12 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         'Missing "LaserficheSpAdministration" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
       );
     } else {
-      this.trySaveToLaserficheAsync(
-        { fileName, spContentType, spFileUrl: fileUrl, fileId }
-      );
+      this.trySaveToLaserficheAsync({
+        fileName,
+        spContentType,
+        spFileUrl: fileUrl,
+        fileId,
+      });
     }
   }
 
@@ -127,14 +130,12 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  public async trySaveToLaserficheAsync(
-    spFileInfo: {
-      fileName: string;
-      spContentType: string;
-      spFileUrl: string;
-      fileId: string;
-    },
-  ) {
+  public async trySaveToLaserficheAsync(spFileInfo: {
+    fileName: string;
+    spContentType: string;
+    spFileUrl: string;
+    fileId: string;
+  }) {
     const saveToDialog = new GetDocumentDataCustomDialog(
       spFileInfo,
       this.context

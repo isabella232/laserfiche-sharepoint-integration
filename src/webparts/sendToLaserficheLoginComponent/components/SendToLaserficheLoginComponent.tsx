@@ -63,6 +63,7 @@ export default function SendToLaserficheLoginComponent(
 
         if (loggedIn && spFileMetadata) {
           const dialog = new SaveToLaserficheCustomDialog(spFileMetadata);
+          
           dialog.show().then(() => {
             if (!dialog.successful) {
               console.warn('Could not login successfully');

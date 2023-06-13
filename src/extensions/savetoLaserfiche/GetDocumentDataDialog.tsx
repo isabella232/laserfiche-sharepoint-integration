@@ -1,4 +1,4 @@
-import { BaseDialog, IDialogConfiguration } from '@microsoft/sp-dialog';
+import { BaseDialog } from '@microsoft/sp-dialog';
 import styles from './SendToLaserFiche.module.scss';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
@@ -44,11 +44,6 @@ const signInPageRoute = '/SitePages/LaserficheSpSignIn.aspx';
 export class GetDocumentDataCustomDialog extends BaseDialog {
   successful = false;
 
-  handleCloseClickAsync = async (success: boolean) => {
-    this.successful = success;
-    await this.close();
-  };
-
   constructor(
     private fileInfo: {
       fileName: string;
@@ -62,7 +57,7 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
   }
 
   showNextDialog = (data: ISPDocumentData) => {
-    const saveToLfDialog = new SaveToLaserficheCustomDialog(data);
+    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () => this.close());
     this.secondaryDialogProvider.show(saveToLfDialog).then(() => {
       if (!saveToLfDialog.successful) {
         Navigation.navigate(
@@ -70,26 +65,18 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
           true
         );
       }
-      this.handleCloseClickAsync(saveToLfDialog.successful);
     });
   };
 
   public render(): void {
     const element: React.ReactElement = (
       <GetDocumentDialogData
-        closeClick={this.handleCloseClickAsync}
         spFileInfo={this.fileInfo}
         context={this.context}
         showSaveToDialog={this.showNextDialog}
       />
     );
     ReactDOM.render(element, this.domElement);
-  }
-
-  public getConfig(): IDialogConfiguration {
-    return {
-      isBlocking: false,
-    };
   }
 
   protected onAfterClose(): void {
@@ -104,7 +91,6 @@ const PLEASE_FILL_OUT_REQUIRED_FIELDS_TRY_AGAIN =
   'Please fill out these required fields and try again.';
 
 function GetDocumentDialogData(props: {
-  closeClick: (success: boolean) => Promise<void>;
   showSaveToDialog: (fileData: ISPDocumentData) => void;
   spFileInfo: {
     fileName: string;
@@ -224,7 +210,10 @@ function GetDocumentDialogData(props: {
           contextPageAbsoluteUrl: props.context.pageContext.web.absoluteUrl,
           lfProfile: laserficheProfile,
         };
-        window.localStorage.setItem(SP_LOCAL_STORAGE_KEY, JSON.stringify(fileData));
+        window.localStorage.setItem(
+          SP_LOCAL_STORAGE_KEY,
+          JSON.stringify(fileData)
+        );
 
         props.showSaveToDialog(fileData);
       }
