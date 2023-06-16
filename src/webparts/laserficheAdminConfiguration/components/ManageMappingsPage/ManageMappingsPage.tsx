@@ -308,6 +308,8 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
         (mapping) => mapping.id === rows[idx].id
       );
       jsonValue[matchingId] = { ...rows[idx] };
+      rows[idx].toggle = !rows[idx].toggle;
+      jsonValue[matchingId].toggle = rows[idx].toggle;
       const restApiUrl = `${getSPListURL(
         props.context,
         ADMIN_CONFIGURATION_LIST
@@ -333,7 +335,6 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
         SPHttpClient.configurations.v1,
         options
       );
-      rows[idx].toggle = !rows[idx].toggle;
       setMappingRows(rows);
       if (
         rows.some(
