@@ -40,9 +40,9 @@ export interface MappedFields {
 }
 
 export enum ActionTypes {
-  'COPY'= 'COPY',
+  'COPY' = 'COPY',
   'MOVE_AND_DELETE' = 'MOVE_AND_DELETE',
-  'REPLACE' = 'REPLACE'
+  'REPLACE' = 'REPLACE',
 }
 
 export function ProfileHeader(props: { configurationName: string }) {
@@ -82,7 +82,9 @@ export function ConfigurationBody(props: {
     setShowFolderModal(false);
   };
 
-  const handleTemplateChange = (event) => {
+  const handleTemplateChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const value = (event.target as HTMLSelectElement).value;
     const templateName = value;
     const profileConfig = { ...props.profileConfig };
@@ -91,13 +93,15 @@ export function ConfigurationBody(props: {
     props.handleTemplateChange(templateName);
   };
 
-  const handleActionTypeChange = (event) => {
+  const handleActionTypeChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const value = (event.target as HTMLSelectElement).value;
     const actionName = value;
     const profileConfig = { ...props.profileConfig };
     profileConfig.Action = actionName as ActionTypes;
     props.handleProfileConfigUpdate(profileConfig);
-  }
+  };
 
   function CloseFolderModalUp() {
     setShowFolderModal(false);
@@ -109,9 +113,7 @@ export function ConfigurationBody(props: {
   return (
     <>
       <div className='form-group row'>
-        <DocumentName
-          documentName={props.profileConfig?.DocumentName}
-        />
+        <DocumentName documentName={props.profileConfig?.DocumentName} />
       </div>
       <div className='form-group row'>
         <TemplateSelector
@@ -155,14 +157,21 @@ export function ConfigurationBody(props: {
           After import
         </label>
         <div className='col-sm-6'>
-          <select onChange={handleActionTypeChange} defaultValue={props.profileConfig.Action} className='custom-select' id='action'>
+          <select
+            onChange={handleActionTypeChange}
+            defaultValue={props.profileConfig.Action}
+            className='custom-select'
+            id='action'
+          >
             <option value={ActionTypes.COPY}>
               Leave a copy of the file in SharePoint
             </option>
             <option value={ActionTypes.REPLACE}>
               Replace SharePoint file with a link to the document in Laserfiche
             </option>
-            <option value={ActionTypes.MOVE_AND_DELETE}>Delete SharePoint file</option>
+            <option value={ActionTypes.MOVE_AND_DELETE}>
+              Delete SharePoint file
+            </option>
           </select>
         </div>
         <div className='col-sm-2'>
@@ -384,7 +393,9 @@ export function TemplateSelector(props: {
   onChangeTemplate: (event: ChangeEvent<HTMLSelectElement>) => void;
 }) {
   const laserficheTemplateOptions = props.availableLfTemplates?.map((item) => (
-    <option key={item.id} value={item.displayName}>{item.displayName}</option>
+    <option key={item.id} value={item.displayName}>
+      {item.displayName}
+    </option>
   ));
   return (
     <>
@@ -457,7 +468,7 @@ export function SharePointLaserficheColumnMatching(props: {
   function CloseModalUp() {
     setDeleteModal(undefined);
   }
-  const RemoveSpecificMapping = (idx) => {
+  const RemoveSpecificMapping = (idx: number) => {
     const del = (
       <DeleteModal
         configurationName='the field mapping'
@@ -481,7 +492,7 @@ export function SharePointLaserficheColumnMatching(props: {
       const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(
         36
       );
-      const item = {
+      const item: MappedFields = {
         id: id,
         spField: undefined,
         lfField: undefined,
@@ -727,8 +738,14 @@ export function hasFieldTypeMismatch(mapped: MappedFields) {
 }
 
 export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
-  const profileNameContainsSpecialCharacters = /[^ A-Za-z0-9]/.test(profileConfig.ConfigurationName);
-  if(!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0 || profileNameContainsSpecialCharacters) {
+  const profileNameContainsSpecialCharacters = /[^ A-Za-z0-9]/.test(
+    profileConfig.ConfigurationName
+  );
+  if (
+    !profileConfig.ConfigurationName ||
+    profileConfig.ConfigurationName.length === 0 ||
+    profileNameContainsSpecialCharacters
+  ) {
     return false;
   }
   if (profileConfig.mappedFields) {
@@ -736,7 +753,7 @@ export function validateNewConfiguration(profileConfig: ProfileConfiguration) {
       if (!mapped.spField || !mapped.lfField) {
         return false;
       }
-      if(hasFieldTypeMismatch(mapped)) {
+      if (hasFieldTypeMismatch(mapped)) {
         return false;
       }
     }

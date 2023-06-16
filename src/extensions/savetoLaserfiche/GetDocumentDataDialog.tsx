@@ -32,7 +32,7 @@ import SaveToLaserficheCustomDialog from './SaveToLaserficheDialog';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import LoadingDialog from './CommonDialogs';
 
-interface ProfileMappingConfiguration {
+export interface ProfileMappingConfiguration {
   id: string;
   SharePointContentType: string;
   LaserficheContentType: string;
@@ -119,13 +119,13 @@ function GetDocumentDialogData(props: {
   React.useEffect(() => {
     const libraryUrl = props.context.pageContext.list.title;
     GetAllFieldsValues(libraryUrl, props.spFileInfo.fileId).then(
-      (allSpFieldValues: object) => {
+      (allSpFieldValues: {[key: string]: string}) => {
         getDocumentDataAsync(allSpFieldValues);
       }
     );
   }, []);
 
-  async function getDocumentDataAsync(allSpFieldValues: object) {
+  async function getDocumentDataAsync(allSpFieldValues: {[key: string]: string}) {
     const response: SPHttpClientResponse = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
@@ -290,12 +290,12 @@ function GetDocumentDialogData(props: {
   function formatMetadata(
     matchingLFConfig: ProfileConfiguration,
     missingRequiredFields: SPProfileConfigurationData[],
-    allSpFieldValues: object,
+    allSpFieldValues: {[key: string]: string},
     fields: { [key: string]: FieldToUpdate }
   ) {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.Title;
-      let spDocFieldValue = allSpFieldValues[spFieldName];
+      let spDocFieldValue: string = allSpFieldValues[spFieldName];
 
       if (spDocFieldValue != undefined || spDocFieldValue != null) {
         const lfField = mapping.lfField;
