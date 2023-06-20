@@ -1,10 +1,13 @@
-name: SPFx CI CD
+name: Veracode SPFx CI CD
 
 on:
-  workflow_dispatch:
+  push:
+    branches: ['\d+.x']
   pull_request:
-    branches:
-      - master
+    branches: ['\d+.x']
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
 
 jobs:
   build:
