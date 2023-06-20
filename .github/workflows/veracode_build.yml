@@ -41,7 +41,6 @@ jobs:
         appname: 'SharePoint Integration'
         createprofile: true
         filepath: 'veracode'
-        teams: 'Application Components - Shared'
         vid: '${{ secrets.VERACODE_API_ID }}'
         vkey: '${{ secrets.VERACODE_API_KEY }}'
 
