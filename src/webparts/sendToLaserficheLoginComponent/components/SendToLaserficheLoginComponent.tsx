@@ -5,7 +5,7 @@ import {
   LfLoginComponent,
   LoginState,
 } from '@laserfiche/types-lf-ui-components';
-import { clientId, SP_LOCAL_STORAGE_KEY } from '../../constants';
+import { clientId, SPDEVMODE_LOCAL_STORAGE_KEY, SP_LOCAL_STORAGE_KEY } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
@@ -30,7 +30,8 @@ export default function SendToLaserficheLoginComponent(
 
   const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
 
-  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
+  const region = spDevMode && spDevMode === 'true' ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
 
   const spFileMetadata = JSON.parse(
     window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)

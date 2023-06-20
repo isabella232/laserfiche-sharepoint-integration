@@ -4,7 +4,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
-import { clientId } from '../../constants';
+import { clientId, SPDEVMODE_LOCAL_STORAGE_KEY } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
@@ -35,7 +35,9 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
   >(undefined);
-  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
+  const region = spDevMode && spDevMode === 'true' ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+
   const redirectPage =
     props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
 
