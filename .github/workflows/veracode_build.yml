@@ -51,4 +51,5 @@ jobs:
       with:
         create-issues: false
         allow-dirty: true
+        recursive: true
 
