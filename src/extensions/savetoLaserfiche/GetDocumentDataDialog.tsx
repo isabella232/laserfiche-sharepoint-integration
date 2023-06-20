@@ -117,15 +117,40 @@ function GetDocumentDialogData(props: {
   ));
 
   React.useEffect(() => {
-    const libraryUrl = props.context.pageContext.list.title;
-    GetAllFieldsValues(libraryUrl, props.spFileInfo.fileId).then(
-      (allSpFieldValues: {[key: string]: string}) => {
-        getDocumentDataAsync(allSpFieldValues);
-      }
-    );
+    saveDocumentToLaserficheAsync();
   }, []);
 
-  async function getDocumentDataAsync(allSpFieldValues: {[key: string]: string}) {
+  async function saveDocumentToLaserficheAsync() {
+    const libraryUrl = props.context.pageContext.list.title;
+    const allSPFieldValues = await GetAllFieldsValues(libraryUrl, props.spFileInfo.fileId);
+    const allSPFieldProperties = await GetAllFieldsProperties(libraryUrl);
+    await getDocumentDataAsync(allSPFieldValues, allSPFieldProperties);
+  }
+
+  async function GetAllFieldsProperties(libraryUrl: string): Promise<SPProfileConfigurationData[]> {
+    try {
+      const res = await fetch(
+        `${getSPListURL(
+          this.context,
+          libraryUrl
+        )}/Fields?$filter=Group ne '_Hidden'`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const results = await res.json();
+      const spFieldNameDefs: SPProfileConfigurationData[] = JSON.parse(results.value);
+      return spFieldNameDefs;
+    } catch (error) {
+      console.log('error occured' + error);
+    }
+  }
+
+  async function getDocumentDataAsync(allSpFieldValues: {[key: string]: string}, allSPFieldProperties: SPProfileConfigurationData[]) {
     const response: SPHttpClientResponse = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
@@ -187,6 +212,7 @@ function GetDocumentDialogData(props: {
           matchingLFConfig,
           missingRequiredFields,
           allSpFieldValues,
+          allSPFieldProperties,
           fields
         );
 
@@ -223,7 +249,7 @@ function GetDocumentDialogData(props: {
   async function GetAllFieldsValues(
     libraryUrl: string,
     fileId: string
-  ): Promise<object> {
+  ): Promise<{[key: string]: string}> {
     try {
       const res = await props.context.spHttpClient.get(
         `${getSPListURL(
@@ -291,6 +317,7 @@ function GetDocumentDialogData(props: {
     matchingLFConfig: ProfileConfiguration,
     missingRequiredFields: SPProfileConfigurationData[],
     allSpFieldValues: {[key: string]: string},
+    allSPFieldProperties: SPProfileConfigurationData[],
     fields: { [key: string]: FieldToUpdate }
   ) {
     for (const mapping of matchingLFConfig.mappedFields) {
@@ -311,7 +338,8 @@ function GetDocumentDialogData(props: {
           lfField.isRequired &&
           (!spDocFieldValue || spDocFieldValue.length === 0)
         ) {
-          missingRequiredFields.push(mapping.spField);
+          const currentField: SPProfileConfigurationData | undefined = allSPFieldProperties.find(prop => prop.InternalName === mapping.spField.InternalName);
+          missingRequiredFields.push(currentField);
         }
 
         const valueToUpdate: IValueToUpdate = {
