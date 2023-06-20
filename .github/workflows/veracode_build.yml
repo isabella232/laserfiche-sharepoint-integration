@@ -32,14 +32,24 @@ jobs:
       run: 'mkdir -p ./veracode'
       
     - name: 'Compress UI Components'
-      run: tar -czvf ./veracode/ui-components.tar.gz ./lib
+      run: tar -czvf ./veracode/sharepoint-integration.tar.gz ./lib
 
     
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v3
+    - name: Veracode Upload And Scan
+      uses: veracode/veracode-uploadandscan-action@0.2.6
       with:
-        name: npm-publish-artifact
-        # A file, directory or wildcard pattern that describes what to upload
-        path: |
-          ./veracode
+        appname: 'SharePoint Integration'
+        createprofile: true
+        filepath: 'veracode'
+        teams: 'Application Components - Shared'
+        vid: '${{ secrets.VERACODE_API_ID }}'
+        vkey: '${{ secrets.VERACODE_API_KEY }}'
+
+    - name: Run Veracode SCA
+      env:
+        SRCCLR_API_TOKEN: ${{ secrets.SRCCLR_API_TOKEN }}
+      uses: veracode/veracode-sca@v2.1.6
+      with:
+        create-issues: false
+        allow-dirty: true
 
