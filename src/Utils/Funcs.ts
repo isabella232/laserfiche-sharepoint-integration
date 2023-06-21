@@ -1,5 +1,6 @@
 import { UrlUtils } from '@laserfiche/lf-js-utils';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
+import { SPDEVMODE_LOCAL_STORAGE_KEY } from '../webparts/constants';
 
 export function getEntryWebAccessUrl(
   nodeId: string,
@@ -25,12 +26,19 @@ export function getEntryWebAccessUrl(
   return newUrl;
 }
 
-export function getSPListURL(
-  context: BaseComponentContext,
-  listName: string
-) {
+export function getSPListURL(context: BaseComponentContext, listName: string) {
   return (
     context.pageContext.web.absoluteUrl +
     `/_api/web/lists/GetByTitle('${listName}')`
   );
+}
+
+export function getRegion() {
+  const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
+  if (!spDevMode) {
+    window.localStorage.setItem(SPDEVMODE_LOCAL_STORAGE_KEY, 'false');
+  }
+  const spDevModeTrue = spDevMode && spDevMode.toLocaleLowerCase() === 'true';
+  const region = spDevModeTrue ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  return region;
 }
