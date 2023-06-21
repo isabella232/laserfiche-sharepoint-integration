@@ -4,7 +4,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
-import { clientId, SPDEVMODE_LOCAL_STORAGE_KEY } from '../../constants';
+import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
@@ -13,6 +13,7 @@ require('../../../Assets/CSS/bootstrap.min.css');
 require('../../../Assets/CSS/custom.css');
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
+import { getRegion } from '../../../Utils/Funcs';
 
 declare global {
   // eslint-disable-next-line
@@ -35,8 +36,8 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
   >(undefined);
-  const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
-  const region = spDevMode && spDevMode === 'true' ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  
+  const region = getRegion();
 
   const redirectPage =
     props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;

@@ -9,12 +9,13 @@ import ManageConfigurationsPage from './ManageConfigurationsPage/ManageConfigura
 import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
-import { clientId, SPDEVMODE_LOCAL_STORAGE_KEY } from '../../constants';
+import { clientId } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { SPComponentLoader } from '@microsoft/sp-loader';
+import { getRegion } from '../../../Utils/Funcs';
 
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
@@ -26,8 +27,9 @@ export default function LaserficheAdminConfiguration(
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
   >(undefined);
-  const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
-  const region = spDevMode && spDevMode === 'true' ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+
+  const region = getRegion();
+
   const redirectPage =
     props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
 

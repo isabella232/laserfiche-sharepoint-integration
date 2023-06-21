@@ -5,11 +5,12 @@ import {
   LfLoginComponent,
   LoginState,
 } from '@laserfiche/types-lf-ui-components';
-import { clientId, SPDEVMODE_LOCAL_STORAGE_KEY, SP_LOCAL_STORAGE_KEY } from '../../constants';
+import { clientId, SP_LOCAL_STORAGE_KEY } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
+import { getRegion } from '../../../Utils/Funcs';
 
 declare global {
   // eslint-disable-next-line
@@ -30,8 +31,7 @@ export default function SendToLaserficheLoginComponent(
 
   const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
 
-  const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
-  const region = spDevMode && spDevMode === 'true' ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  const region = getRegion();
 
   const spFileMetadata = JSON.parse(
     window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)

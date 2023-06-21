@@ -2,13 +2,14 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
-import { clientId, SPDEVMODE_LOCAL_STORAGE_KEY } from '../../webparts/constants';
+import { clientId } from '../../webparts/constants';
 import LoadingDialog, { SavedToLaserficheSuccessDialog } from './CommonDialogs';
 import { SaveDocumentToLaserfiche } from './SaveDocumentToLaserfiche';
 import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
+import { getRegion } from '../../Utils/Funcs';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
@@ -57,8 +58,7 @@ function SaveToLaserficheDialog(props: {
     NgElement & WithProperties<LfLoginComponent>
   >();
 
-  const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
-  const region = spDevMode && spDevMode === 'true' ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  const region = getRegion();
   const [success, setSuccess] = React.useState<
     { fileLink: string; pathBack: string; metadataSaved: boolean } | undefined
   >();
