@@ -33,7 +33,7 @@ jobs:
     - name: 'create an empty ./veracode folder'
       run: 'mkdir -p ./veracode'
       
-    - name: 'Compress UI Components'
+    - name: 'Compress SharePoint files'
       run: tar -czvf ./veracode/sharepoint-integration.tar.gz ./lib
 
     
