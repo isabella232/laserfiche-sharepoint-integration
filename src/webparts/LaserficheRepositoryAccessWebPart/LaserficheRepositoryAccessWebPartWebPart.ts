@@ -4,7 +4,6 @@ import { Version } from '@microsoft/sp-core-library';
 import {
   IPropertyPaneConfiguration,
   PropertyPaneTextField,
-  PropertyPaneToggle,
   IPropertyPaneGroup,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
@@ -15,7 +14,6 @@ import { ILaserficheRepositoryAccessWebPartProps } from './components/ILaserfich
 export interface ILaserficheRepositoryAccessWebPartWebPartProps {
   WebPartTitle: string;
   LaserficheRedirectUrl: string;
-  devMode: boolean;
 }
 
 export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClientSideWebPart<ILaserficheRepositoryAccessWebPartWebPartProps> {
@@ -25,7 +23,6 @@ export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClient
         context: this.context,
         webPartTitle: this.properties.WebPartTitle,
         laserficheRedirectPage: this.properties.LaserficheRedirectUrl,
-        devMode: this.properties.devMode,
       });
 
     ReactDom.render(element, this.domElement);
@@ -40,24 +37,9 @@ export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClient
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    const searchParams = new URLSearchParams(location.search);
-    const devMode = searchParams.get('devMode');
-
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devMode === 'true') {
-      conditionalGroupFields = [
-        PropertyPaneTextField('WebPartTitle', {
-          label: strings.WebPartTitle,
-        }),
-        PropertyPaneTextField('LaserficheRedirectUrl', {
-          label: strings.LaserficheRedirectUrl,
-        }),
-        PropertyPaneToggle('devMode', {
-          label: 'Dev Mode',
-        }),
-      ];
-    } else {
+
       conditionalGroupFields = [
         PropertyPaneTextField('WebPartTitle', {
           label: strings.WebPartTitle,
@@ -66,7 +48,7 @@ export default class LaserficheRepositoryAccessWebPartWebPart extends BaseClient
           label: strings.LaserficheRedirectUrl,
         }),
       ];
-    }
+
     return {
       pages: [
         {

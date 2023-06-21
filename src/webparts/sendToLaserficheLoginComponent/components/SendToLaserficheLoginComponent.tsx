@@ -10,6 +10,7 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
+import { getRegion } from '../../../Utils/Funcs';
 
 declare global {
   // eslint-disable-next-line
@@ -30,7 +31,7 @@ export default function SendToLaserficheLoginComponent(
 
   const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
 
-  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  const region = getRegion();
 
   const spFileMetadata = JSON.parse(
     window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)

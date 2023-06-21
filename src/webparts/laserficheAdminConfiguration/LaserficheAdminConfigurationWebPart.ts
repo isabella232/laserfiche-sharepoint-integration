@@ -4,7 +4,6 @@ import { Version } from '@microsoft/sp-core-library';
 import {
   IPropertyPaneConfiguration,
   PropertyPaneTextField,
-  PropertyPaneToggle,
   IPropertyPaneGroup,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
@@ -16,7 +15,6 @@ import { ILaserficheAdminConfigurationProps } from './components/ILaserficheAdmi
 export interface ILaserficheAdminConfigurationWebPartProps {
   WebPartTitle: string;
   LaserficheRedirectPage: string;
-  devMode: boolean;
 }
 
 export default class LaserficheAdminConfigurationWebPart extends BaseClientSideWebPart<ILaserficheAdminConfigurationWebPartProps> {
@@ -26,7 +24,6 @@ export default class LaserficheAdminConfigurationWebPart extends BaseClientSideW
         webPartTitle: this.properties.WebPartTitle,
         laserficheRedirectPage: this.properties.LaserficheRedirectPage,
         context: this.context,
-        devMode: this.properties.devMode,
       });
 
     ReactDom.render(element, this.domElement);
@@ -41,33 +38,16 @@ export default class LaserficheAdminConfigurationWebPart extends BaseClientSideW
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    const searchParams = new URLSearchParams(location.search);
-    const devMode = searchParams.get('devMode');
-
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devMode?.toLocaleLowerCase() === 'true') {
-      conditionalGroupFields = [
-        PropertyPaneTextField('WebPartTitle', {
-          label: strings.WebPartTitle,
-        }),
-        PropertyPaneTextField('LaserficheRedirectPage', {
-          label: strings.LaserficheRedirectPage,
-        }),
-        PropertyPaneToggle('devMode', {
-          label: 'Dev Mode',
-        }),
-      ];
-    } else {
-      conditionalGroupFields = [
-        PropertyPaneTextField('WebPartTitle', {
-          label: strings.WebPartTitle,
-        }),
-        PropertyPaneTextField('LaserficheRedirectPage', {
-          label: strings.LaserficheRedirectPage,
-        }),
-      ];
-    }
+    conditionalGroupFields = [
+      PropertyPaneTextField('WebPartTitle', {
+        label: strings.WebPartTitle,
+      }),
+      PropertyPaneTextField('LaserficheRedirectPage', {
+        label: strings.LaserficheRedirectPage,
+      }),
+    ];
     return {
       pages: [
         {

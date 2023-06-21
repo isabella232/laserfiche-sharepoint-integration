@@ -9,6 +9,7 @@ import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
+import { getRegion } from '../../Utils/Funcs';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
@@ -57,6 +58,7 @@ function SaveToLaserficheDialog(props: {
     NgElement & WithProperties<LfLoginComponent>
   >();
 
+  const region = getRegion();
   const [success, setSuccess] = React.useState<
     { fileLink: string; pathBack: string; metadataSaved: boolean } | undefined
   >();
@@ -96,8 +98,8 @@ function SaveToLaserficheDialog(props: {
     <div className={styles.maindialog}>
       <lf-login
         hidden
-        redirect_uri='https://lfdevm365.sharepoint.com/sites/TestSite/Shared%20Documents/Forms/AllItems.aspx'
-        authorize_url_host_name='a.clouddev.laserfiche.com'
+        redirect_uri=''
+        authorize_url_host_name={region}
         redirect_behavior='Replace'
         client_id={clientId}
         ref={loginComponent}
