@@ -15,6 +15,7 @@ import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { SPComponentLoader } from '@microsoft/sp-loader';
+import { getRegion } from '../../../Utils/Funcs';
 
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
@@ -26,7 +27,9 @@ export default function LaserficheAdminConfiguration(
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
   >(undefined);
-  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+
+  const region = getRegion();
+
   const redirectPage =
     props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
 

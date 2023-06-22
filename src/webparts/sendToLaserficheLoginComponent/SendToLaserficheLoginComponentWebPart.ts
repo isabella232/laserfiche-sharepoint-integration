@@ -4,7 +4,6 @@ import { Version } from '@microsoft/sp-core-library';
 import {
   IPropertyPaneConfiguration,
   PropertyPaneTextField,
-  PropertyPaneToggle,
   IPropertyPaneGroup,
 } from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
@@ -14,17 +13,17 @@ import SendToLaserficheLoginComponent from './components/SendToLaserficheLoginCo
 
 export interface ISendToLaserficheLoginComponentWebPartProps {
   LaserficheRedirectPage: string;
-  devMode: boolean;
 }
 
 export default class SendToLaserficheLoginComponentWebPart extends BaseClientSideWebPart<ISendToLaserficheLoginComponentWebPartProps> {
   public render(): void {
-    const element: React.ReactElement =
-      React.createElement(SendToLaserficheLoginComponent, {
+    const element: React.ReactElement = React.createElement(
+      SendToLaserficheLoginComponent,
+      {
         laserficheRedirectUrl: this.properties.LaserficheRedirectPage,
         context: this.context,
-        devMode: this.properties.devMode,
-      });
+      }
+    );
 
     ReactDom.render(element, this.domElement);
   }
@@ -38,27 +37,13 @@ export default class SendToLaserficheLoginComponentWebPart extends BaseClientSid
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    const searchParams = new URLSearchParams(location.search);
-    const devMode = searchParams.get('devMode');
-
     let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
 
-    if (devMode?.toLocaleLowerCase() === 'true') {
-      conditionalGroupFields = [
-        PropertyPaneTextField('LaserficheRedirectPage', {
-          label: strings.LaserficheRedirectPage,
-        }),
-        PropertyPaneToggle('devMode', {
-          label: 'Dev Mode',
-        }),
-      ];
-    } else {
-      conditionalGroupFields = [
-        PropertyPaneTextField('LaserficheRedirectPage', {
-          label: strings.LaserficheRedirectPage,
-        }),
-      ];
-    }
+    conditionalGroupFields = [
+      PropertyPaneTextField('LaserficheRedirectPage', {
+        label: strings.LaserficheRedirectPage,
+      }),
+    ];
     return {
       pages: [
         {

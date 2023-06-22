@@ -4,5 +4,4 @@ export interface ILaserficheAdminConfigurationProps {
   webPartTitle: string;
   laserficheRedirectPage: string;
   context: WebPartContext;
-  devMode: boolean;
 }

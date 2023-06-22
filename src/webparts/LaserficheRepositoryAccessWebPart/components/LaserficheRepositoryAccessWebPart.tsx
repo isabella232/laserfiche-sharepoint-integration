@@ -13,6 +13,7 @@ require('../../../Assets/CSS/bootstrap.min.css');
 require('../../../Assets/CSS/custom.css');
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
+import { getRegion } from '../../../Utils/Funcs';
 
 declare global {
   // eslint-disable-next-line
@@ -35,7 +36,9 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
   >(undefined);
-  const region = props.devMode ? 'a.clouddev.laserfiche.com' : 'laserfiche.com';
+  
+  const region = getRegion();
+
   const redirectPage =
     props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
 

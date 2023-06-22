@@ -4,3 +4,6 @@ export const ADMIN_CONFIGURATION_LIST = 'AdminConfigurationList';
 export const MANAGE_MAPPING = 'ManageMapping';
 export const DOCUMENT_NAME_CONFIG_LIST = 'DocumentNameConfigList';
 export const MANAGE_CONFIGURATIONS = 'ManageConfigurations';
+
+export const SP_LOCAL_STORAGE_KEY = 'spdocdata';
+export const SPDEVMODE_LOCAL_STORAGE_KEY = 'spDevMode';
