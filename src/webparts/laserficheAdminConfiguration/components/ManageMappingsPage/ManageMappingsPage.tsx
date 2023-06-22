@@ -13,7 +13,7 @@ import {
   MANAGE_MAPPING,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
-import { ProfileMappingConfiguration } from '../../../../extensions/savetoLaserfiche/GetDocumentDataDialog';
+import { ProfileMappingConfiguration } from '../../../../Utils/Types';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
