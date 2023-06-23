@@ -23,5 +23,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - Clone this repository
 - Ensure that you are at the solution folder
   - **npm install**
+  - **npm run gulp-trust-dev-cert**
   - Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
-  - **gulp serve**
+  - **npm run serve**
+  - To use a.clouddev.laserfiche.com: Open browser dev tools and go to site Local Storage: set 'spDevMode' to true
