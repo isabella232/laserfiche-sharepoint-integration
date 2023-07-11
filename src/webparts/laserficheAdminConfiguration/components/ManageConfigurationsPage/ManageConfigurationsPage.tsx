@@ -101,7 +101,7 @@ export default function ManageConfigurationsPage(
       const indexOfProfileToRemove = manageConfigs.configs.findIndex(
         (config) => config.ConfigurationName === rows[idx].ConfigurationName
       );
-      if (indexOfProfileToRemove !== -2) {
+      if (indexOfProfileToRemove !== -1) {
         manageConfigs.configs.splice(indexOfProfileToRemove, 1);
         setConfigRows(manageConfigs.configs);
         const restApiUrl = `${getSPListURL(

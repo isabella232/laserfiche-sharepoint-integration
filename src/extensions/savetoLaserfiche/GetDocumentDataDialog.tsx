@@ -124,7 +124,16 @@ function GetDocumentDialogData(props: {
       await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
     const allSPFieldProperties: SPProfileConfigurationData[] =
       await getAllFieldsPropertiesAsync(libraryUrl);
-    await getDocumentDataAsync(allSPFieldValues, allSPFieldProperties);
+    const docData = await getDocumentDataAsync(allSPFieldValues, allSPFieldProperties);
+    
+    if (docData) {
+      window.localStorage.setItem(
+        SP_LOCAL_STORAGE_KEY,
+        JSON.stringify(docData)
+      );
+
+      props.showSaveToDialog(docData);
+    }
   }
 
   async function getAllFieldsPropertiesAsync(
@@ -157,7 +166,7 @@ function GetDocumentDialogData(props: {
   async function getDocumentDataAsync(
     allSpFieldValues: { [key: string]: string },
     allSPFieldProperties: SPProfileConfigurationData[]
-  ) {
+  ): Promise<ISPDocumentData | undefined> {
     const response: SPHttpClientResponse = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
@@ -194,14 +203,7 @@ function GetDocumentDialogData(props: {
         allSPFieldProperties
       );
     }
-    if (docData) {
-      window.localStorage.setItem(
-        SP_LOCAL_STORAGE_KEY,
-        JSON.stringify(docData)
-      );
-
-      props.showSaveToDialog(docData);
-    }
+    return docData;
   }
 
   async function getDocumentDataWithMapping(
