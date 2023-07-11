@@ -5,27 +5,9 @@ import {
 } from '@microsoft/sp-http';
 import {
   ADMIN_CONFIGURATION_LIST,
-  DOCUMENT_NAME_CONFIG_LIST,
 } from '../webparts/constants';
 import { getSPListURL } from './Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
-
-const documentNameTokens = [
-  '%(count)',
-  '%(date)',
-  '%(datetime)',
-  '%(gcount)',
-  '%(id)',
-  '%(name)',
-  '%(parent)',
-  '%(parentid)',
-  '%(parentname)',
-  '%(parentuuid)',
-  '%(time)',
-  '%(username)',
-  '%(usersid)',
-  '%(uuid)',
-];
 
 export class CreateConfigurations {
   public static async ensureAdminConfigListCreatedAsync(
