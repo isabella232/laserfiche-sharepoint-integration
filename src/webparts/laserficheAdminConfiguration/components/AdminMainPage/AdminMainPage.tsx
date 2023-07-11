@@ -19,7 +19,6 @@ declare global {
 export default function AdminMainPage(props: IAdminPageProps) {
   useEffect(() => {
     CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context);
-    CreateConfigurations.ensureDocumentConfigListCreatedAsync(props.context);
   }, []);
 
   const linkData: LinkInfo[] = [

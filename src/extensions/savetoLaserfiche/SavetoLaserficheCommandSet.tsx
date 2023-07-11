@@ -37,9 +37,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   public async onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-    const adminConfig = CreateConfigurations.ensureAdminConfigListCreatedAsync(this.context);
-    const documentConfig = CreateConfigurations.ensureDocumentConfigListCreatedAsync(this.context);
-    await Promise.all([adminConfig, documentConfig]);
+    await CreateConfigurations.ensureAdminConfigListCreatedAsync(this.context);
     return Promise.resolve();
   }
 

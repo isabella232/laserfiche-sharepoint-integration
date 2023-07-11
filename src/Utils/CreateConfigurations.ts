@@ -28,67 +28,6 @@ const documentNameTokens = [
 ];
 
 export class CreateConfigurations {
-  public static async ensureDocumentConfigListCreatedAsync(
-    context: BaseComponentContext
-  ) {
-    const listUrl: string = getSPListURL(context, DOCUMENT_NAME_CONFIG_LIST);
-    const response = await context.spHttpClient.get(
-      listUrl,
-      SPHttpClient.configurations.v1
-    );
-    if (response.status === 200) {
-      return;
-    }
-    if (response.status === 404) {
-      await CreateConfigurations.createDocumentConfigNameListAsync(context);
-    }
-  }
-
-  private static async createDocumentConfigNameListAsync(
-    context: BaseComponentContext
-  ) {
-    const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
-    const listDefinition = {
-      Title: DOCUMENT_NAME_CONFIG_LIST,
-      Description: 'My description',
-      BaseTemplate: 100,
-    };
-    const spHttpClientOptions: ISPHttpClientOptions = {
-      body: JSON.stringify(listDefinition),
-    };
-    const response = await context.spHttpClient.post(
-      url,
-      SPHttpClient.configurations.v1,
-      spHttpClientOptions
-    );
-    const documentConfigList = await response.json();
-    const documentListTitle = documentConfigList['Title'];
-    await this.addItemsInDocumentConfigListAsync(context, documentListTitle);
-  }
-
-  private static async addItemsInDocumentConfigListAsync(
-    context: BaseComponentContext,
-    documentList: string
-  ) {
-    for (const tokenName of documentNameTokens) {
-      const restApiUrl: string = getSPListURL(context, documentList) + '/items';
-      const body: string = JSON.stringify({ Title: tokenName });
-      const options: ISPHttpClientOptions = {
-        headers: {
-          Accept: 'application/json;odata=nometadata',
-          'content-type': 'application/json;odata=nometadata',
-          'odata-version': '',
-        },
-        body,
-      };
-      await context.spHttpClient.post(
-        restApiUrl,
-        SPHttpClient.configurations.v1,
-        options
-      );
-    }
-  }
-
   public static async ensureAdminConfigListCreatedAsync(
     context: BaseComponentContext
   ) {
