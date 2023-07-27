@@ -9,7 +9,10 @@ import {
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
-import { DeleteModal, ProfileConfiguration } from '../ProfileConfigurationComponents';
+import {
+  DeleteModal,
+  ProfileConfiguration,
+} from '../ProfileConfigurationComponents';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -27,16 +30,17 @@ export default function ManageConfigurationsPage(
   );
 
   useEffect(() => {
-    getManageConfigurationsAsync().then(
-      (results: { id: string; configs: ProfileConfiguration[] }) => {
-        if (results != null) {
-          if (results.configs.length > 0) {
-            setConfigRows(configRows.concat(...results.configs));
-          }
-        }
-      }
-    );
+    updateConfigurationsAsync();
   }, []);
+
+  const updateConfigurationsAsync = async () => {
+    const configurations: { id: string; configs: ProfileConfiguration[] } = await getManageConfigurationsAsync();
+    if (configurations != null) {
+      if (configurations.configs.length > 0) {
+        setConfigRows(configRows.concat(...configurations.configs));
+      }
+    }
+  };
 
   async function getManageConfigurationsAsync(): Promise<{
     id: string;
