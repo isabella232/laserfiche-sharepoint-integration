@@ -11,6 +11,7 @@ import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginCo
 import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
 import { getRegion } from '../../../Utils/Funcs';
+import styles from './SendToLaserficheLoginComponent.module.scss';
 
 declare global {
   // eslint-disable-next-line
@@ -21,6 +22,19 @@ declare global {
     }
   }
 }
+
+const SIGN_IN = 'Sign In';
+const SIGN_OUT = 'Sign Out';
+const YOU_ARE_SIGNED_IN_CAN_SIGN_OUT_HERE =
+  'You are signed in to Laserfiche. You can sign out here.';
+const WELCOME_TO_LASERFICHE_PLEASE_SIGN_IN =
+  'Welcome to Laserfiche. Please sign in.';
+const GO_BACK_TO_SHAREPOINT_DOCUMENT_LOCATION =
+  'Go Back to SharePoint document location';
+const IF_REDIRECTED_WHILE_SAVING_SIGN_IN_SAVE_ATTEMPTED_AGAIN =
+  'If you were redirected to this page while trying to save a document, please sign in and the save will be attempted again.';
+const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_ATTEMPTING_TO_SAVE_AND_NOT_LOGGED_IN =
+  '*Note: This page should only be needed if you are attempting to save a document to Laserfiche and not signed in.';
 
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
@@ -38,51 +52,51 @@ export default function SendToLaserficheLoginComponent(
   ) as ISPDocumentData;
 
   React.useEffect(() => {
-    SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    ).then(() => {
-      SPComponentLoader.loadScript(
+    const setUpLoginComponent = async () => {
+      await SPComponentLoader.loadScript(
+        'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+      );
+      await SPComponentLoader.loadScript(
         'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
-      ).then(() => {
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
-        );
-        SPComponentLoader.loadCss(
-          'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
-        );
-        loginComponent.current.addEventListener(
-          'loginCompleted',
-          loginCompleted
-        );
-        loginComponent.current.addEventListener(
-          'logoutCompleted',
-          logoutCompleted
-        );
+      );
+      SPComponentLoader.loadCss(
+        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+      );
+      SPComponentLoader.loadCss(
+        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+      );
+      loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+      loginComponent.current.addEventListener(
+        'logoutCompleted',
+        logoutCompleted
+      );
 
-        const loggedIn: boolean =
-          loginComponent.current.state === LoginState.LoggedIn;
+      const isLoggedIn: boolean =
+        loginComponent.current.state === LoginState.LoggedIn;
 
-        if (loggedIn && spFileMetadata) {
-          const dialog = new SaveToLaserficheCustomDialog(spFileMetadata);
-          
-          dialog.show().then(() => {
-            if (!dialog.successful) {
-              console.warn('Could not login successfully');
-            }
-          });
-        }
-      });
-    });
-  }, []);
+      setLoggedIn(isLoggedIn);
 
-  const loginCompleted = () => {
-    if (spFileMetadata) {
-      const dialog = new SaveToLaserficheCustomDialog(spFileMetadata);
-      dialog.show().then(() => {
+      if (isLoggedIn && spFileMetadata) {
+        const dialog = new SaveToLaserficheCustomDialog(spFileMetadata);
+
+        await dialog.show();
         if (!dialog.successful) {
           console.warn('Could not login successfully');
         }
-      });
+      }
+    };
+
+    setUpLoginComponent();
+  }, []);
+
+  const loginCompleted = async () => {
+    setLoggedIn(true);
+    if (spFileMetadata) {
+      const dialog = new SaveToLaserficheCustomDialog(spFileMetadata);
+      await dialog.show();
+      if (!dialog.successful) {
+        console.warn('Could not login successfully');
+      }
     }
   };
 
@@ -92,39 +106,34 @@ export default function SendToLaserficheLoginComponent(
       props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
   };
 
-  function Redirect() {
+  function redirect() {
     const spFileUrl = spFileMetadata.fileUrl;
     const fileNameWithExtension = spFileMetadata.fileName;
-    const spFileUrlWithoutFileName = spFileUrl.replace(fileNameWithExtension, '');
+    const spFileUrlWithoutFileName = spFileUrl.replace(
+      fileNameWithExtension,
+      ''
+    );
     const path = window.location.origin + spFileUrlWithoutFileName;
     Navigation.navigate(path, true);
   }
 
   return (
     <div>
-      <div
-        style={{ borderBottom: '3px solid #CE7A14', marginBlockEnd: '32px' }}
-      >
+      <div className={styles.signInHeader}>
         <img
           src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
-          height={'46px'}
-          width={'45px'}
-          style={{ marginTop: '8px', marginLeft: '8px' }}
+          className={styles.laserficheLogo}
         />
-        <span
-          id='remveHeading'
-          style={{ marginLeft: '10px', fontSize: '22px', fontWeight: 'bold' }}
-        >
-          {loggedIn ? 'Sign Out' : 'Sign In'}
+        <span className={styles.signInHeaderText}>
+          {loggedIn ? SIGN_OUT : SIGN_IN}
         </span>
       </div>
-      <p
-        id='remve'
-        style={{ textAlign: 'center', fontWeight: '600', fontSize: '20px' }}
-      >
-        {loggedIn ? 'You are signed in to Laserfiche' : 'Welcome to Laserfiche'}
+      <p className={styles.signInLabel}>
+        {loggedIn
+          ? YOU_ARE_SIGNED_IN_CAN_SIGN_OUT_HERE
+          : WELCOME_TO_LASERFICHE_PLEASE_SIGN_IN}
       </p>
-      <div style={{ textAlign: 'center' }}>
+      <div className={styles.loginButton}>
         <lf-login
           redirect_uri={
             props.context.pageContext.web.absoluteUrl +
@@ -133,21 +142,32 @@ export default function SendToLaserficheLoginComponent(
           authorize_url_host_name={region}
           redirect_behavior='Replace'
           client_id={clientId}
-          sign_in_text='Sign in'
-          sign_out_text='Sign out'
+          sign_in_text={SIGN_IN}
+          sign_out_text={SIGN_OUT}
           ref={loginComponent}
         />
       </div>
       <div>
-        <div
-          /* className="lf-component-container lf-right-button" */ style={{
-            marginTop: '35px',
-            textAlign: 'center',
-          }}
-        >
-          <button style={{ fontWeight: '600' }} onClick={Redirect}>
-            Go Back
-          </button>
+        <div className={styles.signInFooter}>
+          {spFileMetadata?.fileUrl && (
+            <>
+              <div>
+                {IF_REDIRECTED_WHILE_SAVING_SIGN_IN_SAVE_ATTEMPTED_AGAIN}
+              </div>
+              <br />
+            </>
+          )}
+          <div>
+            {
+              NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_ATTEMPTING_TO_SAVE_AND_NOT_LOGGED_IN
+            }
+          </div>
+          <br />
+          {spFileMetadata?.fileUrl && (
+            <button className='lf-button sec-button' onClick={redirect}>
+              {GO_BACK_TO_SHAREPOINT_DOCUMENT_LOCATION}
+            </button>
+          )}
         </div>
       </div>
     </div>
