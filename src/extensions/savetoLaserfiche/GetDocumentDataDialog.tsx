@@ -68,11 +68,13 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
 
   public render(): void {
     const element: React.ReactElement = (
-      <GetDocumentDialogData
-        spFileInfo={this.fileInfo}
-        context={this.context}
-        showSaveToDialog={this.showNextDialog}
-      />
+      <React.StrictMode>
+        <GetDocumentDialogData
+          spFileInfo={this.fileInfo}
+          context={this.context}
+          showSaveToDialog={this.showNextDialog}
+        />
+      </React.StrictMode>
     );
     ReactDOM.render(element, this.domElement);
   }

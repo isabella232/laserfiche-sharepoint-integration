@@ -68,4 +68,3 @@ function Links(props: { linkData: LinkInfo[] }) {
   ));
   return <div>{linkEls}</div>;
 }
-
