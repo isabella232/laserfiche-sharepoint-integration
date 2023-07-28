@@ -8,7 +8,10 @@ import {
   MANAGE_MAPPING,
   SP_LOCAL_STORAGE_KEY,
 } from '../../webparts/constants';
-import { ISPDocumentData } from '../../Utils/Types';
+import {
+  ISPDocumentData,
+  ProfileMappingConfiguration,
+} from '../../Utils/Types';
 import { Navigation } from 'spfx-navigation';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import {
@@ -32,13 +35,6 @@ import SaveToLaserficheCustomDialog from './SaveToLaserficheDialog';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import LoadingDialog from './CommonDialogs';
 
-interface ProfileMappingConfiguration {
-  id: string;
-  SharePointContentType: string;
-  LaserficheContentType: string;
-  toggle: boolean;
-}
-
 const signInPageRoute = '/SitePages/LaserficheSpSignIn.aspx';
 
 export class GetDocumentDataCustomDialog extends BaseDialog {
@@ -57,7 +53,9 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
   }
 
   showNextDialog = (data: ISPDocumentData) => {
-    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () => this.close());
+    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () =>
+      this.close()
+    );
     this.secondaryDialogProvider.show(saveToLfDialog).then(() => {
       if (!saveToLfDialog.successful) {
         Navigation.navigate(
@@ -70,11 +68,13 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
 
   public render(): void {
     const element: React.ReactElement = (
-      <GetDocumentDialogData
-        spFileInfo={this.fileInfo}
-        context={this.context}
-        showSaveToDialog={this.showNextDialog}
-      />
+      <React.StrictMode>
+        <GetDocumentDialogData
+          spFileInfo={this.fileInfo}
+          context={this.context}
+          showSaveToDialog={this.showNextDialog}
+        />
+      </React.StrictMode>
     );
     ReactDOM.render(element, this.domElement);
   }
@@ -117,15 +117,58 @@ function GetDocumentDialogData(props: {
   ));
 
   React.useEffect(() => {
-    const libraryUrl = props.context.pageContext.list.title;
-    GetAllFieldsValues(libraryUrl, props.spFileInfo.fileId).then(
-      (allSpFieldValues: object) => {
-        getDocumentDataAsync(allSpFieldValues);
-      }
-    );
+    saveDocumentToLaserficheAsync();
   }, []);
 
-  async function getDocumentDataAsync(allSpFieldValues: object) {
+  async function saveDocumentToLaserficheAsync() {
+    const libraryUrl = props.context.pageContext.list.title;
+    const allSPFieldValues: { [key: string]: string } =
+      await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
+    const allSPFieldProperties: SPProfileConfigurationData[] =
+      await getAllFieldsPropertiesAsync(libraryUrl);
+    const docData = await getDocumentDataAsync(allSPFieldValues, allSPFieldProperties);
+    
+    if (docData) {
+      window.localStorage.setItem(
+        SP_LOCAL_STORAGE_KEY,
+        JSON.stringify(docData)
+      );
+
+      props.showSaveToDialog(docData);
+    }
+  }
+
+  async function getAllFieldsPropertiesAsync(
+    libraryUrl: string
+  ): Promise<SPProfileConfigurationData[]> {
+    try {
+      const res = await fetch(
+        `${getSPListURL(
+          this.context,
+          libraryUrl
+        )}/Fields?$filter=Group ne '_Hidden'`,
+        {
+          method: 'GET',
+          headers: {
+            Accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      const results = await res.json();
+      const spFieldNameDefs: SPProfileConfigurationData[] = JSON.parse(
+        results.value
+      );
+      return spFieldNameDefs;
+    } catch (error) {
+      console.log('error occured' + error);
+    }
+  }
+
+  async function getDocumentDataAsync(
+    allSpFieldValues: { [key: string]: string },
+    allSPFieldProperties: SPProfileConfigurationData[]
+  ): Promise<ISPDocumentData | undefined> {
     const response: SPHttpClientResponse = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
@@ -152,78 +195,90 @@ function GetDocumentDialogData(props: {
       );
     }
 
+    let docData: ISPDocumentData;
     if (!matchingMapping) {
-      sendToLaserficheWithNoMetadata();
+      docData = getDocumentDataNoMetadata();
     } else {
-      const laserficheProfile = matchingMapping.LaserficheContentType;
-
-      const adminConfigList = await props.context.spHttpClient.get(
-        `${getSPListURL(
-          props.context,
-          ADMIN_CONFIGURATION_LIST
-        )}/items?$filter=Title eq '${MANAGE_CONFIGURATIONS}'&$top=1`,
-        SPHttpClient.configurations.v1,
-        {
-          headers: {
-            Accept: 'application/json',
-          },
-        }
+      docData = await getDocumentDataWithMapping(
+        matchingMapping,
+        allSpFieldValues,
+        allSPFieldProperties
       );
-      const adminConfigListJson = await adminConfigList.json();
+    }
+    return docData;
+  }
 
-      const allConfigs: ProfileConfiguration[] = JSON.parse(
-        adminConfigListJson.value[0]['JsonValue']
-      );
-      const matchingLFConfig = allConfigs.find(
-        (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
-      );
-      if (matchingLFConfig.selectedTemplateName?.length > 0) {
-        const metadata: IPostEntryWithEdocMetadataRequest = {
-          template: matchingLFConfig.selectedTemplateName,
-        };
-        const missingRequiredFields: SPProfileConfigurationData[] = [];
-        const fields: { [key: string]: FieldToUpdate } = {};
-        formatMetadata(
-          matchingLFConfig,
-          missingRequiredFields,
-          allSpFieldValues,
-          fields
-        );
+  async function getDocumentDataWithMapping(
+    matchingMapping: ProfileMappingConfiguration,
+    allSpFieldValues: { [key: string]: string },
+    allSPFieldProperties: SPProfileConfigurationData[]
+  ) {
+    const laserficheProfile = matchingMapping.LaserficheContentType;
 
-        if (missingRequiredFields.length === 0) {
-          sendToLaserficheWithMetadata(
-            fields,
-            metadata,
-            matchingLFConfig,
-            laserficheProfile
-          );
-        } else {
-          setMissingFields(missingRequiredFields);
-        }
-      } else {
-        const fileData: ISPDocumentData = {
-          action: matchingLFConfig.Action,
-          fileName: props.spFileInfo.fileName,
-          fileUrl: props.spFileInfo.spFileUrl,
-          documentName: matchingLFConfig.DocumentName,
-          entryId: matchingLFConfig.selectedFolder.id,
-          contextPageAbsoluteUrl: props.context.pageContext.web.absoluteUrl,
-          lfProfile: laserficheProfile,
-        };
-        window.localStorage.setItem(
-          SP_LOCAL_STORAGE_KEY,
-          JSON.stringify(fileData)
-        );
-
-        props.showSaveToDialog(fileData);
+    const adminConfigList = await props.context.spHttpClient.get(
+      `${getSPListURL(
+        props.context,
+        ADMIN_CONFIGURATION_LIST
+      )}/items?$filter=Title eq '${MANAGE_CONFIGURATIONS}'&$top=1`,
+      SPHttpClient.configurations.v1,
+      {
+        headers: {
+          Accept: 'application/json',
+        },
       }
+    );
+    const adminConfigListJson = await adminConfigList.json();
+
+    const allConfigs: ProfileConfiguration[] = JSON.parse(
+      adminConfigListJson.value[0]['JsonValue']
+    );
+    const matchingLFConfig = allConfigs.find(
+      (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
+    );
+    if (matchingLFConfig.selectedTemplateName?.length > 0) {
+      const metadata: IPostEntryWithEdocMetadataRequest = {
+        template: matchingLFConfig.selectedTemplateName,
+      };
+      const missingRequiredFields: SPProfileConfigurationData[] = [];
+      const fields: { [key: string]: FieldToUpdate } = {};
+      formatMetadata(
+        matchingLFConfig,
+        missingRequiredFields,
+        allSpFieldValues,
+        allSPFieldProperties,
+        fields
+      );
+
+      if (missingRequiredFields.length === 0) {
+        const fileData = getDocumentDataWithMetadata(
+          fields,
+          metadata,
+          matchingLFConfig,
+          laserficheProfile
+        );
+        return fileData;
+      } else {
+        setMissingFields(missingRequiredFields);
+        return undefined;
+      }
+    } else {
+      const fileData: ISPDocumentData = {
+        action: matchingLFConfig.Action,
+        fileName: props.spFileInfo.fileName,
+        fileUrl: props.spFileInfo.spFileUrl,
+        documentName: matchingLFConfig.DocumentName,
+        entryId: matchingLFConfig.selectedFolder.id,
+        contextPageAbsoluteUrl: props.context.pageContext.web.absoluteUrl,
+        lfProfile: laserficheProfile,
+      };
+      return fileData;
     }
   }
 
-  async function GetAllFieldsValues(
+  async function getAllFieldsValuesAsync(
     libraryUrl: string,
     fileId: string
-  ): Promise<object> {
+  ): Promise<{ [key: string]: string }> {
     try {
       const res = await props.context.spHttpClient.get(
         `${getSPListURL(
@@ -246,12 +301,12 @@ function GetDocumentDialogData(props: {
     }
   }
 
-  async function sendToLaserficheWithMetadata(
+  function getDocumentDataWithMetadata(
     fields: { [key: string]: FieldToUpdate },
     metadata: IPostEntryWithEdocMetadataRequest,
     matchingLFConfig: ProfileConfiguration,
     laserficheProfileName: string
-  ) {
+  ): ISPDocumentData {
     const metadataFields: IPutFieldValsRequest = {
       fields,
     };
@@ -268,12 +323,11 @@ function GetDocumentDialogData(props: {
       metadata,
       lfProfile: laserficheProfileName,
     };
-    window.localStorage.setItem(SP_LOCAL_STORAGE_KEY, JSON.stringify(fileData));
 
-    props.showSaveToDialog(fileData);
+    return fileData;
   }
 
-  async function sendToLaserficheWithNoMetadata() {
+  function getDocumentDataNoMetadata(): ISPDocumentData {
     const fileData: ISPDocumentData = {
       fileName: props.spFileInfo.fileName,
       documentName: props.spFileInfo.fileName,
@@ -282,20 +336,20 @@ function GetDocumentDialogData(props: {
       contextPageAbsoluteUrl: props.context.pageContext.web.absoluteUrl,
       action: ActionTypes.COPY,
     };
-    window.localStorage.setItem(SP_LOCAL_STORAGE_KEY, JSON.stringify(fileData));
 
-    props.showSaveToDialog(fileData);
+    return fileData;
   }
 
   function formatMetadata(
     matchingLFConfig: ProfileConfiguration,
     missingRequiredFields: SPProfileConfigurationData[],
-    allSpFieldValues: object,
+    allSpFieldValues: { [key: string]: string },
+    allSPFieldProperties: SPProfileConfigurationData[],
     fields: { [key: string]: FieldToUpdate }
   ) {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.Title;
-      let spDocFieldValue = allSpFieldValues[spFieldName];
+      let spDocFieldValue: string = allSpFieldValues[spFieldName];
 
       if (spDocFieldValue != undefined || spDocFieldValue != null) {
         const lfField = mapping.lfField;
@@ -311,7 +365,11 @@ function GetDocumentDialogData(props: {
           lfField.isRequired &&
           (!spDocFieldValue || spDocFieldValue.length === 0)
         ) {
-          missingRequiredFields.push(mapping.spField);
+          const currentField: SPProfileConfigurationData | undefined =
+            allSPFieldProperties.find(
+              (prop) => prop.InternalName === mapping.spField.InternalName
+            );
+          missingRequiredFields.push(currentField);
         }
 
         const valueToUpdate: IValueToUpdate = {

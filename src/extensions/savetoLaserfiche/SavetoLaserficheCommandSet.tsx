@@ -34,11 +34,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   hasSignInPage = false;
   hasAdminPage = false;
 
-  public onInit(): Promise<void> {
+  public async onInit(): Promise<void> {
     Log.info(LOG_SOURCE, 'Initialized SendToLfCommandSet');
     window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-    CreateConfigurations.ensureAdminConfigListCreated(this.context);
-    CreateConfigurations.ensureDocumentConfigListCreated(this.context);
+    await CreateConfigurations.ensureAdminConfigListCreatedAsync(this.context);
     return Promise.resolve();
   }
 
