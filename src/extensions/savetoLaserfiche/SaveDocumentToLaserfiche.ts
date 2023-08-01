@@ -6,6 +6,7 @@ import {
   FieldToUpdate,
   ValueToUpdate,
   PutFieldValsRequest,
+  Entry,
 } from '@laserfiche/lf-repository-api-client';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
@@ -21,6 +22,7 @@ export interface SavedToLaserficheDocumentData {
   fileLink: string;
   pathBack: string;
   metadataSaved: boolean;
+  fileName: string;
 }
 
 export class SaveDocumentToLaserfiche {
@@ -68,7 +70,10 @@ export class SaveDocumentToLaserfiche {
     const spFileUrl = this.spFileMetadata.fileUrl;
     const fileNameWithExt = this.spFileMetadata.fileName;
     const encodedFileName = encodeURIComponent(fileNameWithExt);
-    const encodedSpFileUrl = spFileUrl?.replace(fileNameWithExt, encodedFileName);
+    const encodedSpFileUrl = spFileUrl?.replace(
+      fileNameWithExt,
+      encodedFileName
+    );
     const fullSPDataUrl = window.location.origin + encodedSpFileUrl;
     try {
       const res = await fetch(fullSPDataUrl, {
@@ -153,7 +158,8 @@ export class SaveDocumentToLaserfiche {
           filenameWithoutExt
         );
       fileName = docNameReplacedWithFileName;
-      fileNameInEdoc = docNameReplacedWithFileName + `.${fileExtensionWithPeriod}`;
+      fileNameInEdoc =
+        docNameReplacedWithFileName + `.${fileExtensionWithPeriod}`;
       extension = fileExtensionWithPeriod;
     }
     const electronicDocument: FileParameter = {
@@ -193,8 +199,26 @@ export class SaveDocumentToLaserfiche {
       } else {
         // TODO what should happen?
       }
+      try {
+        const entryInfo: Entry = await repoClient.entriesClient.getEntry({
+          repoId,
+          entryId: entryCreateResult.operations.entryCreate.entryId,
+        });
 
-      return { fileLink, pathBack: path, metadataSaved: true };
+        return {
+          fileLink,
+          pathBack: path,
+          metadataSaved: false,
+          fileName: entryInfo.name,
+        };
+      } catch {
+        return {
+          fileLink,
+          pathBack: path,
+          metadataSaved: false,
+          fileName,
+        };
+      }
     } catch (error) {
       const conflict409 =
         error.operations.setFields.exceptions[0].statusCode === 409;
@@ -214,7 +238,26 @@ export class SaveDocumentToLaserfiche {
         );
         const path = window.location.origin + fileUrlWithoutDocName;
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-        return { fileLink, pathBack: path, metadataSaved: false };
+        try {
+          const entryInfo: Entry = await repoClient.entriesClient.getEntry({
+            repoId,
+            entryId: error.operations.entryCreate.entryId,
+          });
+
+          return {
+            fileLink,
+            pathBack: path,
+            metadataSaved: false,
+            fileName: entryInfo.name,
+          };
+        } catch {
+          return {
+            fileLink,
+            pathBack: path,
+            metadataSaved: false,
+            fileName,
+          };
+        }
       } else {
         window.alert(`Error uploading file: ${JSON.stringify(error)}`);
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -292,7 +335,26 @@ export class SaveDocumentToLaserfiche {
       const path = window.location.origin + fileUrlWithoutDocName;
 
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      return { fileLink, pathBack: path, metadataSaved: true };
+      try {
+        const entryInfo: Entry = await repoClient.entriesClient.getEntry({
+          repoId,
+          entryId: entryCreateResult.operations.entryCreate.entryId,
+        });
+
+        return {
+          fileLink,
+          pathBack: path,
+          metadataSaved: false,
+          fileName: entryInfo.name,
+        };
+      } catch {
+        return {
+          fileLink,
+          pathBack: path,
+          metadataSaved: false,
+          fileName: fileNameWithExt,
+        };
+      }
     } catch (error) {
       window.alert(`Error uploading file: ${JSON.stringify(error)}`);
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -349,7 +411,10 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async replaceFileWithLinkAsync(filenameWithoutExt: string, docFileLink: string) {
+  async replaceFileWithLinkAsync(
+    filenameWithoutExt: string,
+    docFileLink: string
+  ) {
     const resp = await fetch(
       this.spFileMetadata.contextPageAbsoluteUrl + '/_api/contextinfo',
       {

@@ -31,6 +31,7 @@ import { getSPListURL } from '../../Utils/Funcs';
 import SaveToLaserficheCustomDialog from './SaveToLaserficheDialog';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 import LoadingDialog from './CommonDialogs';
+import { SPComponentLoader } from '@microsoft/sp-loader';
 
 interface ProfileMappingConfiguration {
   id: string;
@@ -57,7 +58,9 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
   }
 
   showNextDialog = (data: ISPDocumentData) => {
-    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () => this.close());
+    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, false, () =>
+      this.close()
+    );
     this.secondaryDialogProvider.show(saveToLfDialog).then(() => {
       if (!saveToLfDialog.successful) {
         Navigation.navigate(
@@ -74,6 +77,7 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
         spFileInfo={this.fileInfo}
         context={this.context}
         showSaveToDialog={this.showNextDialog}
+        closeDialog={this.close}
       />
     );
     ReactDOM.render(element, this.domElement);
@@ -90,8 +94,11 @@ const FOLLOWING_SP_FIELDS_BLANK_MAPPED_TO_REQUIRED_LF_FIELDS =
 const PLEASE_FILL_OUT_REQUIRED_FIELDS_TRY_AGAIN =
   'Please fill out these required fields and try again.';
 
+const CLOSE = 'Close';
+
 function GetDocumentDialogData(props: {
   showSaveToDialog: (fileData: ISPDocumentData) => void;
+  closeDialog: () => Promise<void>;
   spFileInfo: {
     fileName: string;
     spContentType: string;
@@ -100,6 +107,7 @@ function GetDocumentDialogData(props: {
   };
   context: BaseComponentContext;
 }) {
+  // TODO how to cancel calls if close dialog
   const [missingFields, setMissingFields] = React.useState<
     undefined | SPProfileConfigurationData[]
   >(undefined);
@@ -117,6 +125,13 @@ function GetDocumentDialogData(props: {
   ));
 
   React.useEffect(() => {
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+    );
+    SPComponentLoader.loadCss(
+      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+    );
+
     const libraryUrl = props.context.pageContext.list.title;
     GetAllFieldsValues(libraryUrl, props.spFileInfo.fileId).then(
       (allSpFieldValues: object) => {
@@ -370,18 +385,37 @@ function GetDocumentDialogData(props: {
   }
 
   return (
-    <div className={styles.maindialog}>
-      <div id='overlay' className={styles.overlay} />
-      <div>
-        <img
-          src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
-          width='42'
-          height='42'
-        />
+    <div className={styles.wrapper}>
+      <div className={styles.header}>
+        <div className={styles.logoHeader}>
+          <img
+            src='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAMAAAAKE/YAAAAAUVBMVEXSXyj////HYzL/+/T/+Or/9d+yaUa9ZT2yaUj/9OG7Zj3SXybRYCj/+/b///3LYS/OYCvEZDS2aEL/89jAZTnMYS3/8dO7Zzusa02+ZTn/78wyF0DsAAABnUlEQVR4nO3ci26CMABGYQcoLRS5OTf2/g86R+KSLYUm2vxcPB8RTYzxkADRajkcAAAAAAAAAADYgbJcusCvqdtLnhfeJR/a96X7vOriarNJ/cUtHeiTnI7p26TsY+XRZ190sXSfVyA6X7rP6xZdzeweREeTGDt3IBIdTeCUR3Q0wQOxLNf3CWSr0ZvcPYiWIFqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVYhWIVqFaBWiVV4zeok/379m9BL2HO1Ckymlky0jRQc3Kqoou4f6YHzdaLX56PRzak757/JjfDS0dbOK6HM6Paf8P3st6lVE/9mAwPOpNcnqokOIJppoookmmmiiiSaaaKKJ3k30OfTFdU3RXZ+lT6qq6rbO+k4VXQ9fvT2OrH30Zo+3u/5rUI17NO3QmdPImIduxoyrUze0khEm5w6uqZNIRKNi91Hl5661dH+tdow6wts5J//BaJPRwH6IT1NxbDJ6vVc+nrXJaAAAAADALn0DBosqnCStFi4AAAAASUVORK5CYII='
+            width='30'
+            height='30'
+          />
+          <p className={styles.dialogTitle}>Laserfiche</p>
+        </div>
+
+        <button
+          className={styles.lfCloseButton}
+          title='close'
+          onClick={props.closeDialog}
+        >
+          <span className='material-icons-outlined'> close </span>
+        </button>
+      </div>
+
+      <div className={styles.contentBox}>
         {!(missingFields?.length > 0) && <LoadingDialog />}
         {missingFields?.length > 0 && (
           <MissingFieldsDialog missingFields={listFields} />
         )}
+      </div>
+
+      <div className={styles.footer}>
+        <button onClick={props.closeDialog} className='lf-button sec-button'>
+          {CLOSE}
+        </button>
       </div>
     </div>
   );
@@ -398,7 +432,7 @@ function MissingFieldsDialog(props: { missingFields: JSX.Element[] }) {
 
   return (
     <div>
-      <p className={styles.text}>{textInside}</p>
+      <p>{textInside}</p>
     </div>
   );
 }
