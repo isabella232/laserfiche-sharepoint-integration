@@ -4,7 +4,7 @@ import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';
 
-const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving your document to Laserfiche';
+const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 
 export default function LoadingDialog() {
   return (
@@ -16,17 +16,14 @@ export default function LoadingDialog() {
   );
 }
 
-const DOCUMENT_UPLOADED =
+const DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME =
   'Document successfully uploaded to Laserfiche with name:';
 const DOCUMENT_UPLOADED_METADATA_FAILED =
-  'All metadata failed to save due to an invalid field';
+  'All metadata failed to save due to at least one invalid field';
 const TEMPLATE_FIELDS_NOT_APPLIED =
   'The Laserfiche template and fields were not applied to this document.';
 const CLOSE = 'Close';
-const GO_TO_FILE = 'View file in Laserfiche';
-const GO_TO_LIBRARY = 'Return to SharePoint library';
-const CLICK_HERE_VIEW_FILE_LASERFICHE = 'View the file in Laserfiche';
-const CLICK_HERE_GO_SHAREPOINT_LIBRARY = 'Return to your SharePoint library';
+const VIEW_FILE_IN_LASERFICHE = 'View file in Laserfiche';
 
 export function SavedToLaserficheSuccessDialogText(props: {
   successfulSave: SavedToLaserficheDocumentData;
@@ -41,7 +38,7 @@ export function SavedToLaserficheSuccessDialogText(props: {
   });
   const metadataFailedNotice: JSX.Element = (
     <span>
-      {`${DOCUMENT_UPLOADED} ${props.successfulSave.fileName}. ${DOCUMENT_UPLOADED_METADATA_FAILED}`}
+      {DOCUMENT_UPLOADED_METADATA_FAILED}
       <br /> <p style={{ color: 'red' }}>{TEMPLATE_FIELDS_NOT_APPLIED}</p>
     </span>
   );
@@ -49,11 +46,8 @@ export function SavedToLaserficheSuccessDialogText(props: {
   return (
     <>
       <div>
-        <p>
-          {props.successfulSave.metadataSaved
-            ? `${DOCUMENT_UPLOADED}  ${props.successfulSave.fileName}.`
-            : metadataFailedNotice}
-        </p>
+        {`${DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME}  ${props.successfulSave.fileName}.`}
+        {!props.successfulSave.metadataSaved && metadataFailedNotice}
       </div>
     </>
   );
@@ -62,7 +56,6 @@ export function SavedToLaserficheSuccessDialogText(props: {
 export function SavedToLaserficheSuccessDialogButtons(props: {
   closeClick: () => Promise<void>;
   successfulSave: SavedToLaserficheDocumentData;
-  hadToRouteToLogin: boolean;
 }) {
   React.useEffect(() => {
     SPComponentLoader.loadCss(
@@ -77,28 +70,15 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
     window.open(props.successfulSave.fileLink);
   }
 
-  function redirect() {
-    Navigation.navigate(props.successfulSave.pathBack, true);
-  }
-
   return (
     <>
       {props.successfulSave.fileLink && (
         <button
           className={`lf-button primary-button ${styles.actionButton}`}
-          title={CLICK_HERE_VIEW_FILE_LASERFICHE}
+          title={VIEW_FILE_IN_LASERFICHE}
           onClick={viewFile}
         >
-          {GO_TO_FILE}
-        </button>
-      )}
-      {props.hadToRouteToLogin && (
-        <button
-          className={`lf-button primary-button ${styles.actionButton}`}
-          title={CLICK_HERE_GO_SHAREPOINT_LIBRARY}
-          onClick={redirect}
-        >
-          {GO_TO_LIBRARY}
+          {VIEW_FILE_IN_LASERFICHE}
         </button>
       )}
       <button className='lf-button sec-button' onClick={props.closeClick}>

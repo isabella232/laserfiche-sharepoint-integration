@@ -208,14 +208,14 @@ export class SaveDocumentToLaserfiche {
         return {
           fileLink,
           pathBack: path,
-          metadataSaved: false,
+          metadataSaved: true,
           fileName: entryInfo.name,
         };
       } catch {
         return {
           fileLink,
           pathBack: path,
-          metadataSaved: false,
+          metadataSaved: true,
           fileName,
         };
       }
@@ -344,14 +344,14 @@ export class SaveDocumentToLaserfiche {
         return {
           fileLink,
           pathBack: path,
-          metadataSaved: false,
+          metadataSaved: true,
           fileName: entryInfo.name,
         };
       } catch {
         return {
           fileLink,
           pathBack: path,
-          metadataSaved: false,
+          metadataSaved: true,
           fileName: fileNameWithExt,
         };
       }

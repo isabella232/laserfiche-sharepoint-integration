@@ -16,6 +16,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
 import { getRegion } from '../../Utils/Funcs';
+import { Navigation } from 'spfx-navigation';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
@@ -78,6 +79,9 @@ function SaveToLaserficheDialog(props: {
 
   const saveToDialogCloseClick = async () => {
     await props.closeClick();
+    if (props.hadToRouteToLogin) {
+      Navigation.navigate(success.pathBack, true);
+    }
   };
 
   React.useEffect(() => {
@@ -143,23 +147,16 @@ function SaveToLaserficheDialog(props: {
         )}
       </div>
 
-      <div className={styles.footer}>
-        {success && (
-          <SavedToLaserficheSuccessDialogButtons
-            successfulSave={success}
-            closeClick={saveToDialogCloseClick}
-            hadToRouteToLogin={props.hadToRouteToLogin}
-          />
-        )}
-        {!success && (
-          <button
-            onClick={saveToDialogCloseClick}
-            className='lf-button sec-button'
-          >
-            {CLOSE}
-          </button>
-        )}
-      </div>
+      {success && (
+        <div className={styles.footer}>
+          {success && (
+            <SavedToLaserficheSuccessDialogButtons
+              successfulSave={success}
+              closeClick={saveToDialogCloseClick}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

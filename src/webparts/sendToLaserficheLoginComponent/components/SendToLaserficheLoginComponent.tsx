@@ -25,8 +25,7 @@ declare global {
 
 const SIGN_IN = 'Sign In';
 const SIGN_OUT = 'Sign Out';
-const GO_BACK_TO_SHAREPOINT_DOCUMENT_LOCATION =
-  'Go Back to SharePoint document location';
+const CANCEL = 'Cancel';
 const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_ATTEMPTING_TO_SAVE_AND_NOT_LOGGED_IN =
   '*Note: This page should only be needed if you are attempting to save a document to Laserfiche and not signed in.';
 
@@ -85,16 +84,26 @@ export default function SendToLaserficheLoginComponent(
                 NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_ATTEMPTING_TO_SAVE_AND_NOT_LOGGED_IN
               }
             </p>
-            <p>You are currently {isLoggedIn ? 'logged in.' : 'logged out.'}</p>
+            {isLoggedIn ? (
+              <p>
+                {'Welcome to Laserfiche. Go to '}
+                <a href={loginComponent.current.account_endpoints.webClientUrl}>
+                  your Laserfiche repository
+                </a>
+              </p>
+            ) : (
+              <p>
+                You are not signed in. You can sign in using the button below.
+              </p>
+            )}
           </>
         );
       } else if (spFileMetadata?.fileUrl && !loggedIn) {
         setLoginText(
           <>
             <div>
-              You are attempting to save {spFileMetadata?.fileName} to
-              Laserfiche, but you are not signed in. Please sign in and the save
-              will be attempted again.
+              You are not signed in. Please sign in to continue saving{' '}
+              {spFileMetadata?.fileName}.
             </div>
             <br />
           </>
@@ -103,8 +112,8 @@ export default function SendToLaserficheLoginComponent(
         setLoginText(
           <>
             <div>
-              You are attempting to save {spFileMetadata?.fileName} to
-              Laserfiche, and have signed in. The save will be attempted again.
+              You are now signed in. Attempting to save{' '}
+              {spFileMetadata?.fileName}.
             </div>
             <br />
           </>
@@ -184,7 +193,7 @@ export default function SendToLaserficheLoginComponent(
         <br />
         {spFileMetadata?.fileUrl && (
           <button className='lf-button sec-button' onClick={redirect}>
-            {GO_BACK_TO_SHAREPOINT_DOCUMENT_LOCATION}
+            {CANCEL}
           </button>
         )}
       </div>

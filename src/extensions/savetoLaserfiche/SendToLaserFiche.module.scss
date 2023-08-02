@@ -44,6 +44,7 @@
   box-sizing: border-box;
   overflow: auto;
   background-color: #fafafa;
+  min-height: 80px;
   /* default is the standard padding, but expose variables
        in case contents have additional padding */
   padding-top: var(--content-padding-top, 20px);
