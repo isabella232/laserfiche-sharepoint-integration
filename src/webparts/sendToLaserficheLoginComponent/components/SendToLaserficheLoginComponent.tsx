@@ -101,7 +101,7 @@ export default function SendToLaserficheLoginComponent(
   }
 
   return (
-    <div>
+    <React.StrictMode>
       <div
         style={{ borderBottom: '3px solid #CE7A14', marginBlockEnd: '32px' }}
       >
@@ -150,6 +150,6 @@ export default function SendToLaserficheLoginComponent(
           </button>
         </div>
       </div>
-    </div>
+    </React.StrictMode>
   );
 }

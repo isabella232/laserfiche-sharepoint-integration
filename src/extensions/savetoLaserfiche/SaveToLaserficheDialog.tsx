@@ -17,25 +17,30 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
   handleSuccessSave = (successful: boolean) => {
     this.successful = successful;
   };
-  
+
   closeClick = async () => {
     await this.close();
-    if(this.closeParent) {
+    if (this.closeParent) {
       await this.closeParent();
     }
-  }
+  };
 
-  constructor(private spFileData: ISPDocumentData, private closeParent?: () => Promise<void>) {
+  constructor(
+    private spFileData: ISPDocumentData,
+    private closeParent?: () => Promise<void>
+  ) {
     super();
   }
 
   public render(): void {
     const element: React.ReactElement = (
-      <SaveToLaserficheDialog
-        spFileMetadata={this.spFileData}
-        successSave={this.handleSuccessSave}
-        closeClick={this.closeClick}
-      />
+      <React.StrictMode>
+        <SaveToLaserficheDialog
+          spFileMetadata={this.spFileData}
+          successSave={this.handleSuccessSave}
+          closeClick={this.closeClick}
+        />
+      </React.StrictMode>
     );
     ReactDOM.render(element, this.domElement);
   }
