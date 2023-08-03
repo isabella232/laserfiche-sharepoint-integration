@@ -107,7 +107,6 @@ function GetDocumentDialogData(props: {
   };
   context: BaseComponentContext;
 }) {
-  // TODO how to cancel calls if close dialog
   const [missingFields, setMissingFields] = React.useState<
     undefined | SPProfileConfigurationData[]
   >(undefined);

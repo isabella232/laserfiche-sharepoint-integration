@@ -199,26 +199,19 @@ export class SaveDocumentToLaserfiche {
       } else {
         // TODO what should happen?
       }
-      try {
-        const entryInfo: Entry = await repoClient.entriesClient.getEntry({
-          repoId,
-          entryId: entryCreateResult.operations.entryCreate.entryId,
-        });
+      const fileInfo: SavedToLaserficheDocumentData = {
+        fileLink,
+        pathBack: path,
+        metadataSaved: true,
+        fileName,
+      };
 
-        return {
-          fileLink,
-          pathBack: path,
-          metadataSaved: true,
-          fileName: entryInfo.name,
-        };
-      } catch {
-        return {
-          fileLink,
-          pathBack: path,
-          metadataSaved: true,
-          fileName,
-        };
-      }
+      await this.tryUpdateFileNameAsync(
+        repoClient,
+        repoId,
+        entryCreateResult,
+        fileInfo
+      );
     } catch (error) {
       const conflict409 =
         error.operations.setFields.exceptions[0].statusCode === 409;
@@ -238,26 +231,14 @@ export class SaveDocumentToLaserfiche {
         );
         const path = window.location.origin + fileUrlWithoutDocName;
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-        try {
-          const entryInfo: Entry = await repoClient.entriesClient.getEntry({
-            repoId,
-            entryId: error.operations.entryCreate.entryId,
-          });
+        const fileInfo: SavedToLaserficheDocumentData = {
+          fileLink,
+          pathBack: path,
+          metadataSaved: false,
+          fileName,
+        };
 
-          return {
-            fileLink,
-            pathBack: path,
-            metadataSaved: false,
-            fileName: entryInfo.name,
-          };
-        } catch {
-          return {
-            fileLink,
-            pathBack: path,
-            metadataSaved: false,
-            fileName,
-          };
-        }
+        await this.tryUpdateFileNameAsync(repoClient, repoId, error, fileInfo);
       } else {
         window.alert(`Error uploading file: ${JSON.stringify(error)}`);
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -335,31 +316,39 @@ export class SaveDocumentToLaserfiche {
       const path = window.location.origin + fileUrlWithoutDocName;
 
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      try {
-        const entryInfo: Entry = await repoClient.entriesClient.getEntry({
-          repoId,
-          entryId: entryCreateResult.operations.entryCreate.entryId,
-        });
-
-        return {
-          fileLink,
-          pathBack: path,
-          metadataSaved: true,
-          fileName: entryInfo.name,
-        };
-      } catch {
-        return {
-          fileLink,
-          pathBack: path,
-          metadataSaved: true,
-          fileName: fileNameWithExt,
-        };
-      }
+      const fileInfo: SavedToLaserficheDocumentData = {
+        fileLink,
+        pathBack: path,
+        metadataSaved: true,
+        fileName: fileNameWithExt,
+      };
+      await this.tryUpdateFileNameAsync(
+        repoClient,
+        repoId,
+        entryCreateResult,
+        fileInfo
+      );
     } catch (error) {
       window.alert(`Error uploading file: ${JSON.stringify(error)}`);
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       return undefined;
     }
+  }
+
+  private async tryUpdateFileNameAsync(
+    repoClient: IRepositoryApiClientExInternal,
+    repoId: string,
+    entryCreateResult: CreateEntryResult,
+    fileInfo: SavedToLaserficheDocumentData
+  ) {
+    try {
+      const entryInfo: Entry = await repoClient.entriesClient.getEntry({
+        repoId,
+        entryId: entryCreateResult.operations.entryCreate.entryId,
+      });
+
+      fileInfo.fileName = entryInfo.name;
+    } catch {}
   }
 
   async deleteSPFileAsync() {

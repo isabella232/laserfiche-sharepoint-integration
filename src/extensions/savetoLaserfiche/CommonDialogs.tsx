@@ -18,7 +18,7 @@ export default function LoadingDialog() {
 
 const DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME =
   'Document successfully uploaded to Laserfiche with name:';
-const DOCUMENT_UPLOADED_METADATA_FAILED =
+const METADATA_FAILED_TO_SAVE_INVALID_FIELD =
   'All metadata failed to save due to at least one invalid field';
 const TEMPLATE_FIELDS_NOT_APPLIED =
   'The Laserfiche template and fields were not applied to this document.';
@@ -35,10 +35,11 @@ export function SavedToLaserficheSuccessDialogText(props: {
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
     );
-  });
+  }, []);
+
   const metadataFailedNotice: JSX.Element = (
     <span>
-      {DOCUMENT_UPLOADED_METADATA_FAILED}
+      {METADATA_FAILED_TO_SAVE_INVALID_FIELD}
       <br /> <p style={{ color: 'red' }}>{TEMPLATE_FIELDS_NOT_APPLIED}</p>
     </span>
   );
@@ -64,7 +65,7 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
     );
-  });
+  }, []);
 
   function viewFile() {
     window.open(props.successfulSave.fileLink);
