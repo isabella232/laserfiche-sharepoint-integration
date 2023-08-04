@@ -16,7 +16,6 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
 import { getRegion } from '../../Utils/Funcs';
-import { Navigation } from 'spfx-navigation';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
@@ -43,11 +42,13 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
 
   public render(): void {
     const element: React.ReactElement = (
-      <SaveToLaserficheDialog
-        spFileMetadata={this.spFileData}
-        successSave={this.handleSuccessSave}
-        closeClick={this.closeClick}
-      />
+      <React.StrictMode>
+        <SaveToLaserficheDialog
+          spFileMetadata={this.spFileData}
+          successSave={this.handleSuccessSave}
+          closeClick={this.closeClick}
+        />
+      </React.StrictMode>
     );
     ReactDOM.render(element, this.domElement);
   }

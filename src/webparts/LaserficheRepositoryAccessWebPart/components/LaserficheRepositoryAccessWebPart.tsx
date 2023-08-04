@@ -105,7 +105,7 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
   };
 
   return (
-    <div>
+    <React.StrictMode>
       <div style={{ display: 'none' }}>
         <SvgHtmlIcons />
       </div>
@@ -129,6 +129,6 @@ export default function LaserficheRepositoryAccessWebPart(props: ILaserficheRepo
           loggedIn={loggedIn}
         />
       </div>
-    </div>
+    </React.StrictMode>
   );
 }

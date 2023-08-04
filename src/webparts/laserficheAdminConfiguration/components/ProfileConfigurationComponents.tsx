@@ -82,7 +82,9 @@ export function ConfigurationBody(props: {
     setShowFolderModal(false);
   };
 
-  const handleTemplateChange = (event) => {
+  const handleTemplateChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const value = (event.target as HTMLSelectElement).value;
     const templateName = value;
     const profileConfig = { ...props.profileConfig };
@@ -91,7 +93,9 @@ export function ConfigurationBody(props: {
     props.handleTemplateChange(templateName);
   };
 
-  const handleActionTypeChange = (event) => {
+  const handleActionTypeChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const value = (event.target as HTMLSelectElement).value;
     const actionName = value;
     const profileConfig = { ...props.profileConfig };
@@ -466,17 +470,17 @@ export function SharePointLaserficheColumnMatching(props: {
   function CloseModalUp() {
     setDeleteModal(undefined);
   }
-  const RemoveSpecificMapping = (idx) => {
+  const removeSpecificMapping = (idx: number) => {
     const del = (
       <DeleteModal
         configurationName='the field mapping'
         onCancel={CloseModalUp}
-        onConfirmDelete={() => DeleteMapping(idx)}
+        onConfirmDelete={() => deleteMapping(idx)}
       />
     );
     setDeleteModal(del);
   };
-  function DeleteMapping(id: number) {
+  function deleteMapping(id: number) {
     const newConfig = { ...props.profileConfig };
     const rows = [...props.profileConfig.mappedFields];
     rows.splice(id, 1);
@@ -485,12 +489,12 @@ export function SharePointLaserficheColumnMatching(props: {
     setDeleteModal(undefined);
   }
 
-  const AddNewMappingFields = () => {
+  const addNewMappingFields = () => {
     if (props.profileConfig.selectedTemplateName) {
       const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(
         36
       );
-      const item = {
+      const item: MappedFields = {
         id: id,
         spField: undefined,
         lfField: undefined,
@@ -577,7 +581,7 @@ export function SharePointLaserficheColumnMatching(props: {
               <a
                 href='javascript:;'
                 className='ml-3'
-                onClick={() => RemoveSpecificMapping(index)}
+                onClick={() => removeSpecificMapping(index)}
               >
                 <span className='material-icons'>delete</span>
               </a>
@@ -608,7 +612,7 @@ export function SharePointLaserficheColumnMatching(props: {
           </table>
           {fullValidationError}
           <a
-            onClick={AddNewMappingFields}
+            onClick={addNewMappingFields}
             className='btn btn-primary pl-5 pr-5 float-right ml-2'
           >
             Add Field

@@ -9,30 +9,43 @@ import {
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
+import {
+  DeleteModal,
+  ProfileConfiguration,
+} from '../ProfileConfigurationComponents';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
+const ADD_PROFILE = 'Add Profile';
+const PROFILE_NAME = 'Profile Name';
+const ACTION = 'Action';
+
 export default function ManageConfigurationsPage(
   props: IManageConfigurationPageProps
 ) {
-  const [configRows, setConfigRows] = useState([]);
+  const [configRows, setConfigRows] = useState<ProfileConfiguration[]>([]);
   const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
     undefined
   );
 
   useEffect(() => {
-    GetItemIdByTitle().then((results: IListItem[]) => {
-      if (results != null) {
-        const jsonValue = JSON.parse(results[0].JsonValue);
-        if (jsonValue.length > 0) {
-          setConfigRows(configRows.concat(...jsonValue));
-        }
-      }
-    });
+    updateConfigurationsAsync();
   }, []);
 
-  async function GetItemIdByTitle(): Promise<IListItem[]> {
+  const updateConfigurationsAsync = async () => {
+    const configurations: { id: string; configs: ProfileConfiguration[] } = await getManageConfigurationsAsync();
+    if (configurations != null) {
+      if (configurations.configs.length > 0) {
+        setConfigRows(configRows.concat(...configurations.configs));
+      }
+    }
+  };
+
+  async function getManageConfigurationsAsync(): Promise<{
+    id: string;
+    configs: ProfileConfiguration[];
+  }> {
     const array: IListItem[] = [];
     const restApiUrl = `${getSPListURL(
       props.context,
@@ -51,79 +64,77 @@ export default function ManageConfigurationsPage(
         for (let i = 0; i < results.value.length; i++) {
           array.push(results.value[i]);
         }
-        return array;
+        return { id: array[0].Id, configs: JSON.parse(array[0].JsonValue) };
       } else {
         return null;
       }
     } catch (error) {
-      console.log('error occured' + error);
+      console.log('error occurred' + error);
     }
   }
 
-  function RemoveSpecificConfiguration(idx: number) {
+  function removeSpecificConfiguration(idx: number) {
     const rows = [...configRows];
     const configName = rows[idx].ConfigurationName;
     const deleteModal = (
       <DeleteModal
         configurationName={configName}
-        onConfirmDelete={() => RemoveRow(idx)}
-        onCancel={CloseModalUp}
+        onConfirmDelete={() => removeRowAsync(idx)}
+        onCancel={closeModal}
       />
     );
     setDeleteModal(deleteModal);
   }
 
-  function RemoveRow(id: number) {
+  async function removeRowAsync(id: number) {
     const rows = [...configRows];
     const deleteRows = [...configRows];
     rows.splice(id, 1);
-    DeleteMapping(deleteRows, id);
+    await deleteMappingAsync(deleteRows, id);
     setDeleteModal(undefined);
   }
 
-  function CloseModalUp() {
+  function closeModal() {
     setDeleteModal(undefined);
   }
 
-  function DeleteMapping(rows, idx) {
-    GetItemIdByTitle().then((results: IListItem[]) => {
-      if (results != null) {
-        const itemId = results[0].Id;
-        const profileConfigurations = JSON.parse(results[0].JsonValue);
-        const profileToRemove = rows[idx].ConfigurationName;
-        for (let i = 0; i < profileConfigurations.length; i++) {
-          if (profileConfigurations[i].ConfigurationName == profileToRemove) {
-            profileConfigurations.splice(i, 1);
-            setConfigRows(profileConfigurations);
-            const restApiUrl = `${getSPListURL(
-              props.context,
-              ADMIN_CONFIGURATION_LIST
-            )}/items(${itemId})`;
-            const jsonObject = JSON.stringify(profileConfigurations);
-            const body: string = JSON.stringify({
-              Title: MANAGE_CONFIGURATIONS,
-              JsonValue: jsonObject,
-            });
-            const options: ISPHttpClientOptions = {
-              headers: {
-                Accept: 'application/json;odata=nometadata',
-                'content-type': 'application/json;odata=nometadata',
-                'odata-version': '',
-                'IF-MATCH': '*',
-                'X-HTTP-Method': 'MERGE',
-              },
-              body: body,
-            };
-            props.context.spHttpClient.post(
-              restApiUrl,
-              SPHttpClient.configurations.v1,
-              options
-            );
-            break;
-          }
-        }
+  async function deleteMappingAsync(rows: ProfileConfiguration[], idx: number) {
+    const manageConfigs: { id: string; configs: ProfileConfiguration[] } =
+      await getManageConfigurationsAsync();
+    if (manageConfigs.configs?.length > 0) {
+      const indexOfProfileToRemove = manageConfigs.configs.findIndex(
+        (config) => config.ConfigurationName === rows[idx].ConfigurationName
+      );
+      if (indexOfProfileToRemove !== -1) {
+        manageConfigs.configs.splice(indexOfProfileToRemove, 1);
+        setConfigRows(manageConfigs.configs);
+        const restApiUrl = `${getSPListURL(
+          props.context,
+          ADMIN_CONFIGURATION_LIST
+        )}/items(${manageConfigs.id})`;
+
+        const updatedConfigurations = JSON.stringify(manageConfigs.configs);
+        const body: string = JSON.stringify({
+          Title: MANAGE_CONFIGURATIONS,
+          JsonValue: updatedConfigurations,
+        });
+        const options: ISPHttpClientOptions = {
+          headers: {
+            Accept: 'application/json;odata=nometadata',
+            'content-type': 'application/json;odata=nometadata',
+            'odata-version': '',
+            'IF-MATCH': '*',
+            'X-HTTP-Method': 'MERGE',
+          },
+          body,
+        };
+        await props.context.spHttpClient.post(
+          restApiUrl,
+          SPHttpClient.configurations.v1,
+          options
+        );
       }
-    });
+    }
   }
 
   const tableData = configRows.map((item, index) => {
@@ -146,7 +157,7 @@ export default function ManageConfigurationsPage(
           <a
             href='javascript:;'
             className='ml-3'
-            onClick={() => RemoveSpecificConfiguration(index)}
+            onClick={() => removeSpecificConfiguration(index)}
           >
             <span className='material-icons'>delete</span>
           </a>
@@ -173,16 +184,16 @@ export default function ManageConfigurationsPage(
                     fontSize: '15px',
                   }}
                 >
-                  <a className='btn btn-primary pl-5 pr-5'>Add Profile</a>
+                  <a className='btn btn-primary pl-5 pr-5'>{ADD_PROFILE}</a>
                 </NavLink>
               </div>
               <div className='card-body'>
                 <table className='table table-bordered table-striped table-hover'>
                   <thead>
                     <tr>
-                      <th className='text-center'>Profile Name</th>
+                      <th className='text-center'>{PROFILE_NAME}</th>
                       <th className='text-center' style={{ width: '30%' }}>
-                        Action
+                        {ACTION}
                       </th>
                     </tr>
                   </thead>
@@ -202,55 +213,6 @@ export default function ManageConfigurationsPage(
           data-keyboard='false'
         >
           {deleteModal}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DeleteModal(props: {
-  configurationName: string;
-  onConfirmDelete: () => void;
-  onCancel: () => void;
-}) {
-  return (
-    <div className='modal-dialog modal-dialog-centered'>
-      <div className='modal-content'>
-        <div className='modal-header'>
-          <h5 className='modal-title' id='ModalLabel'>
-            Delete Confirmation
-          </h5>
-          <button
-            type='button'
-            className='close'
-            data-dismiss='modal'
-            aria-label='Close'
-            onClick={props.onCancel}
-          >
-            <span aria-hidden='true'>&times;</span>
-          </button>
-        </div>
-        <div className='modal-body'>
-          Do you want to permanently delete &quot;
-          {props.configurationName}&quot;?
-        </div>
-        <div className='modal-footer'>
-          <button
-            type='button'
-            className='btn btn-primary btn-sm'
-            data-dismiss='modal'
-            onClick={props.onConfirmDelete}
-          >
-            OK
-          </button>
-          <button
-            type='button'
-            className='btn btn-secondary btn-sm'
-            data-dismiss='modal'
-            onClick={props.onCancel}
-          >
-            Cancel
-          </button>
         </div>
       </div>
     </div>
