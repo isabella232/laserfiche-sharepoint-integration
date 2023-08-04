@@ -212,6 +212,7 @@ export class SaveDocumentToLaserfiche {
         entryCreateResult,
         fileInfo
       );
+      return fileInfo;
     } catch (error) {
       const conflict409 =
         error.operations.setFields.exceptions[0].statusCode === 409;
@@ -239,6 +240,7 @@ export class SaveDocumentToLaserfiche {
         };
 
         await this.tryUpdateFileNameAsync(repoClient, repoId, error, fileInfo);
+        return fileInfo;
       } else {
         window.alert(`Error uploading file: ${JSON.stringify(error)}`);
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
@@ -328,6 +330,7 @@ export class SaveDocumentToLaserfiche {
         entryCreateResult,
         fileInfo
       );
+      return fileInfo;
     } catch (error) {
       window.alert(`Error uploading file: ${JSON.stringify(error)}`);
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);

@@ -26,8 +26,8 @@ declare global {
 const SIGN_IN = 'Sign In';
 const SIGN_OUT = 'Sign Out';
 const CANCEL = 'Cancel';
-const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_ATTEMPTING_TO_SAVE_AND_NOT_LOGGED_IN =
-  '*Note: This page should only be needed if you are attempting to save a document to Laserfiche and not signed in.';
+const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE =
+  '*Note: This page should only be needed if you are attempting to save a document to Laserfiche.';
 
 const DOCUMENT_SAVED_TO_LASERFICHE_SUCCESSFULLY =
   'The document was saved to Laserfiche successfully.';
@@ -48,7 +48,7 @@ export default function SendToLaserficheLoginComponent(
 
   const [loginText, setLoginText] = React.useState<JSX.Element | undefined>(
     <p>
-      {NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_ATTEMPTING_TO_SAVE_AND_NOT_LOGGED_IN}
+      {NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE}
     </p>
   );
 
@@ -81,7 +81,7 @@ export default function SendToLaserficheLoginComponent(
           <>
             <p>
               {
-                NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_ATTEMPTING_TO_SAVE_AND_NOT_LOGGED_IN
+                NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE
               }
             </p>
             {isLoggedIn ? (
@@ -120,7 +120,14 @@ export default function SendToLaserficheLoginComponent(
         );
       }
       if (isLoggedIn && spFileMetadata) {
-        const dialog = new SaveToLaserficheCustomDialog(spFileMetadata, true);
+        const dialog = new SaveToLaserficheCustomDialog(
+          spFileMetadata,
+          async (success) => {
+            if (success) {
+              Navigation.navigate(success.pathBack, true);
+            }
+          }
+        );
 
         await dialog.show();
         if (!dialog.successful) {
@@ -138,7 +145,14 @@ export default function SendToLaserficheLoginComponent(
   const loginCompleted = async () => {
     setLoggedIn(true);
     if (spFileMetadata) {
-      const dialog = new SaveToLaserficheCustomDialog(spFileMetadata, true);
+      const dialog = new SaveToLaserficheCustomDialog(
+        spFileMetadata,
+        async (success) => {
+          if (success) {
+            Navigation.navigate(success.pathBack, true);
+          }
+        }
+      );
       await dialog.show();
       if (!dialog.successful) {
         console.warn('Could not login successfully');
@@ -163,6 +177,7 @@ export default function SendToLaserficheLoginComponent(
       ''
     );
     const path = window.location.origin + spFileUrlWithoutFileName;
+    window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
     Navigation.navigate(path, true);
   }
 

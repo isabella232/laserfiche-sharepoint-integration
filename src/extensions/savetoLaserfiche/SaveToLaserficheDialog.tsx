@@ -25,17 +25,18 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
     this.successful = successful;
   };
 
-  closeClick = async () => {
+  closeClick = async (success?: SavedToLaserficheDocumentData) => {
     await this.close();
     if (this.closeParent) {
-      await this.closeParent();
+      await this.closeParent(success);
     }
   };
 
   constructor(
     private spFileData: ISPDocumentData,
-    private hadToRouteToLogin: boolean,
-    private closeParent?: () => Promise<void>
+    private closeParent?: (
+      success?: SavedToLaserficheDocumentData
+    ) => Promise<void>
   ) {
     super();
   }
@@ -46,7 +47,6 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
         spFileMetadata={this.spFileData}
         successSave={this.handleSuccessSave}
         closeClick={this.closeClick}
-        hadToRouteToLogin={this.hadToRouteToLogin}
       />
     );
     ReactDOM.render(element, this.domElement);
@@ -64,9 +64,8 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
 const CLOSE = 'Close';
 function SaveToLaserficheDialog(props: {
   successSave: (success: boolean) => void;
-  closeClick: () => Promise<void>;
+  closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void>;
   spFileMetadata: ISPDocumentData;
-  hadToRouteToLogin: boolean;
 }) {
   const loginComponent = React.createRef<
     NgElement & WithProperties<LfLoginComponent>
@@ -78,10 +77,7 @@ function SaveToLaserficheDialog(props: {
   >();
 
   const saveToDialogCloseClick = async () => {
-    await props.closeClick();
-    if (props.hadToRouteToLogin) {
-      Navigation.navigate(success.pathBack, true);
-    }
+    await props.closeClick(success);
   };
 
   React.useEffect(() => {
@@ -147,16 +143,12 @@ function SaveToLaserficheDialog(props: {
         )}
       </div>
 
-      {success && (
-        <div className={styles.footer}>
-          {success && (
-            <SavedToLaserficheSuccessDialogButtons
-              successfulSave={success}
-              closeClick={saveToDialogCloseClick}
-            />
-          )}
-        </div>
-      )}
+      <div className={styles.footer}>
+        <SavedToLaserficheSuccessDialogButtons
+          successfulSave={success}
+          closeClick={saveToDialogCloseClick}
+        />
+      </div>
     </div>
   );
 }

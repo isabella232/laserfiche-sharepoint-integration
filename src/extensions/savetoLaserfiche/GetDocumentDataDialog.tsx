@@ -58,7 +58,7 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
   }
 
   showNextDialog = (data: ISPDocumentData) => {
-    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, false, () =>
+    const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () =>
       this.close()
     );
     this.secondaryDialogProvider.show(saveToLfDialog).then(() => {

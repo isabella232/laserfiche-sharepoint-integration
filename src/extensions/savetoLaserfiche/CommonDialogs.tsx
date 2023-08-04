@@ -73,7 +73,7 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
 
   return (
     <>
-      {props.successfulSave.fileLink && (
+      {props.successfulSave?.fileLink && (
         <button
           className={`lf-button primary-button ${styles.actionButton}`}
           title={VIEW_FILE_IN_LASERFICHE}
