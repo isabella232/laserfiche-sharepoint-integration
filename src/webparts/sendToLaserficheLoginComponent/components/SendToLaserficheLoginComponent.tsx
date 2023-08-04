@@ -46,11 +46,7 @@ export default function SendToLaserficheLoginComponent(
     window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)
   ) as ISPDocumentData;
 
-  const [loginText, setLoginText] = React.useState<JSX.Element | undefined>(
-    <p>
-      {NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE}
-    </p>
-  );
+  let loginText: JSX.Element | undefined = getLoginText();
 
   React.useEffect(() => {
     const setUpLoginComponent = async () => {
@@ -76,49 +72,7 @@ export default function SendToLaserficheLoginComponent(
         loginComponent.current.state === LoginState.LoggedIn;
 
       setLoggedIn(isLoggedIn);
-      if (!spFileMetadata) {
-        setLoginText(
-          <>
-            <p>
-              {
-                NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE
-              }
-            </p>
-            {isLoggedIn ? (
-              <p>
-                {'Welcome to Laserfiche. Go to '}
-                <a href={loginComponent.current.account_endpoints.webClientUrl}>
-                  your Laserfiche repository
-                </a>
-              </p>
-            ) : (
-              <p>
-                You are not signed in. You can sign in using the button below.
-              </p>
-            )}
-          </>
-        );
-      } else if (spFileMetadata?.fileUrl && !loggedIn) {
-        setLoginText(
-          <>
-            <div>
-              You are not signed in. Please sign in to continue saving{' '}
-              {spFileMetadata?.fileName}.
-            </div>
-            <br />
-          </>
-        );
-      } else if (spFileMetadata?.fileUrl && loggedIn) {
-        setLoginText(
-          <>
-            <div>
-              You are now signed in. Attempting to save{' '}
-              {spFileMetadata?.fileName}.
-            </div>
-            <br />
-          </>
-        );
-      }
+
       if (isLoggedIn && spFileMetadata) {
         const dialog = new SaveToLaserficheCustomDialog(
           spFileMetadata,
@@ -132,9 +86,6 @@ export default function SendToLaserficheLoginComponent(
         await dialog.show();
         if (!dialog.successful) {
           console.warn('Could not login successfully');
-        } else {
-          // TODO should be able to view in Laserfiche or SharePoint?
-          setLoginText(<p>{DOCUMENT_SAVED_TO_LASERFICHE_SUCCESSFULLY}</p>);
         }
       }
     };
@@ -156,9 +107,6 @@ export default function SendToLaserficheLoginComponent(
       await dialog.show();
       if (!dialog.successful) {
         console.warn('Could not login successfully');
-      } else {
-        // TODO should be able to view in Laserfiche or SharePoint?
-        setLoginText(<p>{DOCUMENT_SAVED_TO_LASERFICHE_SUCCESSFULLY}</p>);
       }
     }
   };
@@ -168,6 +116,50 @@ export default function SendToLaserficheLoginComponent(
     window.location.href =
       props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
   };
+
+  function getLoginText() {
+    let loginText: JSX.Element | undefined;
+    if (!spFileMetadata) {
+      loginText = (
+        <>
+          <p>{NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE}</p>
+          {loggedIn ? (
+            <p>
+              {'Welcome to Laserfiche. Go to '}
+              <a href={loginComponent.current.account_endpoints.webClientUrl}>
+                your Laserfiche repository
+              </a>
+            </p>
+          ) : (
+            <p>
+              You are not signed in. You can sign in using the button below.
+            </p>
+          )}
+        </>
+      );
+    } else if (spFileMetadata?.fileUrl && !loggedIn) {
+      loginText = (
+        <>
+          <div>
+            {`You are not signed in. Please sign in to continue saving ${spFileMetadata?.fileName}.`}
+          </div>
+          <br />
+        </>
+      );
+    } else if (spFileMetadata?.fileUrl && loggedIn) {
+      loginText = (
+        <>
+          <div>
+            {`You are now signed in. Attempting to save ${spFileMetadata?.fileName}.`}
+          </div>
+          <br />
+        </>
+      );
+    } else {
+      <p>{NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE}</p>;
+    }
+    return loginText;
+  }
 
   function redirect() {
     const spFileUrl = spFileMetadata.fileUrl;
