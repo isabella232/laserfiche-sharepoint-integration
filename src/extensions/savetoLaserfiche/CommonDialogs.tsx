@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { Navigation } from 'spfx-navigation';
 import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';

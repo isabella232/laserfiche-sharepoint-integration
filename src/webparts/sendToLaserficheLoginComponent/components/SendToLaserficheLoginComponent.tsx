@@ -10,7 +10,7 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
-import { getRegion } from '../../../Utils/Funcs';
+import { getEntryWebAccessUrl, getRegion } from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
 
 declare global {
@@ -29,8 +29,6 @@ const CANCEL = 'Cancel';
 const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE =
   '*Note: This page should only be needed if you are attempting to save a document to Laserfiche.';
 
-const DOCUMENT_SAVED_TO_LASERFICHE_SUCCESSFULLY =
-  'The document was saved to Laserfiche successfully.';
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ) {
@@ -46,7 +44,8 @@ export default function SendToLaserficheLoginComponent(
     window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)
   ) as ISPDocumentData;
 
-  let loginText: JSX.Element | undefined = getLoginText();
+  const [webClientUrl, setWebClientUrl] = React.useState<string | undefined>();
+  const loginText: JSX.Element | undefined = getLoginText();
 
   React.useEffect(() => {
     const setUpLoginComponent = async () => {
@@ -72,6 +71,14 @@ export default function SendToLaserficheLoginComponent(
         loginComponent.current.state === LoginState.LoggedIn;
 
       setLoggedIn(isLoggedIn);
+      if (isLoggedIn) {
+        const repoUrl = getEntryWebAccessUrl(
+          '1',
+          loginComponent.current?.account_endpoints.webClientUrl,
+          true
+        );
+        setWebClientUrl(repoUrl);
+      }
 
       if (isLoggedIn && spFileMetadata) {
         const dialog = new SaveToLaserficheCustomDialog(
@@ -125,10 +132,13 @@ export default function SendToLaserficheLoginComponent(
           <p>{NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE}</p>
           {loggedIn ? (
             <p>
-              {'Welcome to Laserfiche. Go to '}
-              <a href={loginComponent.current.account_endpoints.webClientUrl}>
-                your Laserfiche repository
-              </a>
+              {'Welcome to Laserfiche.'}
+              {webClientUrl && (
+                <>
+                  {' Go to '}
+                  <a href={webClientUrl}>your Laserfiche repository</a>
+                </>
+              )}
             </p>
           ) : (
             <p>

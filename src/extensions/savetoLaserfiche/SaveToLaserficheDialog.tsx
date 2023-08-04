@@ -62,7 +62,6 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
   }
 }
 
-const CLOSE = 'Close';
 function SaveToLaserficheDialog(props: {
   successSave: (success: boolean) => void;
   closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void>;

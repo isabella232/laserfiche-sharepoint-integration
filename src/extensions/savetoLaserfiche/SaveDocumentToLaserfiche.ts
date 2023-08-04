@@ -182,9 +182,9 @@ export class SaveDocumentToLaserfiche {
       const entryId = entryCreateResult.operations.entryCreate.entryId ?? 1;
       const fileLink = getEntryWebAccessUrl(
         entryId.toString(),
-        repoId,
         webClientUrl,
-        false
+        false,
+        repoId
       );
       const fileUrl = this.spFileMetadata.fileUrl;
       const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
@@ -221,9 +221,9 @@ export class SaveDocumentToLaserfiche {
 
         const fileLink = getEntryWebAccessUrl(
           entryId.toString(),
-          repoId,
           webClientUrl,
-          false
+          false,
+          repoId
         );
         const fileUrl = this.spFileMetadata.fileUrl;
         const fileUrlWithoutDocName = fileUrl.slice(
@@ -309,9 +309,9 @@ export class SaveDocumentToLaserfiche {
       const entryId = entryCreateResult.operations.entryCreate.entryId;
       const fileLink = getEntryWebAccessUrl(
         entryId.toString(),
-        repoId,
         webClientUrl,
-        false
+        false,
+        repoId
       );
       const fileUrl = this.spFileMetadata.fileUrl;
       const fileUrlWithoutDocName = fileUrl.slice(0, fileUrl.lastIndexOf('/'));
@@ -351,7 +351,9 @@ export class SaveDocumentToLaserfiche {
       });
 
       fileInfo.fileName = entryInfo.name;
-    } catch {}
+    } catch {
+      // do nothing, keep default file name
+    }
   }
 
   async deleteSPFileAsync() {
