@@ -217,9 +217,9 @@ function RepositoryBrowserToolbar(props: {
     if (props.selectedItem?.id) {
       const webClientNodeUrl = getEntryWebAccessUrl(
         props.selectedItem.id,
-        repoId,
         props.webClientUrl,
-        props.selectedItem.isContainer
+        props.selectedItem.isContainer,
+        repoId
       );
       window.open(webClientNodeUrl);
     } else {

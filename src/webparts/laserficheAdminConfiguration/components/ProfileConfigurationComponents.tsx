@@ -228,6 +228,7 @@ export function RepositoryBrowserModal(props: {
     NgElement & WithProperties<LfRepositoryBrowserComponent>
   > = React.useRef();
   let lfRepoTreeService: LfRepoTreeNodeService;
+
   React.useEffect(() => {
     if (props.repoClient) {
       lfRepoTreeService = new LfRepoTreeNodeService(props.repoClient);
@@ -238,6 +239,7 @@ export function RepositoryBrowserModal(props: {
       initializeTreeAsync();
     }
   }, [props.repoClient]);
+
   const isNodeSelectable = (node: LfRepoTreeNode) => {
     if (node?.entryType == EntryType.Folder) {
       return true;
