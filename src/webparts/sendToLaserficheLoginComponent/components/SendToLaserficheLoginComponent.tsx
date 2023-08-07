@@ -44,7 +44,14 @@ export default function SendToLaserficheLoginComponent(
     window.localStorage.getItem(SP_LOCAL_STORAGE_KEY)
   ) as ISPDocumentData;
 
-  const [webClientUrl, setWebClientUrl] = React.useState<string | undefined>();
+  let webClientUrl: string | undefined;
+  if (loggedIn) {
+    webClientUrl = getEntryWebAccessUrl(
+      '1',
+      loginComponent.current?.account_endpoints.webClientUrl,
+      true
+    );
+  }
   const loginText: JSX.Element | undefined = getLoginText();
 
   React.useEffect(() => {
@@ -71,14 +78,6 @@ export default function SendToLaserficheLoginComponent(
         loginComponent.current.state === LoginState.LoggedIn;
 
       setLoggedIn(isLoggedIn);
-      if (isLoggedIn) {
-        const repoUrl = getEntryWebAccessUrl(
-          '1',
-          loginComponent.current?.account_endpoints.webClientUrl,
-          true
-        );
-        setWebClientUrl(repoUrl);
-      }
 
       if (isLoggedIn && spFileMetadata) {
         const dialog = new SaveToLaserficheCustomDialog(
@@ -136,7 +135,9 @@ export default function SendToLaserficheLoginComponent(
               {webClientUrl && (
                 <>
                   {' Go to '}
-                  <a href={webClientUrl}>your Laserfiche repository</a>
+                  <a href={webClientUrl} target='_blank' rel='noreferrer'>
+                    your Laserfiche repository
+                  </a>
                 </>
               )}
             </p>

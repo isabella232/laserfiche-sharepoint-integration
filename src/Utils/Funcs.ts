@@ -8,7 +8,7 @@ export function getEntryWebAccessUrl(
   isContainer: boolean,
   repoId?: string
 ): string | undefined {
-  if (nodeId?.length === 0 || waUrl?.length === 0) {
+  if (!nodeId || nodeId?.length === 0 || !waUrl || waUrl?.length === 0) {
     return undefined;
   }
   let newUrl: string;

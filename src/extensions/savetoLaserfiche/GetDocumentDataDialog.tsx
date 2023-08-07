@@ -74,7 +74,7 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
           spFileInfo={this.fileInfo}
           context={this.context}
           showSaveToDialog={this.showNextDialog}
-          closeDialog={this.close}
+          handleCancelDialog={this.close}
       />
       </React.StrictMode>
     );
@@ -92,11 +92,11 @@ const FOLLOWING_SP_FIELDS_BLANK_MAPPED_TO_REQUIRED_LF_FIELDS =
 const PLEASE_FILL_OUT_REQUIRED_FIELDS_TRY_AGAIN =
   'Please fill out these required fields and try again.';
 
-const CLOSE = 'Close';
+const CANCEL = 'Cancel';
 
 function GetDocumentDialogData(props: {
   showSaveToDialog: (fileData: ISPDocumentData) => void;
-  closeDialog: () => Promise<void>;
+  handleCancelDialog: () => Promise<void>;
   spFileInfo: {
     fileName: string;
     spContentType: string;
@@ -454,7 +454,7 @@ function GetDocumentDialogData(props: {
         <button
           className={styles.lfCloseButton}
           title='close'
-          onClick={props.closeDialog}
+          onClick={props.handleCancelDialog}
         >
           <span className='material-icons-outlined'> close </span>
         </button>
@@ -468,8 +468,8 @@ function GetDocumentDialogData(props: {
       </div>
 
       <div className={styles.footer}>
-        <button onClick={props.closeDialog} className='lf-button sec-button'>
-          {CLOSE}
+        <button onClick={props.handleCancelDialog} className='lf-button sec-button'>
+          {CANCEL}
         </button>
       </div>
     </div>
