@@ -93,7 +93,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         'Missing "LaserficheSpAdministration" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
       );
     } else {
-      this.trySaveToLaserficheAsync({
+      await this.trySaveToLaserficheAsync({
         fileName,
         spContentType,
         spFileUrl: fileUrl,
@@ -102,7 +102,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     }
   }
 
-  public async pageConfigurationCheck() {
+  public async pageConfigurationCheck(): Promise<void> {
     try {
       const res = await fetch(
         `${getSPListURL(this.context, 'Site Pages')}/items`,
@@ -117,7 +117,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       const sitePages = await res.json();
       console.log(sitePages);
       for (let o = 0; o < sitePages.value.length; o++) {
-        const pageName = sitePages['value'][o]['Title'];
+        const pageName = sitePages.value[o].Title;
         if (pageName === SpWebPartNames.LaserficheSpSignIn) {
           this.hasSignInPage = true;
         } else if (pageName === SpWebPartNames.LaserficheSpAdministration) {
@@ -134,7 +134,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
     spContentType: string;
     spFileUrl: string;
     fileId: string;
-  }) {
+  }): Promise<void> {
     const saveToDialog = new GetDocumentDataCustomDialog(
       spFileInfo,
       this.context

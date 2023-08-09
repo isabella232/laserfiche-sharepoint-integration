@@ -16,20 +16,22 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import * as ReactDOM from 'react-dom';
 import { BaseDialog } from '@microsoft/sp-dialog';
 import { getRegion } from '../../Utils/Funcs';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 
 export default class SaveToLaserficheCustomDialog extends BaseDialog {
   successful = false;
 
-  handleSuccessSave = (successful: boolean) => {
+  handleSuccessSave: (successful: boolean) => void = (successful: boolean) => {
     this.successful = successful;
   };
 
-  closeClick = async (success?: SavedToLaserficheDocumentData) => {
-    await this.close();
-    if (this.closeParent) {
-      await this.closeParent(success);
-    }
-  };
+  closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void> =
+    async (success?: SavedToLaserficheDocumentData) => {
+      await this.close();
+      if (this.closeParent) {
+        await this.closeParent(success);
+      }
+    };
 
   constructor(
     private spFileData: ISPDocumentData,
@@ -53,11 +55,11 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
     ReactDOM.render(element, this.domElement);
   }
 
-  protected onAfterClose(): void {
+  protected async onAfterClose(): Promise<void> {
     ReactDOM.unmountComponentAtNode(this.domElement);
     super.onAfterClose();
     if (this.closeParent) {
-      this.closeParent();
+      await this.closeParent();
     }
   }
 }
@@ -66,7 +68,7 @@ function SaveToLaserficheDialog(props: {
   successSave: (success: boolean) => void;
   closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void>;
   spFileMetadata: ISPDocumentData;
-}) {
+}): JSX.Element {
   const loginComponent = React.createRef<
     NgElement & WithProperties<LfLoginComponent>
   >();
@@ -76,34 +78,40 @@ function SaveToLaserficheDialog(props: {
     SavedToLaserficheDocumentData | undefined
   >();
 
-  const saveToDialogCloseClick = async () => {
+  const saveToDialogCloseClick: () => Promise<void> = async () => {
     await props.closeClick(success);
   };
 
   React.useEffect(() => {
-    SPComponentLoader.loadScript(
-      'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
-    ).then(() => {
-      SPComponentLoader.loadScript(
+    const initializeComponentAsync: () => Promise<void> = async () => {
+      await SPComponentLoader.loadScript(
+        'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+      );
+      await SPComponentLoader.loadScript(
         'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
-      ).then(async () => {
-        if (loginComponent.current?.authorization_credentials) {
-          const saveToLF = new SaveDocumentToLaserfiche(props.spFileMetadata);
-          const successSaveToLF =
-            await saveToLF.trySaveDocumentToLaserficheAsync();
-          if (successSaveToLF) {
-            props.successSave(true);
-            setSuccess(successSaveToLF);
-          } else {
-            // TODO is this handled correctly when an error occured when deleting the file
-            props.successSave(false);
-            props.closeClick();
-          }
+      );
+      if (loginComponent.current?.authorization_credentials) {
+        const saveToLF = new SaveDocumentToLaserfiche(props.spFileMetadata);
+        const successSaveToLF =
+          await saveToLF.trySaveDocumentToLaserficheAsync();
+        if (successSaveToLF) {
+          props.successSave(true);
+          setSuccess(successSaveToLF);
         } else {
+          // TODO is this handled correctly when an error occured when deleting the file
           props.successSave(false);
-          props.closeClick();
+          await props.closeClick();
         }
-      });
+      } else {
+        props.successSave(false);
+        await props.closeClick();
+      }
+    };
+
+    initializeComponentAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
     });
   }, []);
 

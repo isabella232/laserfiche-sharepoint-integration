@@ -12,7 +12,7 @@ import { BaseComponentContext } from '@microsoft/sp-component-base';
 export class CreateConfigurations {
   public static async ensureAdminConfigListCreatedAsync(
     context: BaseComponentContext
-  ) {
+  ): Promise<void> {
     const listUrl: string = getSPListURL(context, ADMIN_CONFIGURATION_LIST);
     const response = await context.spHttpClient.get(
       listUrl,
@@ -28,7 +28,7 @@ export class CreateConfigurations {
 
   private static async createAdminConfigListAsync(
     context: BaseComponentContext
-  ) {
+  ): Promise<void> {
     const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
     const listDefinition = {
       Title: ADMIN_CONFIGURATION_LIST,
@@ -44,12 +44,12 @@ export class CreateConfigurations {
       spHttpClientOptions
     );
     const adminConfigList = await responses.json();
-    const listTitle = adminConfigList['Title'];
+    const listTitle = adminConfigList.Title;
     const formDigestValue = await this.getFormDigestValueAsync(context);
     await this.createColumnsAsync(context, listTitle, formDigestValue);
   }
 
-  private static async getFormDigestValueAsync(context: BaseComponentContext) {
+  private static async getFormDigestValueAsync(context: BaseComponentContext): Promise<string> {
     try {
       const res = await fetch(
         context.pageContext.web.absoluteUrl + '/_api/contextinfo',
@@ -71,7 +71,7 @@ export class CreateConfigurations {
     context: BaseComponentContext,
     listTitle: string,
     formDigestValue: string
-  ) {
+  ): Promise<void> {
     const siteUrl: string = getSPListURL(context, listTitle) + '/fields';
     try {
       await fetch(siteUrl, {

@@ -5,7 +5,7 @@ import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';
 
 const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 
-export default function LoadingDialog() {
+export default function LoadingDialog(): JSX.Element {
   return (
     <>
       <img src='/_layouts/15/images/progress.gif' />
@@ -26,7 +26,7 @@ const VIEW_FILE_IN_LASERFICHE = 'View file in Laserfiche';
 
 export function SavedToLaserficheSuccessDialogText(props: {
   successfulSave: SavedToLaserficheDocumentData;
-}) {
+}): JSX.Element {
   React.useEffect(() => {
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
@@ -56,7 +56,7 @@ export function SavedToLaserficheSuccessDialogText(props: {
 export function SavedToLaserficheSuccessDialogButtons(props: {
   closeClick: () => Promise<void>;
   successfulSave: SavedToLaserficheDocumentData;
-}) {
+}): JSX.Element {
   React.useEffect(() => {
     SPComponentLoader.loadCss(
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
@@ -66,7 +66,7 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
     );
   }, []);
 
-  function viewFile() {
+  function viewFile(): void {
     window.open(props.successfulSave.fileLink);
   }
 

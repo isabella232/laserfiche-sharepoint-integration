@@ -13,6 +13,7 @@ import {
   DeleteModal,
   ProfileConfiguration,
 } from '../ProfileConfigurationComponents';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -23,24 +24,26 @@ const ACTION = 'Action';
 
 export default function ManageConfigurationsPage(
   props: IManageConfigurationPageProps
-) {
+): JSX.Element {
   const [configRows, setConfigRows] = useState<ProfileConfiguration[]>([]);
   const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
     undefined
   );
 
   useEffect(() => {
-    updateConfigurationsAsync();
-  }, []);
-
-  const updateConfigurationsAsync = async () => {
-    const configurations: { id: string; configs: ProfileConfiguration[] } = await getManageConfigurationsAsync();
-    if (configurations != null) {
-      if (configurations.configs.length > 0) {
+    const updateConfigurationsAsync: () => Promise<void> = async () => {
+      const configurations: { id: string; configs: ProfileConfiguration[] } =
+        await getManageConfigurationsAsync();
+      if (configurations?.configs.length > 0) {
         setConfigRows(configRows.concat(...configurations.configs));
       }
-    }
-  };
+    };
+    updateConfigurationsAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
+    });
+  }, []);
 
   async function getManageConfigurationsAsync(): Promise<{
     id: string;
@@ -73,7 +76,7 @@ export default function ManageConfigurationsPage(
     }
   }
 
-  function removeSpecificConfiguration(idx: number) {
+  function removeSpecificConfiguration(idx: number): void {
     const rows = [...configRows];
     const configName = rows[idx].ConfigurationName;
     const deleteModal = (
@@ -86,7 +89,7 @@ export default function ManageConfigurationsPage(
     setDeleteModal(deleteModal);
   }
 
-  async function removeRowAsync(id: number) {
+  async function removeRowAsync(id: number): Promise<void> {
     const rows = [...configRows];
     const deleteRows = [...configRows];
     rows.splice(id, 1);
@@ -94,11 +97,14 @@ export default function ManageConfigurationsPage(
     setDeleteModal(undefined);
   }
 
-  function closeModal() {
+  function closeModal(): void {
     setDeleteModal(undefined);
   }
 
-  async function deleteMappingAsync(rows: ProfileConfiguration[], idx: number) {
+  async function deleteMappingAsync(
+    rows: ProfileConfiguration[],
+    idx: number
+  ): Promise<void> {
     const manageConfigs: { id: string; configs: ProfileConfiguration[] } =
       await getManageConfigurationsAsync();
     if (manageConfigs.configs?.length > 0) {
@@ -154,13 +160,9 @@ export default function ManageConfigurationsPage(
               <span className='material-icons'>edit</span>
             </NavLink>
           </span>
-          <a
-            href='javascript:;'
-            className='ml-3'
-            onClick={() => removeSpecificConfiguration(index)}
-          >
+          <button onClick={() => removeSpecificConfiguration(index)}>
             <span className='material-icons'>delete</span>
-          </a>
+          </button>
         </td>
       </tr>
     );

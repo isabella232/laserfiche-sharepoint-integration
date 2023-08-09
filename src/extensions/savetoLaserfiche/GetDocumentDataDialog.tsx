@@ -28,6 +28,7 @@ import {
   TemplateFieldInfo,
   ValueToUpdate,
   WFieldType,
+  ProblemDetails,
 } from '@laserfiche/lf-repository-api-client';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import { getSPListURL } from '../../Utils/Funcs';
@@ -53,18 +54,17 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
     super();
   }
 
-  showNextDialog = (data: ISPDocumentData) => {
+  showNextDialog: (data: ISPDocumentData) => Promise<void> = async (data: ISPDocumentData) => {
     const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () =>
       this.close()
     );
-    this.secondaryDialogProvider.show(saveToLfDialog).then(() => {
-      if (!saveToLfDialog.successful) {
-        Navigation.navigate(
-          this.context.pageContext.web.absoluteUrl + signInPageRoute,
-          true
-        );
-      }
-    });
+    await this.secondaryDialogProvider.show(saveToLfDialog);
+    if (!saveToLfDialog.successful) {
+      Navigation.navigate(
+        this.context.pageContext.web.absoluteUrl + signInPageRoute,
+        true
+      );
+    }
   };
 
   public render(): void {
@@ -75,7 +75,7 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
           context={this.context}
           showSaveToDialog={this.showNextDialog}
           handleCancelDialog={this.close}
-      />
+        />
       </React.StrictMode>
     );
     ReactDOM.render(element, this.domElement);
@@ -104,7 +104,7 @@ function GetDocumentDialogData(props: {
     fileId: string;
   };
   context: BaseComponentContext;
-}) {
+}): JSX.Element {
   const [missingFields, setMissingFields] = React.useState<
     undefined | SPProfileConfigurationData[]
   >(undefined);
@@ -129,17 +129,24 @@ function GetDocumentDialogData(props: {
       'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
     );
 
-    saveDocumentToLaserficheAsync();
+    saveDocumentToLaserficheAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
+    });
   }, []);
 
-  async function saveDocumentToLaserficheAsync() {
+  async function saveDocumentToLaserficheAsync(): Promise<void> {
     const libraryUrl = props.context.pageContext.list.title;
     const allSPFieldValues: { [key: string]: string } =
       await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
     const allSPFieldProperties: SPProfileConfigurationData[] =
       await getAllFieldsPropertiesAsync(libraryUrl);
-    const docData = await getDocumentDataAsync(allSPFieldValues, allSPFieldProperties);
-    
+    const docData = await getDocumentDataAsync(
+      allSPFieldValues,
+      allSPFieldProperties
+    );
+
     if (docData) {
       window.localStorage.setItem(
         SP_LOCAL_STORAGE_KEY,
@@ -224,7 +231,7 @@ function GetDocumentDialogData(props: {
     matchingMapping: ProfileMappingConfiguration,
     allSpFieldValues: { [key: string]: string },
     allSPFieldProperties: SPProfileConfigurationData[]
-  ) {
+  ): Promise<ISPDocumentData> {
     const laserficheProfile = matchingMapping.LaserficheContentType;
 
     const adminConfigList = await props.context.spHttpClient.get(
@@ -242,7 +249,7 @@ function GetDocumentDialogData(props: {
     const adminConfigListJson = await adminConfigList.json();
 
     const allConfigs: ProfileConfiguration[] = JSON.parse(
-      adminConfigListJson.value[0]['JsonValue']
+      adminConfigListJson.value[0].JsonValue
     );
     const matchingLFConfig = allConfigs.find(
       (lfConfig) => lfConfig.ConfigurationName === laserficheProfile
@@ -358,12 +365,12 @@ function GetDocumentDialogData(props: {
     allSpFieldValues: { [key: string]: string },
     allSPFieldProperties: SPProfileConfigurationData[],
     fields: { [key: string]: FieldToUpdate }
-  ) {
+  ): void {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.Title;
       let spDocFieldValue: string = allSpFieldValues[spFieldName];
 
-      if (spDocFieldValue != undefined || spDocFieldValue != null) {
+      if (spDocFieldValue?.length > 0) {
         const lfField = mapping.lfField;
 
         spDocFieldValue = forceTruncateToFieldTypeLength(
@@ -403,8 +410,8 @@ function GetDocumentDialogData(props: {
   function forceTruncateToFieldTypeLength(
     lfField: TemplateFieldInfo,
     spDocFieldValue: string
-  ) {
-    if (lfField.length != 0) {
+  ): string {
+    if (lfField.length !== 0) {
       if (spDocFieldValue.length > lfField.length) {
         // automatically trims length to match constraint
         spDocFieldValue = spDocFieldValue.slice(0, lfField.length);
@@ -468,7 +475,10 @@ function GetDocumentDialogData(props: {
       </div>
 
       <div className={styles.footer}>
-        <button onClick={props.handleCancelDialog} className='lf-button sec-button'>
+        <button
+          onClick={props.handleCancelDialog}
+          className='lf-button sec-button'
+        >
           {CANCEL}
         </button>
       </div>
@@ -476,7 +486,7 @@ function GetDocumentDialogData(props: {
   );
 }
 
-function MissingFieldsDialog(props: { missingFields: JSX.Element[] }) {
+function MissingFieldsDialog(props: { missingFields: JSX.Element[] }): JSX.Element {
   const textInside = (
     <span>
       The following SharePoint field values are blank and are mapped to required
