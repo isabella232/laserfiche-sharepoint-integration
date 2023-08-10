@@ -15,6 +15,7 @@ import {
   SharePointLaserficheColumnMatching,
   SPProfileConfigurationData,
 } from './ProfileConfigurationComponents';
+import styles from './LaserficheAdminConfiguration.module.scss';
 
 export default function ManageConfiguration(
   props: IManageConfigurationProps
@@ -199,14 +200,20 @@ export default function ManageConfiguration(
                   validate={props.validate}
                 />
               </div>
-              <div className='card-footer bg-transparent'>
+              <div
+                className={`${styles.footerIcons} card-footer bg-transparent`}
+              >
                 {props.loggedIn && (
-                  <NavLink id='navid' to='/ManageConfigurationsPage'>
-                    <a className='lf-button sec-button'>Back</a>
+                  <NavLink
+                    id='navid'
+                    to='/ManageConfigurationsPage'
+                    className={styles.navLinkNoUnderline}
+                  >
+                    <button className='lf-button sec-button'>Back</button>
                   </NavLink>
                 )}
                 <button
-                  className='lf-button primary-button'
+                  className={`${styles.marginLeftButton} lf-button primary-button`}
                   onClick={saveConfigurationAsync}
                 >
                   Save

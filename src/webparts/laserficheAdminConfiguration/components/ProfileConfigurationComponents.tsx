@@ -14,6 +14,7 @@ import { LfRepositoryBrowserComponent } from '@laserfiche/types-lf-ui-components
 import * as React from 'react';
 import { ChangeEvent, useState } from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
+import styles from './LaserficheAdminConfiguration.module.scss';
 
 export interface ProfileConfiguration {
   ConfigurationName: string;
@@ -47,7 +48,9 @@ export enum ActionTypes {
   'REPLACE' = 'REPLACE',
 }
 
-export function ProfileHeader(props: { configurationName: string }): JSX.Element {
+export function ProfileHeader(props: {
+  configurationName: string;
+}): JSX.Element {
   return (
     <h6 className='mb-0'>
       Profile :{' '}
@@ -70,7 +73,9 @@ export function ConfigurationBody(props: {
 
   const selectedEntryNodePath = props.profileConfig.selectedFolder?.path;
 
-  const onSelectFolderAsync: (selectedNode: LfRepoTreeNode | undefined) => Promise<void> = async (selectedNode: LfRepoTreeNode | undefined) => {
+  const onSelectFolderAsync: (
+    selectedNode: LfRepoTreeNode | undefined
+  ) => Promise<void> = async (selectedNode: LfRepoTreeNode | undefined) => {
     if (!props.repoClient) {
       throw new Error('Repo Client is undefined.');
     }
@@ -84,9 +89,9 @@ export function ConfigurationBody(props: {
     setShowFolderModal(false);
   };
 
-  const handleTemplateChange: (event: React.ChangeEvent<HTMLSelectElement>) => void = (
+  const handleTemplateChange: (
     event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  ) => void = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = (event.target as HTMLSelectElement).value;
     const templateName = value;
     const profileConfig = { ...props.profileConfig };
@@ -95,9 +100,9 @@ export function ConfigurationBody(props: {
     props.handleTemplateChange(templateName);
   };
 
-  const handleActionTypeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void = (
+  const handleActionTypeChange: (
     event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
+  ) => void = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = (event.target as HTMLSelectElement).value;
     const actionName = value;
     const profileConfig = { ...props.profileConfig };
@@ -125,7 +130,7 @@ export function ConfigurationBody(props: {
           onChangeTemplate={handleTemplateChange}
         />
       </div>
-      <div className='form-group row'>
+      <div className={`${styles.formGroupRow} form-group row`}>
         <label htmlFor='txt3' className='col-sm-2 col-form-label'>
           Laserfiche Destination
         </label>
@@ -138,14 +143,10 @@ export function ConfigurationBody(props: {
             disabled
             value={props.profileConfig.selectedFolder?.path}
           />
-          <div>
-            <span>Use the Browse button to select a path</span>
-          </div>
         </div>
         <div className='col-sm-2' id='folderModal' style={{ marginTop: '2px' }}>
           <button
-            data-toggle='modal'
-            data-target='#folderModal'
+            className='lf-button sec-button'
             onClick={openFolderModal}
           >
             Browse
@@ -216,7 +217,9 @@ export function RepositoryBrowserModal(props: {
   const repositoryBrowser: React.RefObject<
     NgElement & WithProperties<LfRepositoryBrowserComponent>
   > = React.useRef();
-  const onEntrySelected: (event: CustomEvent<LfRepoTreeNode[]>) => void = (event: CustomEvent<LfRepoTreeNode[]>) => {
+  const onEntrySelected: (event: CustomEvent<LfRepoTreeNode[]>) => void = (
+    event: CustomEvent<LfRepoTreeNode[]>
+  ) => {
     const treeNodesSelected: LfRepoTreeNode[] = event.detail;
     const selectedNode =
       treeNodesSelected?.length > 0 ? treeNodesSelected[0] : undefined;
@@ -244,7 +247,9 @@ export function RepositoryBrowserModal(props: {
     }
   }, [props.repoClient]);
 
-  const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (node: LfRepoTreeNode) => {
+  const isNodeSelectable: (node: LfRepoTreeNode) => boolean = (
+    node: LfRepoTreeNode
+  ) => {
     if (node?.entryType === EntryType.Folder) {
       return true;
     } else if (
@@ -432,10 +437,10 @@ export function SharePointLaserficheColumnMatching(props: {
   const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
     undefined
   );
-  const handleSpFieldChange: (e: ChangeEvent<HTMLSelectElement>, mapping: MappedFields) => void = (
+  const handleSpFieldChange: (
     e: ChangeEvent<HTMLSelectElement>,
     mapping: MappedFields
-  ) => {
+  ) => void = (e: ChangeEvent<HTMLSelectElement>, mapping: MappedFields) => {
     const targetElement = e.target as HTMLSelectElement;
     const newConfig = { ...props.profileConfig };
     const rowsArray = [...newConfig.mappedFields];
@@ -451,10 +456,10 @@ export function SharePointLaserficheColumnMatching(props: {
     newConfig.mappedFields = rowsArray;
     props.handleProfileConfigUpdate(newConfig);
   };
-  const handleLfFieldChange: (e: ChangeEvent<HTMLSelectElement>, mapping: MappedFields) => void = (
+  const handleLfFieldChange: (
     e: ChangeEvent<HTMLSelectElement>,
     mapping: MappedFields
-  ) => {
+  ) => void = (e: ChangeEvent<HTMLSelectElement>, mapping: MappedFields) => {
     const targetElement = e.target as HTMLSelectElement;
     const newConfig = { ...props.profileConfig };
     const rowsArray = [...newConfig.mappedFields];
@@ -583,9 +588,10 @@ export function SharePointLaserficheColumnMatching(props: {
               </span>
             ) : (
               <button
+                className={styles.lfMaterialIconButton}
                 onClick={() => removeSpecificMapping(index)}
               >
-                <span className='material-icons'>delete</span>
+                <span className='material-icons-outlined'> close </span>
               </button>
             )}
             {errorMessageMapping}
@@ -704,7 +710,7 @@ function getMappingErrorMessage(
         >
           SharePoint field type of {spFieldtype} cannot be mapped with
           Laserfiche field type of {lfFieldtype}
-          <span className='material-icons'>warning</span>Data types mismatch
+          <span className='material-icons-outlined'>warning</span>Data types mismatch
         </div>
       );
     } else {
@@ -722,10 +728,13 @@ export function hasFieldTypeMismatch(mapped: MappedFields): boolean {
     lfFieldType === WFieldType.Date ||
     lfFieldType === WFieldType.Time
   ) {
-    if (spFieldType !=='DateTime') {
+    if (spFieldType !== 'DateTime') {
       return true;
     }
-  } else if (lfFieldType === WFieldType.LongInteger || lfFieldType === WFieldType.ShortInteger) {
+  } else if (
+    lfFieldType === WFieldType.LongInteger ||
+    lfFieldType === WFieldType.ShortInteger
+  ) {
     if (spFieldType !== 'Number') {
       return true;
     }
@@ -741,7 +750,9 @@ export function hasFieldTypeMismatch(mapped: MappedFields): boolean {
   return false;
 }
 
-export function validateNewConfiguration(profileConfig: ProfileConfiguration): boolean {
+export function validateNewConfiguration(
+  profileConfig: ProfileConfiguration
+): boolean {
   const profileNameContainsSpecialCharacters = /[^ A-Za-z0-9]/.test(
     profileConfig.ConfigurationName
   );

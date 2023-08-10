@@ -26,6 +26,7 @@ import * as React from 'react';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { ChangeEvent } from 'react';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
+import styles from './LaserficheRepositoryAccess.module.scss';
 
 const cols: ColumnDef[] = [
   {
@@ -242,15 +243,15 @@ function RepositoryBrowserToolbar(props: {
   return (
     <>
       <div id='mainWebpartContent'>
-        <div>
-          <button title='Open File' onClick={openFileOrFolder}>
-            <span className='material-icons'>description</span>
+        <div className={styles.buttonContainer}>
+          <button className={styles.lfMaterialIconButton} title='Open File' onClick={openFileOrFolder}>
+            <span className='material-icons-outlined'>description</span>
           </button>
-          <button title='Upload File' onClick={openImportFileModal}>
-            <span className='material-icons'>upload</span>
+          <button className={styles.lfMaterialIconButton} title='Upload File' onClick={openImportFileModal}>
+            <span className='material-icons-outlined'>upload</span>
           </button>
-          <button title='Create Folder' onClick={openNewFolderModal}>
-            <span className='material-icons'>create_new_folder</span>
+          <button className={styles.lfMaterialIconButton} title='Create Folder' onClick={openNewFolderModal}>
+            <span className='material-icons-outlined'>create_new_folder</span>
           </button>
         </div>
       </div>

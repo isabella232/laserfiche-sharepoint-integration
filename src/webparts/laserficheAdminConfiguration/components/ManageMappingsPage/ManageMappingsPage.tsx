@@ -15,6 +15,7 @@ import {
 import { getSPListURL } from '../../../../Utils/Funcs';
 import { ProfileMappingConfiguration } from '../../../../Utils/Types';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
+import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -583,13 +584,21 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className='text-center'>
-            <button onClick={() => editSpecificMapping(index)}>
-              <span className='material-icons'>edit</span>
-            </button>
-            <button onClick={() => removeSpecificMapping(index)}>
-              <span className='material-icons'>delete</span>
-            </button>
+          <td className={styles.iconTableCell}>
+            <div className={styles.iconsContainer}>
+              <button
+                className={styles.lfMaterialIconButton}
+                onClick={() => editSpecificMapping(index)}
+              >
+                <span className='material-icons-outlined'>edit</span>
+              </button>
+              <button
+                className={`${styles.lfMaterialIconButton} ${styles.marginLeftButton}`}
+                onClick={() => removeSpecificMapping(index)}
+              >
+                <span className='material-icons-outlined'>delete</span>
+              </button>
+            </div>
           </td>
         </tr>
       );
@@ -620,13 +629,21 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className='text-center'>
-            <button onClick={() => saveSpecificMappingAsync(index)}>
-              <span className='material-icons'>save</span>
-            </button>
-            <button onClick={() => removeSpecificMapping(index)}>
-              <span className='material-icons'>delete</span>
-            </button>
+          <td className={styles.iconTableCell}>
+            <div className={styles.iconsContainer}>
+              <button
+                className={styles.lfMaterialIconButton}
+                onClick={() => saveSpecificMappingAsync(index)}
+              >
+                <span className='material-icons-outlined'>save</span>
+              </button>
+              <button
+                className={`${styles.lfMaterialIconButton} ${styles.marginLeftButton}`}
+                onClick={() => removeSpecificMapping(index)}
+              >
+                <span className='material-icons-outlined'>delete</span>
+              </button>
+            </div>
           </td>
         </tr>
       );
@@ -679,11 +696,16 @@ export default function ManageMappingsPage(
                 <span>{validationMessage}</span>
               </div>
             )}
-            <div className='card-footer bg-transparent'>
-              <button style={{ marginLeft: '10px' }} onClick={resetAsync}>
+            <div className={`${styles.footerIcons} card-footer bg-transparent`}>
+              <button className='lf-button sec-button' onClick={resetAsync}>
                 Reset
               </button>
-              <button onClick={addNewMapping}>Add</button>
+              <button
+                className={`${styles.marginLeftButton} lf-button primary-button`}
+                onClick={addNewMapping}
+              >
+                Add
+              </button>
             </div>
           </div>
         </div>

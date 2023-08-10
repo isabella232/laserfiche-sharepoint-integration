@@ -14,6 +14,7 @@ import {
   ProfileConfiguration,
 } from '../ProfileConfigurationComponents';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
+import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -148,21 +149,24 @@ export default function ManageConfigurationsPage(
       <tr id='addr0' key={index}>
         <td>{item.ConfigurationName}</td>
         <td className='text-center'>
-          <span>
-            <NavLink
-              to={'/EditManageConfiguration/' + item.ConfigurationName}
-              style={{
-                marginRight: '18px',
-                fontWeight: '500',
-                fontSize: '15px',
-              }}
-            >
-              <span className='material-icons'>edit</span>
+          <div className={styles.iconsContainer}>
+            <NavLink to={'/EditManageConfiguration/' + item.ConfigurationName} 
+                    className={styles.navLinkNoUnderline}>
+              <button className={styles.lfMaterialIconButton}>
+                <span className='material-icons-outlined'>edit</span>
+              </button>
             </NavLink>
-          </span>
-          <button onClick={() => removeSpecificConfiguration(index)}>
-            <span className='material-icons'>delete</span>
-          </button>
+            <button
+              className={styles.lfMaterialIconButton}
+              onClick={() => removeSpecificConfiguration(index)}
+            >
+              <span
+                className={`${styles.marginLeftButton} material-icons-outlined`}
+              >
+                delete
+              </span>
+            </button>
+          </div>
         </td>
       </tr>
     );
