@@ -12,6 +12,7 @@ import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
 import { getEntryWebAccessUrl, getRegion } from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 
 declare global {
   // eslint-disable-next-line
@@ -31,7 +32,7 @@ const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE =
 
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
-) {
+): JSX.Element {
   const loginComponent: React.RefObject<
     NgElement & WithProperties<LfLoginComponent>
   > = React.useRef();
@@ -54,8 +55,32 @@ export default function SendToLaserficheLoginComponent(
   }
   const loginText: JSX.Element | undefined = getLoginText();
 
+  const loginCompleted: () => Promise<void> = async () => {
+    setLoggedIn(true);
+    if (spFileMetadata) {
+      const dialog = new SaveToLaserficheCustomDialog(
+        spFileMetadata,
+        async (success) => {
+          if (success) {
+            Navigation.navigate(success.pathBack, true);
+          }
+        }
+      );
+      await dialog.show();
+      if (!dialog.successful) {
+        console.warn('Could not login successfully');
+      }
+    }
+  };
+
+  const logoutCompleted: () => void = () => {
+    setLoggedIn(false);
+    window.location.href =
+      props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
+  };
+
   React.useEffect(() => {
-    const setUpLoginComponent = async () => {
+    const setUpLoginComponentAsync: () => Promise<void> = async () => {
       SPComponentLoader.loadCss(
         'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
       );
@@ -96,34 +121,14 @@ export default function SendToLaserficheLoginComponent(
       }
     };
 
-    setUpLoginComponent();
+    setUpLoginComponentAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
+    });
   }, []);
 
-  const loginCompleted = async () => {
-    setLoggedIn(true);
-    if (spFileMetadata) {
-      const dialog = new SaveToLaserficheCustomDialog(
-        spFileMetadata,
-        async (success) => {
-          if (success) {
-            Navigation.navigate(success.pathBack, true);
-          }
-        }
-      );
-      await dialog.show();
-      if (!dialog.successful) {
-        console.warn('Could not login successfully');
-      }
-    }
-  };
-
-  const logoutCompleted = () => {
-    setLoggedIn(false);
-    window.location.href =
-      props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
-  };
-
-  function getLoginText() {
+  function getLoginText(): JSX.Element {
     let loginText: JSX.Element | undefined;
     if (!spFileMetadata) {
       loginText = (
@@ -172,7 +177,7 @@ export default function SendToLaserficheLoginComponent(
     return loginText;
   }
 
-  function redirect() {
+  function redirect(): void {
     const spFileUrl = spFileMetadata.fileUrl;
     const fileNameWithExtension = spFileMetadata.fileName;
     const spFileUrlWithoutFileName = spFileUrl.replace(

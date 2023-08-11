@@ -14,6 +14,8 @@ import {
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
 import { ProfileMappingConfiguration } from '../../../../Utils/Types';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
+import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -30,7 +32,9 @@ const laserficheValidationMapping =
   'Please select a content type from the Laserfiche Profile dropdown';
 const validationOf = 'Already Mapping exists for this SharePoint content type';
 
-export default function ManageMappingsPage(props: IManageMappingsPageProps) {
+export default function ManageMappingsPage(
+  props: IManageMappingsPageProps
+): JSX.Element {
   const [mappingRows, setMappingRows] = useState([]);
   const [sharePointContentTypes, setSharePointContentTypes] = useState<
     string[]
@@ -42,33 +46,33 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
   const [validationMessage, setValidationMessage] = useState(undefined);
 
   React.useEffect(() => {
-    getAllMappingsAsync();
+    getAllMappingsAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
+    });
   }, [props.repoClient]);
 
-  async function getAllMappingsAsync() {
+  async function getAllMappingsAsync(): Promise<void> {
     await getAllSharePointContentTypesAsync();
     await getAllLaserficheContentTypesAsync();
     const results: { id: string; mappings: ProfileMappingConfiguration[] } =
       await getManageMappingsAsync();
-    if (results != null) {
-      if (results.mappings.length > 0) {
-        setMappingRows(mappingRows.concat(results.mappings));
-      }
+    if (results?.mappings.length > 0) {
+      setMappingRows(mappingRows.concat(results.mappings));
     }
   }
 
-  async function getAllLaserficheContentTypesAsync() {
+  async function getAllLaserficheContentTypesAsync(): Promise<void> {
     const array: string[] = [];
     const results: { id: string; configs: ProfileConfiguration[] } =
       await getManageConfigurationsAsync();
-    const configs = results.configs;
-    if (results != null) {
-      if (configs.length > 0) {
-        for (let i = 0; i < configs.length; i++) {
-          array.push(configs[i].ConfigurationName);
-        }
-        setLaserficheContentTypes(array);
+    if (results?.configs.length > 0) {
+      const configs = results.configs;
+      for (let i = 0; i < configs.length; i++) {
+        array.push(configs[i].ConfigurationName);
       }
+      setLaserficheContentTypes(array);
     }
   }
 
@@ -103,7 +107,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
     }
   }
 
-  async function getAllSharePointContentTypesAsync() {
+  async function getAllSharePointContentTypesAsync(): Promise<void> {
     const restApiUrl =
       props.context.pageContext.web.absoluteUrl + '/_api/web/contenttypes';
     try {
@@ -128,19 +132,19 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
   async function createNewMappingAsync(
     idx: number,
     rows: ProfileMappingConfiguration[]
-  ) {
+  ): Promise<void> {
     setValidationMessage(undefined);
-    if (rows[idx].SharePointContentType == 'Select') {
+    if (rows[idx].SharePointContentType === 'Select') {
       setValidationMessage(sharepointValidationMapping);
-    } else if (rows[idx].LaserficheContentType == 'Select') {
+    } else if (rows[idx].LaserficheContentType === 'Select') {
       setValidationMessage(laserficheValidationMapping);
     } else {
       const existingMappings: {
         id: string;
         mappings: ProfileMappingConfiguration[];
       } = await getManageMappingsAsync();
-      if (existingMappings != null) {
-        if (existingMappings.mappings.length > 0) {
+      if (existingMappings) {
+        if (existingMappings?.mappings.length > 0) {
           const mappingExists = existingMappings.mappings.find(
             (mapping) => mapping.id === rows[idx].id
           );
@@ -239,17 +243,17 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
     rows: ProfileMappingConfiguration[],
     idx: number,
     itemId: string
-  ) {
+  ): Promise<void> {
     let exitEntry = false;
     for (let i = 0; i < jsonValue.length; i++) {
       if (
-        jsonValue[i].SharePointContentType == rows[idx].SharePointContentType
+        jsonValue[i].SharePointContentType === rows[idx].SharePointContentType
       ) {
         exitEntry = true;
         break;
       }
     }
-    if (exitEntry == false) {
+    if (!exitEntry) {
       const restApiUrl = `${getSPListURL(
         props.context,
         ADMIN_CONFIGURATION_LIST
@@ -285,7 +289,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
       );
       rows[idx].toggle = !rows[idx].toggle;
       setMappingRows(rows);
-      if (jsonValue.length + 1 == rows.length) {
+      if (jsonValue.length + 1 === rows.length) {
         setValidationMessage(undefined);
       }
     } else {
@@ -298,7 +302,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
     rows: ProfileMappingConfiguration[],
     idx: number,
     itemId: string
-  ) {
+  ): Promise<void> {
     const spContentTypeMatch = jsonValue.find(
       (mapping) =>
         mapping.SharePointContentType === rows[idx].SharePointContentType
@@ -339,14 +343,14 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
       if (
         rows.some(
           (item: ProfileMappingConfiguration) =>
-            item.SharePointContentType == 'Select'
+            item.SharePointContentType === 'Select'
         )
       ) {
         setValidationMessage(sharepointValidationMapping);
       } else if (
         rows.some(
           (item: ProfileMappingConfiguration) =>
-            item.LaserficheContentType == 'Select'
+            item.LaserficheContentType === 'Select'
         )
       ) {
         setValidationMessage(laserficheValidationMapping);
@@ -361,10 +365,10 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
   async function deleteMappingAsync(
     rows: ProfileMappingConfiguration[],
     idx: number
-  ) {
+  ): Promise<void> {
     const results: { id: string; mappings: ProfileMappingConfiguration[] } =
       await getManageMappingsAsync();
-    if (results != null) {
+    if (results) {
       const itemId = results.id;
       const mappings = results.mappings;
       const matchingMappingIndex = mappings.findIndex(
@@ -407,7 +411,7 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
           setValidationMessage(validationOf);
         }
       } else {
-        if (mappings.length + 1 == rows.length) {
+        if (mappings.length + 1 === rows.length) {
           setValidationMessage(undefined);
         } else {
           const selectSPContentType = mappings.find(
@@ -452,14 +456,14 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
         }
         return { id: array[0].Id, mappings: JSON.parse(array[0].JsonValue) };
       } else {
-        return null;
+        return undefined;
       }
     } catch (error) {
       console.log('error occurred' + error);
     }
   }
 
-  const addNewMapping = () => {
+  const addNewMapping: () => void = () => {
     const id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
     const item = {
       id,
@@ -470,39 +474,44 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
     setMappingRows([...mappingRows, item]);
   };
 
-  const removeSpecificMapping = (idx: number) => {
+  const removeSpecificMapping: (idx: number) => void = (idx: number) => {
     const rows = [...mappingRows];
     const delModal = (
       <DeleteModal
         onCancel={closeModalUp}
-        onConfirmDelete={() => removeRow(idx)}
+        onConfirmDelete={() => removeRowAsync(idx)}
         configurationName={rows[idx].SharePointContentType}
       />
     );
     setDeleteModal(delModal);
   };
 
-  function removeRow(id: number) {
+  async function removeRowAsync(id: number): Promise<void> {
     const rows = [...mappingRows];
     const deleteRows = [...mappingRows];
     rows.splice(id, 1);
     setMappingRows(rows);
-    deleteMappingAsync(deleteRows, id);
+    await deleteMappingAsync(deleteRows, id);
     setDeleteModal(undefined);
   }
 
-  const editSpecificMapping = (idx: number) => {
+  const editSpecificMapping: (idx: number) => void = (idx: number) => {
     const rows = [...mappingRows];
     rows[idx].toggle = !rows[idx].toggle;
     setMappingRows(rows);
   };
 
-  const saveSpecificMappingAsync = async (idx: number) => {
+  const saveSpecificMappingAsync: (idx: number) => Promise<void> = async (
+    idx: number
+  ) => {
     const rows = [...mappingRows];
     await createNewMappingAsync(idx, rows);
   };
 
-  const handleChange = (event: ChangeEvent<HTMLSelectElement>, idx: number) => {
+  const handleChange: (
+    event: ChangeEvent<HTMLSelectElement>,
+    idx: number
+  ) => void = (event: ChangeEvent<HTMLSelectElement>, idx: number) => {
     const item = {
       id: event.target.id,
       name: event.target.name,
@@ -517,29 +526,29 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
     setMappingRows(newRows);
   };
 
-  function closeModalUp() {
+  function closeModalUp(): void {
     setDeleteModal(undefined);
   }
 
-  const resetAsync = async () => {
+  const resetAsync: () => Promise<void> = async () => {
     setDeleteModal(undefined);
     await getAllSharePointContentTypesAsync();
     await getAllLaserficheContentTypesAsync();
     const results: { id: string; mappings: ProfileMappingConfiguration[] } =
       await getManageMappingsAsync();
-    if (results != null) {
-      if (results.mappings.length > 0) {
-        setMappingRows(results.mappings);
-      }
+    if (results?.mappings.length > 0) {
+      setMappingRows(results.mappings);
     }
     setValidationMessage(undefined);
   };
 
-  const sharePointContentTypesDisplay = sharePointContentTypes.map((contentType) => (
-    <option key={contentType} value={contentType}>
-      {contentType}
-    </option>
-  ));
+  const sharePointContentTypesDisplay = sharePointContentTypes.map(
+    (contentType) => (
+      <option key={contentType} value={contentType}>
+        {contentType}
+      </option>
+    )
+  );
   const lfContentTypesDisplay = laserficheContentTypes.map((contentType) => (
     <option key={contentType} value={contentType}>
       {contentType}
@@ -575,21 +584,21 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className='text-center'>
-            <a
-              href='javascript:;'
-              className='ml-3'
-              onClick={() => editSpecificMapping(index)}
-            >
-              <span className='material-icons'>edit</span>
-            </a>
-            <a
-              href='javascript:;'
-              className='ml-3'
-              onClick={() => removeSpecificMapping(index)}
-            >
-              <span className='material-icons'>delete</span>
-            </a>
+          <td className={styles.iconTableCell}>
+            <div className={styles.iconsContainer}>
+              <button
+                className={styles.lfMaterialIconButton}
+                onClick={() => editSpecificMapping(index)}
+              >
+                <span className='material-icons-outlined'>edit</span>
+              </button>
+              <button
+                className={`${styles.lfMaterialIconButton} ${styles.marginLeftButton}`}
+                onClick={() => removeSpecificMapping(index)}
+              >
+                <span className='material-icons-outlined'>delete</span>
+              </button>
+            </div>
           </td>
         </tr>
       );
@@ -620,21 +629,21 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className='text-center'>
-            <a
-              href='javascript:;'
-              className='ml-3'
-              onClick={() => saveSpecificMappingAsync(index)}
-            >
-              <span className='material-icons'>save</span>
-            </a>
-            <a
-              href='javascript:;'
-              className='ml-3'
-              onClick={() => removeSpecificMapping(index)}
-            >
-              <span className='material-icons'>delete</span>
-            </a>
+          <td className={styles.iconTableCell}>
+            <div className={styles.iconsContainer}>
+              <button
+                className={styles.lfMaterialIconButton}
+                onClick={() => saveSpecificMappingAsync(index)}
+              >
+                <span className='material-icons-outlined'>save</span>
+              </button>
+              <button
+                className={`${styles.lfMaterialIconButton} ${styles.marginLeftButton}`}
+                onClick={() => removeSpecificMapping(index)}
+              >
+                <span className='material-icons-outlined'>delete</span>
+              </button>
+            </div>
           </td>
         </tr>
       );
@@ -687,21 +696,16 @@ export default function ManageMappingsPage(props: IManageMappingsPageProps) {
                 <span>{validationMessage}</span>
               </div>
             )}
-            <div className='card-footer bg-transparent'>
-              <a
-                className='btn btn-primary pl-5 pr-5 float-right'
-                style={{ marginLeft: '10px' }}
-                onClick={resetAsync}
-              >
+            <div className={`${styles.footerIcons} card-footer bg-transparent`}>
+              <button className='lf-button sec-button' onClick={resetAsync}>
                 Reset
-              </a>
-              <a
-                href='javascript:;'
-                className='btn btn-primary pl-5 pr-5 float-right'
+              </button>
+              <button
+                className={`${styles.marginLeftButton} lf-button primary-button`}
                 onClick={addNewMapping}
               >
                 Add
-              </a>
+              </button>
             </div>
           </div>
         </div>

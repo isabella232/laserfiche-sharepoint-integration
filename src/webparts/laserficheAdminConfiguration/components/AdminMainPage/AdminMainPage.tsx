@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useEffect } from 'react';
 import { IAdminPageProps } from './IAdminPageProps';
 import { CreateConfigurations } from '../../../../Utils/CreateConfigurations';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 
@@ -16,9 +17,13 @@ declare global {
   }
 }
 
-export default function AdminMainPage(props: IAdminPageProps) {
+export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   useEffect(() => {
-    CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context);
+    CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
+    });
   }, []);
 
   const linkData: LinkInfo[] = [
@@ -50,7 +55,7 @@ interface LinkInfo {
   name: string;
 }
 
-function Links(props: { linkData: LinkInfo[] }) {
+function Links(props: { linkData: LinkInfo[] }): JSX.Element {
   const linkEls = props.linkData.map((link: LinkInfo) => (
     <span key={link.name}>
       <NavLink

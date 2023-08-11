@@ -30,14 +30,14 @@ export function getEntryWebAccessUrl(
   return newUrl;
 }
 
-export function getSPListURL(context: BaseComponentContext, listName: string) {
+export function getSPListURL(context: BaseComponentContext, listName: string): string {
   return (
     context.pageContext.web.absoluteUrl +
     `/_api/web/lists/GetByTitle('${listName}')`
   );
 }
 
-export function getRegion() {
+export function getRegion(): string {
   const spDevMode = window?.localStorage.getItem(SPDEVMODE_LOCAL_STORAGE_KEY);
   if (!spDevMode) {
     window.localStorage.setItem(SPDEVMODE_LOCAL_STORAGE_KEY, 'false');

@@ -66,7 +66,7 @@ export class SaveDocumentToLaserfiche {
     return newRepoClient;
   }
 
-  async GetFileData() {
+  async GetFileData(): Promise<Blob> {
     const spFileUrl = this.spFileMetadata.fileUrl;
     const fileNameWithExt = this.spFileMetadata.fileName;
     const encodedFileName = encodeURIComponent(fileNameWithExt);
@@ -249,7 +249,7 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  getRequestMetadata(request: PostEntryWithEdocMetadataRequest) {
+  getRequestMetadata(request: PostEntryWithEdocMetadataRequest): PostEntryWithEdocMetadataRequest {
     const fileMetadata: IPostEntryWithEdocMetadataRequest =
       this.spFileMetadata.metadata;
     const fieldsAlone = fileMetadata.metadata.fields;
@@ -343,7 +343,7 @@ export class SaveDocumentToLaserfiche {
     repoId: string,
     entryCreateResult: CreateEntryResult,
     fileInfo: SavedToLaserficheDocumentData
-  ) {
+  ): Promise<void> {
     try {
       const entryInfo: Entry = await repoClient.entriesClient.getEntry({
         repoId,
@@ -356,7 +356,7 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async deleteSPFileAsync() {
+  async deleteSPFileAsync(): Promise<void> {
     const encodedFileName = encodeURIComponent(this.spFileMetadata.fileName);
     const spUrlWithEncodedFileName = this.spFileMetadata.fileUrl.replace(
       this.spFileMetadata.fileName,
@@ -380,7 +380,7 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async deleteSPFileAndReplaceWithLinkAsync(docFilelink: string) {
+  async deleteSPFileAndReplaceWithLinkAsync(docFilelink: string): Promise<void> {
     const filenameWithoutExt = PathUtils.removeFileExtension(
       this.spFileMetadata.fileName
     );
@@ -398,7 +398,7 @@ export class SaveDocumentToLaserfiche {
     });
     if (deleteFile.ok) {
       alert('File replaced with link successfully');
-      this.replaceFileWithLinkAsync(filenameWithoutExt, docFilelink);
+      await this.replaceFileWithLinkAsync(filenameWithoutExt, docFilelink);
     } else {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       console.log('An error occurred. Please try again.');
@@ -408,7 +408,7 @@ export class SaveDocumentToLaserfiche {
   async replaceFileWithLinkAsync(
     filenameWithoutExt: string,
     docFileLink: string
-  ) {
+  ): Promise<void> {
     const resp = await fetch(
       this.spFileMetadata.contextPageAbsoluteUrl + '/_api/contextinfo',
       {
@@ -419,7 +419,7 @@ export class SaveDocumentToLaserfiche {
     if (resp.ok) {
       const data = await resp.json();
       const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
-      this.createLinkAsync(filenameWithoutExt, docFileLink, FormDigestValue);
+      await this.createLinkAsync(filenameWithoutExt, docFileLink, FormDigestValue);
     } else {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       console.log('Failed');
@@ -430,7 +430,7 @@ export class SaveDocumentToLaserfiche {
     filenameWithoutExt: string,
     docFileLink: string,
     formDigestValue: string
-  ) {
+  ): Promise<void> {
     const encodedFileName = encodeURIComponent(filenameWithoutExt);
     const path = this.spFileMetadata.fileUrl.replace(
       this.spFileMetadata.fileName,

@@ -13,6 +13,8 @@ import {
   DeleteModal,
   ProfileConfiguration,
 } from '../ProfileConfigurationComponents';
+import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
+import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -23,24 +25,26 @@ const ACTION = 'Action';
 
 export default function ManageConfigurationsPage(
   props: IManageConfigurationPageProps
-) {
+): JSX.Element {
   const [configRows, setConfigRows] = useState<ProfileConfiguration[]>([]);
   const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
     undefined
   );
 
   useEffect(() => {
-    updateConfigurationsAsync();
-  }, []);
-
-  const updateConfigurationsAsync = async () => {
-    const configurations: { id: string; configs: ProfileConfiguration[] } = await getManageConfigurationsAsync();
-    if (configurations != null) {
-      if (configurations.configs.length > 0) {
+    const updateConfigurationsAsync: () => Promise<void> = async () => {
+      const configurations: { id: string; configs: ProfileConfiguration[] } =
+        await getManageConfigurationsAsync();
+      if (configurations?.configs.length > 0) {
         setConfigRows(configRows.concat(...configurations.configs));
       }
-    }
-  };
+    };
+    updateConfigurationsAsync().catch((err: Error | ProblemDetails) => {
+      console.warn(
+        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+      );
+    });
+  }, []);
 
   async function getManageConfigurationsAsync(): Promise<{
     id: string;
@@ -73,7 +77,7 @@ export default function ManageConfigurationsPage(
     }
   }
 
-  function removeSpecificConfiguration(idx: number) {
+  function removeSpecificConfiguration(idx: number): void {
     const rows = [...configRows];
     const configName = rows[idx].ConfigurationName;
     const deleteModal = (
@@ -86,7 +90,7 @@ export default function ManageConfigurationsPage(
     setDeleteModal(deleteModal);
   }
 
-  async function removeRowAsync(id: number) {
+  async function removeRowAsync(id: number): Promise<void> {
     const rows = [...configRows];
     const deleteRows = [...configRows];
     rows.splice(id, 1);
@@ -94,11 +98,14 @@ export default function ManageConfigurationsPage(
     setDeleteModal(undefined);
   }
 
-  function closeModal() {
+  function closeModal(): void {
     setDeleteModal(undefined);
   }
 
-  async function deleteMappingAsync(rows: ProfileConfiguration[], idx: number) {
+  async function deleteMappingAsync(
+    rows: ProfileConfiguration[],
+    idx: number
+  ): Promise<void> {
     const manageConfigs: { id: string; configs: ProfileConfiguration[] } =
       await getManageConfigurationsAsync();
     if (manageConfigs.configs?.length > 0) {
@@ -142,25 +149,24 @@ export default function ManageConfigurationsPage(
       <tr id='addr0' key={index}>
         <td>{item.ConfigurationName}</td>
         <td className='text-center'>
-          <span>
-            <NavLink
-              to={'/EditManageConfiguration/' + item.ConfigurationName}
-              style={{
-                marginRight: '18px',
-                fontWeight: '500',
-                fontSize: '15px',
-              }}
-            >
-              <span className='material-icons'>edit</span>
+          <div className={styles.iconsContainer}>
+            <NavLink to={'/EditManageConfiguration/' + item.ConfigurationName} 
+                    className={styles.navLinkNoUnderline}>
+              <button className={styles.lfMaterialIconButton}>
+                <span className='material-icons-outlined'>edit</span>
+              </button>
             </NavLink>
-          </span>
-          <a
-            href='javascript:;'
-            className='ml-3'
-            onClick={() => removeSpecificConfiguration(index)}
-          >
-            <span className='material-icons'>delete</span>
-          </a>
+            <button
+              className={styles.lfMaterialIconButton}
+              onClick={() => removeSpecificConfiguration(index)}
+            >
+              <span
+                className={`${styles.marginLeftButton} material-icons-outlined`}
+              >
+                delete
+              </span>
+            </button>
+          </div>
         </td>
       </tr>
     );
