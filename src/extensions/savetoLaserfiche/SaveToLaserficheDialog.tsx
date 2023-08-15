@@ -132,7 +132,7 @@ function SaveToLaserficheDialog(props: {
             width='30'
             height='30'
           />
-          <p className={styles.dialogTitle}>Laserfiche</p>
+          <span>Laserfiche</span>
         </div>
 
         <button

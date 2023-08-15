@@ -145,10 +145,7 @@ export function ConfigurationBody(props: {
           />
         </div>
         <div className='col-sm-2' id='folderModal' style={{ marginTop: '2px' }}>
-          <button
-            className='lf-button sec-button'
-            onClick={openFolderModal}
-          >
+          <button className='lf-button sec-button' onClick={openFolderModal}>
             Browse
           </button>
         </div>
@@ -313,64 +310,51 @@ export function RepositoryBrowserModal(props: {
 
   return (
     <>
-      <div className='modal-dialog modal-dialog-centered'>
-        <div className='modal-content'>
-          <div className='modal-header'>
-            <h5 className='modal-title' id='ModalLabel'>
-              Select folder for saving to Laserfiche
-            </h5>
-            <button
-              type='button'
-              className='close'
-              data-dismiss='modal'
-              aria-label='Close'
-              onClick={props.CloseFolderBrowserUp}
-            >
-              <span aria-hidden='true'>&times;</span>
-            </button>
+      <div className={styles.wrapper}>
+        <div className={styles.header}>
+          <div className={styles.logoHeader}>
+            <div>Select folder</div>
           </div>
-          <div className='modal-body'>
-            <div
-              className='lf-folder-browser-sample-container'
-              style={{ height: '400px' }}
-            >
-              <div className='repository-browser'>
-                <lf-repository-browser
-                  ref={repositoryBrowser}
-                  ok_button_text='Okay'
-                  cancel_button_text='Cancel'
-                  multiple='false'
-                  style={{ height: '420px' }}
-                  isSelectable={isNodeSelectable}
-                />
-                <div className='repository-browser-button-containers'>
-                  <span>
-                    <button
-                      className='lf-button primary-button'
-                      onClick={onOpenNode}
-                      hidden={!shouldShowOpen}
-                    >
-                      OPEN
-                    </button>
-                    <button
-                      className='lf-button primary-button'
-                      onClick={onSelectFolder}
-                      hidden={!shouldShowSelect}
-                      disabled={shouldDisableSelect}
-                    >
-                      Select
-                    </button>
-                    <button
-                      className='sec-button lf-button margin-left-button'
-                      onClick={props.CloseFolderBrowserUp}
-                    >
-                      CANCEL
-                    </button>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
+
+          <button
+            className={styles.lfCloseButton}
+            title='close'
+            onClick={props.CloseFolderBrowserUp}
+          >
+            <span className='material-icons-outlined'> close </span>
+          </button>
+        </div>
+
+        <div className={styles.contentBox}>
+          <lf-repository-browser
+            ref={repositoryBrowser}
+            multiple='false'
+            isSelectable={isNodeSelectable}
+          />
+        </div>
+
+        <div className={styles.footer}>
+          <button
+            className={`lf-button primary-button`}
+            onClick={onOpenNode}
+            hidden={!shouldShowOpen}
+          >
+            Open
+          </button>
+          <button
+            className='lf-button primary-button'
+            onClick={onSelectFolder}
+            hidden={!shouldShowSelect}
+            disabled={shouldDisableSelect}
+          >
+            Select
+          </button>
+          <button
+            className={`sec-button lf-button ${styles.marginLeftButton}`}
+            onClick={props.CloseFolderBrowserUp}
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </>
@@ -710,7 +694,8 @@ function getMappingErrorMessage(
         >
           SharePoint field type of {spFieldtype} cannot be mapped with
           Laserfiche field type of {lfFieldtype}
-          <span className='material-icons-outlined'>warning</span>Data types mismatch
+          <span className='material-icons-outlined'>warning</span>Data types
+          mismatch
         </div>
       );
     } else {
