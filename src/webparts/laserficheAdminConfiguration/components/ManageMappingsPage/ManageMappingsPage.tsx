@@ -558,7 +558,7 @@ export default function ManageMappingsPage(
     if (item.toggle) {
       return (
         <tr id='addr0' key={index}>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
               disabled
@@ -571,7 +571,7 @@ export default function ManageMappingsPage(
               {sharePointContentTypesDisplay}
             </select>
           </td>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='LaserficheContentType'
               disabled
@@ -584,7 +584,7 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className={styles.iconTableCell}>
+          <td>
             <div className={styles.iconsContainer}>
               <button
                 className={styles.lfMaterialIconButton}
@@ -605,7 +605,7 @@ export default function ManageMappingsPage(
     } else {
       return (
         <tr id='addr0' key={index}>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
               className='custom-select'
@@ -617,7 +617,7 @@ export default function ManageMappingsPage(
               {sharePointContentTypesDisplay}
             </select>
           </td>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='LaserficheContentType'
               className='custom-select'
@@ -629,7 +629,7 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className={styles.iconTableCell}>
+          <td>
             <div className={styles.iconsContainer}>
               <button
                 className={styles.lfMaterialIconButton}
@@ -654,10 +654,7 @@ export default function ManageMappingsPage(
 
   return (
     <>
-      <div
-        className='container-fluid p-3'
-        style={{ maxWidth: '85%', marginLeft: '-26px' }}
-      >
+      <div className='p-3'>
         <div className='p-3'>
           <div className='card rounded-0'>
             <div className='card-header d-flex justify-content-between'>
@@ -678,12 +675,8 @@ export default function ManageMappingsPage(
               <table className='table table-sm'>
                 <thead>
                   <tr>
-                    <th className='text-center' style={{ width: '45%' }}>
-                      SharePoint Content Type
-                    </th>
-                    <th className='text-center' style={{ width: '45%' }}>
-                      Laserfiche Profile
-                    </th>
+                    <th className='text-center'>SharePoint Content Type</th>
+                    <th className='text-center'>Laserfiche Profile</th>
                     <th className='text-center'>Action</th>
                   </tr>
                 </thead>

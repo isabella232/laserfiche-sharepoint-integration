@@ -41,7 +41,12 @@ a.navLinkNoUnderline:hover {
 }
 
 table td {
-  &.iconTableCell {
-    vertical-align: middle;
+  vertical-align: middle;
+  &.dataCellWidth {
+    width: 50%;
   }
+}
+.loginButton {
+  display: flex;
+  justify-content: flex-end;
 }

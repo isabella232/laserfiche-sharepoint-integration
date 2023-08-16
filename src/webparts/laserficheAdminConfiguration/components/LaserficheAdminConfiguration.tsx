@@ -17,6 +17,7 @@ import { IRepositoryApiClientExInternal } from '../../../repository-client/repos
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { getRegion } from '../../../Utils/Funcs';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
+import styles from './LaserficheAdminConfiguration.module.scss';
 
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
@@ -100,7 +101,7 @@ export default function LaserficheAdminConfiguration(
     <React.StrictMode>
       <HashRouter>
         <Stack>
-          <div className='btnSignOut'>
+          <div className={styles.loginButton}>
             <lf-login
               redirect_uri={redirectPage}
               authorize_url_host_name={region}

@@ -150,8 +150,10 @@ export default function ManageConfigurationsPage(
         <td>{item.ConfigurationName}</td>
         <td className='text-center'>
           <div className={styles.iconsContainer}>
-            <NavLink to={'/EditManageConfiguration/' + item.ConfigurationName} 
-                    className={styles.navLinkNoUnderline}>
+            <NavLink
+              to={'/EditManageConfiguration/' + item.ConfigurationName}
+              className={styles.navLinkNoUnderline}
+            >
               <button className={styles.lfMaterialIconButton}>
                 <span className='material-icons-outlined'>edit</span>
               </button>
@@ -174,10 +176,7 @@ export default function ManageConfigurationsPage(
 
   return (
     <div>
-      <div
-        className='container-fluid p-3'
-        style={{ maxWidth: '85%', marginLeft: '-26px' }}
-      >
+      <div className='p-3'>
         <main className='bg-white shadow-sm'>
           <div className='p-3'>
             <div className='card rounded-0'>
@@ -198,9 +197,7 @@ export default function ManageConfigurationsPage(
                   <thead>
                     <tr>
                       <th className='text-center'>{PROFILE_NAME}</th>
-                      <th className='text-center' style={{ width: '30%' }}>
-                        {ACTION}
-                      </th>
+                      <th className='text-center'>{ACTION}</th>
                     </tr>
                   </thead>
                   <tbody>{tableData}</tbody>

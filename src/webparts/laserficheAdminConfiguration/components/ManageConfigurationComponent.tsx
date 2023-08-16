@@ -161,10 +161,7 @@ export default function ManageConfiguration(
 
   return (
     <div>
-      <div
-        className='container-fluid p-3'
-        style={{ maxWidth: '85%', marginLeft: '-26px' }}
-      >
+      <div className='p-3'>
         <main className='bg-white shadow-sm'>
           <div className='addPageSpinloader' hidden={props.loadingContent}>
             {!props.loadingContent && (

@@ -33,15 +33,9 @@ export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   ];
 
   return (
-    <div style={{ borderBottom: '3px solid #CE7A14', width: '80%' }}>
+    <div style={{ borderBottom: '3px solid #CE7A14'}}>
       <div>
-        <span
-          style={{
-            marginRight: '450px',
-            fontSize: '18px',
-            fontWeight: '500',
-          }}
-        >
+        <span>
           Profile Editor
         </span>
         {props.loggedIn && <Links linkData={linkData} />}

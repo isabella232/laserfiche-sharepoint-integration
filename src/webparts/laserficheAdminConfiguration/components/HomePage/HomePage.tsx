@@ -4,8 +4,8 @@ require('../../../../Assets/CSS/bootstrap.min.css');
 
 export default function HomePage(): JSX.Element {
   return (
-    <div className='container-fluid p-3'>
-      <main className='bg-white shadow-sm' style={{ width: '80%' }}>
+    <div className='p-3'>
+      <main className='bg-white shadow-sm'>
         <div className='p-3'>
           <p className='adminContent'>
             The Laserfiche Administration page lets you edit your SharePoint and

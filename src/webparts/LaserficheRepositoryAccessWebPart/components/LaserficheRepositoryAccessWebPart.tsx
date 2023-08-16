@@ -116,10 +116,7 @@ export default function LaserficheRepositoryAccessWebPart(
       <div style={{ display: 'none' }}>
         <SvgHtmlIcons />
       </div>
-      <div
-        className='container-fluid p-3'
-        style={{ maxWidth: '100%', marginLeft: '-30px' }}
-      >
+      <div className='p-3'>
         <div className='btnSignOut'>
           <lf-login
             redirect_uri={redirectPage}

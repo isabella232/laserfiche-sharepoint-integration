@@ -214,7 +214,6 @@ export default function AddNewManageConfiguration(
         <label
           htmlFor='txt0'
           className='col-sm-2 col-form-label'
-          style={{ width: '165px' }}
         >
           Profile Name <span style={{ color: 'red' }}>*</span>
         </label>
