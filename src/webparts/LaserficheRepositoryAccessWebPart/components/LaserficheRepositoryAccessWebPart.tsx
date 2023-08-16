@@ -15,6 +15,7 @@ import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { getRegion } from '../../../Utils/Funcs';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
+import styles from './LaserficheRepositoryAccess.module.scss';
 
 declare global {
   // eslint-disable-next-line
@@ -116,11 +117,8 @@ export default function LaserficheRepositoryAccessWebPart(
       <div style={{ display: 'none' }}>
         <SvgHtmlIcons />
       </div>
-      <div
-        className='container-fluid p-3'
-        style={{ maxWidth: '100%', marginLeft: '-30px' }}
-      >
-        <div className='btnSignOut'>
+      <div className='p-3'>
+        <div className={styles.loginButton}>
           <lf-login
             redirect_uri={redirectPage}
             redirect_behavior='Replace'

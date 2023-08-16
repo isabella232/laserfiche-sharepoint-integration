@@ -6,6 +6,7 @@ import { CreateConfigurations } from '../../../../Utils/CreateConfigurations';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../adminConfig.css');
+import styles from './../LaserficheAdminConfiguration.module.scss';
 
 declare global {
   // eslint-disable-next-line
@@ -33,15 +34,9 @@ export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   ];
 
   return (
-    <div style={{ borderBottom: '3px solid #CE7A14', width: '80%' }}>
+    <div style={{ borderBottom: '3px solid #CE7A14'}}>
       <div>
-        <span
-          style={{
-            marginRight: '450px',
-            fontSize: '18px',
-            fontWeight: '500',
-          }}
-        >
+        <span className={styles.profileTitle}>
           Profile Editor
         </span>
         {props.loggedIn && <Links linkData={linkData} />}

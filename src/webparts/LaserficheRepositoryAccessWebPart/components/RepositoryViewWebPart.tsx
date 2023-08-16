@@ -484,7 +484,7 @@ function ImportFileModal(props: {
 
   return (
     <div className='modal-dialog modal-dialog-scrollable modal-lg'>
-      <div className='modal-content' style={{ width: '724px' }}>
+      <div className='modal-content'>
         <div className='modal-header'>
           <h5 className='modal-title' id='ModalLabel'>
             Upload File

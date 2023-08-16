@@ -41,9 +41,14 @@ a.navLinkNoUnderline:hover {
 }
 
 table td {
-  &.iconTableCell {
-    vertical-align: middle;
+  vertical-align: middle;
+  &.dataCellWidth {
+    width: 50%;
   }
+}
+.loginButton {
+  display: flex;
+  justify-content: flex-end;
 }
 
 lf-repository-browser {
@@ -139,4 +144,11 @@ lf-repository-browser {
   height: 100%;
   align-items: center;
   justify-content: center;
+}
+
+.profileTitle {
+  color: #333333;
+  font-style: 'Open Sans';
+  font-size: 16px;
+  font-weight: 600;
 }

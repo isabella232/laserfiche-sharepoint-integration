@@ -119,10 +119,10 @@ export function ConfigurationBody(props: {
   }
   return (
     <>
-      <div className='form-group row'>
+      <div className={`${styles.formGroupRow} form-group row`}>
         <DocumentName documentName={props.profileConfig?.DocumentName} />
       </div>
-      <div className='form-group row'>
+      <div className={`${styles.formGroupRow} form-group row`}>
         <TemplateSelector
           availableLfTemplates={props.availableLfTemplates}
           selectedTemplateName={props.profileConfig?.selectedTemplateName}
@@ -150,7 +150,7 @@ export function ConfigurationBody(props: {
           </button>
         </div>
       </div>
-      <div className='form-group row'>
+      <div className={`${styles.formGroupRow} form-group row`}>
         <label htmlFor='dwl4' className='col-sm-2 col-form-label'>
           After import
         </label>
@@ -538,7 +538,7 @@ export function SharePointLaserficheColumnMatching(props: {
         getMappingErrorMessage(fieldMapping);
       return (
         <tr id={index.toString()} key={index}>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='SharePointField'
               className='custom-select'
@@ -550,7 +550,7 @@ export function SharePointLaserficheColumnMatching(props: {
               {spFields}
             </select>
           </td>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='LaserficheField'
               className='custom-select'
@@ -592,12 +592,8 @@ export function SharePointLaserficheColumnMatching(props: {
           <table className='table table-sm'>
             <thead>
               <tr>
-                <th className='text-center' style={{ width: '39%' }}>
-                  SharePoint Column
-                </th>
-                <th className='text-center' style={{ width: '38%' }}>
-                  Laserfiche Field
-                </th>
+                <th className='text-center'>SharePoint Column</th>
+                <th className='text-center'>Laserfiche Field</th>
               </tr>
             </thead>
             <tbody id='tableEditBodyId'>{mappedList}</tbody>

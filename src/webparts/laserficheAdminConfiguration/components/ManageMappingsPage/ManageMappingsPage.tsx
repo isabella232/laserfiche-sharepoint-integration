@@ -558,7 +558,7 @@ export default function ManageMappingsPage(
     if (item.toggle) {
       return (
         <tr id='addr0' key={index}>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
               disabled
@@ -571,7 +571,7 @@ export default function ManageMappingsPage(
               {sharePointContentTypesDisplay}
             </select>
           </td>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='LaserficheContentType'
               disabled
@@ -584,7 +584,7 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className={styles.iconTableCell}>
+          <td>
             <div className={styles.iconsContainer}>
               <button
                 className={styles.lfMaterialIconButton}
@@ -605,7 +605,7 @@ export default function ManageMappingsPage(
     } else {
       return (
         <tr id='addr0' key={index}>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
               className='custom-select'
@@ -617,7 +617,7 @@ export default function ManageMappingsPage(
               {sharePointContentTypesDisplay}
             </select>
           </td>
-          <td>
+          <td className={styles.dataCellWidth}>
             <select
               name='LaserficheContentType'
               className='custom-select'
@@ -629,7 +629,7 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td className={styles.iconTableCell}>
+          <td>
             <div className={styles.iconsContainer}>
               <button
                 className={styles.lfMaterialIconButton}
@@ -654,59 +654,50 @@ export default function ManageMappingsPage(
 
   return (
     <>
-      <div
-        className='container-fluid p-3'
-        style={{ maxWidth: '85%', marginLeft: '-26px' }}
-      >
-        <div className='p-3'>
-          <div className='card rounded-0'>
-            <div className='card-header d-flex justify-content-between'>
-              <div>
-                <h6 className='mb-0'>Content Type Mappings Laserfiche</h6>
-              </div>
-              <div>
-                <a
-                  href=''
-                  onClick={() => window.open(viewSharePointContentTypes)}
-                  target='_blank'
-                >
-                  View SharePoint Content Types
-                </a>
-              </div>
+      <div className='p-3'>
+        <div className='card rounded-0'>
+          <div className='card-header d-flex justify-content-between'>
+            <div>
+              <h6 className='mb-0'>Content Type Mappings Laserfiche</h6>
             </div>
-            <div className='card-body'>
-              <table className='table table-sm'>
-                <thead>
-                  <tr>
-                    <th className='text-center' style={{ width: '45%' }}>
-                      SharePoint Content Type
-                    </th>
-                    <th className='text-center' style={{ width: '45%' }}>
-                      Laserfiche Profile
-                    </th>
-                    <th className='text-center'>Action</th>
-                  </tr>
-                </thead>
-                <tbody>{renderTableData}</tbody>
-              </table>
-            </div>
-
-            {validationMessage && (
-              <div id='sharePointValidationMapping' style={{ color: 'red' }}>
-                <span>{validationMessage}</span>
-              </div>
-            )}
-            <div className={`${styles.footerIcons} card-footer bg-transparent`}>
-              <button className='lf-button sec-button' onClick={resetAsync}>
-                Reset
-              </button>
-              <button
-                className={`${styles.marginLeftButton} lf-button primary-button`}
-                onClick={addNewMapping}
+            <div>
+              <a
+                href=''
+                onClick={() => window.open(viewSharePointContentTypes)}
+                target='_blank'
               >
-                Add
-              </button>
+                View SharePoint Content Types
+              </a>
             </div>
+          </div>
+          <div className='card-body'>
+            <table className='table table-sm'>
+              <thead>
+                <tr>
+                  <th className='text-center'>SharePoint Content Type</th>
+                  <th className='text-center'>Laserfiche Profile</th>
+                  <th className='text-center'>Action</th>
+                </tr>
+              </thead>
+              <tbody>{renderTableData}</tbody>
+            </table>
+          </div>
+
+          {validationMessage && (
+            <div id='sharePointValidationMapping' style={{ color: 'red' }}>
+              <span>{validationMessage}</span>
+            </div>
+          )}
+          <div className={`${styles.footerIcons} card-footer bg-transparent`}>
+            <button className='lf-button sec-button' onClick={resetAsync}>
+              Reset
+            </button>
+            <button
+              className={`${styles.marginLeftButton} lf-button primary-button`}
+              onClick={addNewMapping}
+            >
+              Add
+            </button>
           </div>
         </div>
       </div>

@@ -6,33 +6,7 @@ body {
   font-family: 'Roboto', sans-serif;
   color: #22282f;
 }
-.validationIcon {
-  color: red !important;
-}
-.form-validation {
-  display: none !important;
-}
-.btnSignOut {
-  margin: 10px;
-  text-align: right;
-}
-button.lf-button {
-  font: 700 14px 'Open Sans' !important;
-}
-.lf-button.login-button {
-  width: 243px !important;
-}
-.spinloader {
-  margin-top: 15px;
-  height: 35px;
-}
-.parentdiv {
-  display: flex;
-  flex-direction: row;
-}
-.root-218 {
-  font-size: 14px !important;
-}
+
 a {
   text-decoration: none;
   color: #177d93;
@@ -51,25 +25,8 @@ a.navbar-brand {
 .navbar {
   border-bottom: 2px solid #ccc;
 }
-.form-control,
-.btn,
-.dropdown-menu,
-.custom-select {
-  font-size: 0.875rem;
-}
 
-span.fa {
-  /*color:#8B8B8B*/
-  columns: #d25f28 !important;
-}
-a:hover span.fa {
-  color: #c5bab5;
-}
-.truncate {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+
 .btn-primary {
   background-color: #d25f28;
   border-color: #d25f28;
@@ -196,4 +153,8 @@ table.dataTable {
 }
 .cdk-overlay-container {
   z-index: 10000 !important;
+}
+
+.row.CanvasZone {
+  display: inherit;
 }
