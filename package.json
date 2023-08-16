@@ -13,8 +13,8 @@
     "clean": "gulp clean",
     "test": "gulp test",
     "serve": "gulp serve",
-    "gulp-trust-dev-cert": "gulp trust-dev-cert"
-
+    "gulp-trust-dev-cert": "gulp trust-dev-cert",
+    "tailwind": "npx tailwindcss -i ./docs/styles.css -o ./docs/output.css"
   },
   "dependencies": {
     "@laserfiche/lf-repository-api-client": "^1.0.12",
@@ -54,6 +54,7 @@
     "eslint": "8.7.0",
     "eslint-plugin-react-hooks": "4.3.0",
     "gulp": "~4.0.2",
+    "tailwindcss": "^3.3.3",
     "typescript": "4.5.5",
     "url-loader": "^4.1.1"
   },
