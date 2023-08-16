@@ -15,6 +15,7 @@ import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { getRegion } from '../../../Utils/Funcs';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
+import styles from './LaserficheRepositoryAccess.module.scss';
 
 declare global {
   // eslint-disable-next-line
@@ -117,7 +118,7 @@ export default function LaserficheRepositoryAccessWebPart(
         <SvgHtmlIcons />
       </div>
       <div className='p-3'>
-        <div className='btnSignOut'>
+        <div className={styles.loginButton}>
           <lf-login
             redirect_uri={redirectPage}
             redirect_behavior='Replace'

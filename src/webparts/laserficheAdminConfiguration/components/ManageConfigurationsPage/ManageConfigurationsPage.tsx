@@ -175,34 +175,32 @@ export default function ManageConfigurationsPage(
   });
 
   return (
-    <div>
+    <>
       <div className='p-3'>
         <main className='bg-white shadow-sm'>
-          <div className='p-3'>
-            <div className='card rounded-0'>
-              <div className='card-header d-flex justify-content-between pt-1 pb-1'>
-                <NavLink
-                  to='/AddNewManageConfiguration'
-                  style={{
-                    marginRight: '18px',
-                    fontWeight: '500',
-                    fontSize: '15px',
-                  }}
-                >
-                  <a className='btn btn-primary pl-5 pr-5'>{ADD_PROFILE}</a>
-                </NavLink>
-              </div>
-              <div className='card-body'>
-                <table className='table table-bordered table-striped table-hover'>
-                  <thead>
-                    <tr>
-                      <th className='text-center'>{PROFILE_NAME}</th>
-                      <th className='text-center'>{ACTION}</th>
-                    </tr>
-                  </thead>
-                  <tbody>{tableData}</tbody>
-                </table>
-              </div>
+          <div className='card rounded-0'>
+            <div className='card-header d-flex justify-content-between pt-1 pb-1'>
+              <NavLink
+                to='/AddNewManageConfiguration'
+                style={{
+                  marginRight: '18px',
+                  fontWeight: '500',
+                  fontSize: '15px',
+                }}
+              >
+                <a className='btn btn-primary pl-5 pr-5'>{ADD_PROFILE}</a>
+              </NavLink>
+            </div>
+            <div className='card-body'>
+              <table className='table table-bordered table-striped table-hover'>
+                <thead>
+                  <tr>
+                    <th className='text-center'>{PROFILE_NAME}</th>
+                    <th className='text-center'>{ACTION}</th>
+                  </tr>
+                </thead>
+                <tbody>{tableData}</tbody>
+              </table>
             </div>
           </div>
         </main>
@@ -218,6 +216,6 @@ export default function ManageConfigurationsPage(
           {deleteModal}
         </div>
       </div>
-    </div>
+    </>
   );
 }

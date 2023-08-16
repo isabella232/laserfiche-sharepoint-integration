@@ -169,7 +169,7 @@ export default function ManageConfiguration(
             )}
             ,
           </div>
-          <div className='p-3' hidden={!props.loadingContent}>
+          <div hidden={!props.loadingContent}>
             <div className='card rounded-0'>
               <div className='card-header d-flex justify-content-between'>
                 {props.header}

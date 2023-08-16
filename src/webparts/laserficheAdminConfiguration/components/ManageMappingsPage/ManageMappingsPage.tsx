@@ -655,51 +655,49 @@ export default function ManageMappingsPage(
   return (
     <>
       <div className='p-3'>
-        <div className='p-3'>
-          <div className='card rounded-0'>
-            <div className='card-header d-flex justify-content-between'>
-              <div>
-                <h6 className='mb-0'>Content Type Mappings Laserfiche</h6>
-              </div>
-              <div>
-                <a
-                  href=''
-                  onClick={() => window.open(viewSharePointContentTypes)}
-                  target='_blank'
-                >
-                  View SharePoint Content Types
-                </a>
-              </div>
+        <div className='card rounded-0'>
+          <div className='card-header d-flex justify-content-between'>
+            <div>
+              <h6 className='mb-0'>Content Type Mappings Laserfiche</h6>
             </div>
-            <div className='card-body'>
-              <table className='table table-sm'>
-                <thead>
-                  <tr>
-                    <th className='text-center'>SharePoint Content Type</th>
-                    <th className='text-center'>Laserfiche Profile</th>
-                    <th className='text-center'>Action</th>
-                  </tr>
-                </thead>
-                <tbody>{renderTableData}</tbody>
-              </table>
-            </div>
-
-            {validationMessage && (
-              <div id='sharePointValidationMapping' style={{ color: 'red' }}>
-                <span>{validationMessage}</span>
-              </div>
-            )}
-            <div className={`${styles.footerIcons} card-footer bg-transparent`}>
-              <button className='lf-button sec-button' onClick={resetAsync}>
-                Reset
-              </button>
-              <button
-                className={`${styles.marginLeftButton} lf-button primary-button`}
-                onClick={addNewMapping}
+            <div>
+              <a
+                href=''
+                onClick={() => window.open(viewSharePointContentTypes)}
+                target='_blank'
               >
-                Add
-              </button>
+                View SharePoint Content Types
+              </a>
             </div>
+          </div>
+          <div className='card-body'>
+            <table className='table table-sm'>
+              <thead>
+                <tr>
+                  <th className='text-center'>SharePoint Content Type</th>
+                  <th className='text-center'>Laserfiche Profile</th>
+                  <th className='text-center'>Action</th>
+                </tr>
+              </thead>
+              <tbody>{renderTableData}</tbody>
+            </table>
+          </div>
+
+          {validationMessage && (
+            <div id='sharePointValidationMapping' style={{ color: 'red' }}>
+              <span>{validationMessage}</span>
+            </div>
+          )}
+          <div className={`${styles.footerIcons} card-footer bg-transparent`}>
+            <button className='lf-button sec-button' onClick={resetAsync}>
+              Reset
+            </button>
+            <button
+              className={`${styles.marginLeftButton} lf-button primary-button`}
+              onClick={addNewMapping}
+            >
+              Add
+            </button>
           </div>
         </div>
       </div>

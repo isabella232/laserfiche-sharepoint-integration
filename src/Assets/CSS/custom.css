@@ -154,3 +154,7 @@ table.dataTable {
 .cdk-overlay-container {
   z-index: 10000 !important;
 }
+
+.row.CanvasZone {
+  display: inherit;
+}
