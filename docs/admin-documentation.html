@@ -5,20 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="./output.css" rel="stylesheet" />
   </head>
-  <body >
-    <nav class="flex items-center flex-wrap outline-orange-600" >
+  <body>
+    <nav class="flex items-center flex-wrap outline-orange-600">
       <div class="px-16">
-        <img src="https://assets.laserfiche.com/_common/laserfiche_2019.svg" width="215">
+        <img
+          src="https://assets.laserfiche.com/_common/laserfiche_2019.svg"
+          width="215"
+        />
       </div>
       <div class="flex px-20 ml-20 py-5">
         <div>
-          <a href="./index.html" class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4">
+          <a
+            href="./index.html"
+            class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4"
+          >
             Home
           </a>
-          <a href="./admin-documentation.html" class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4">
+          <a
+            href="./admin-documentation.html"
+            class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4"
+          >
             Admin
           </a>
-          <a href="./user-documentation.html" class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4">
+          <a
+            href="./user-documentation.html"
+            class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4"
+          >
             User
           </a>
         </div>
@@ -58,39 +70,62 @@
       </h1>
       <ul class="list-disk px-10">
         <li class="p-1">
-          <p class="text-2xl">
-            The Repository Access Web Part:
-          </p>
+          <p class="text-2xl">The Repository Access Web Part:</p>
           <ol class="list-decimal p-1 px-10">
-            <li class="p-1 text-lg">Navigate to the Pages tab of SharePoint.</li>
-            <li class="p-1 text-lg">Open an existing Page or create, save, and Publish a new Site Page.</li>
-            <li class="p-1 text-lg">In the editor view, title the page “LaserficheSpApp”.</li>
-            <li class="p-1 text-lg">In the first section of the page, add the Laserfiche Repository WebPart:
+            <li class="p-1 text-lg">
+              Navigate to the Pages tab of SharePoint.
+            </li>
+            <li class="p-1 text-lg">
+              Open an existing Page or create, save, and Publish a new Site
+              Page.
+            </li>
+            <li class="p-1 text-lg">
+              In the editor view, title the page “LaserficheSpApp”.
+            </li>
+            <li class="p-1 text-lg">
+              In the first section of the page, add the Laserfiche Repository
+              WebPart:
               <ul>
-                <li class="p-1 text-base">- Find the Plus Button that is labeled “Add a new web part in column one” when you hover over it.</li>
-                <li class="p-1 text-base">- Click on that button and Search for “Repository Access”.</li>
-                <li class="p-1 text-base">- Click on the search result with a white L on an orange square.</li>
+                <li class="p-1 text-base">
+                  - Find the Plus Button that is labeled “Add a new web part in
+                  column one” when you hover over it.
+                </li>
+                <li class="p-1 text-base">
+                  - Click on that button and Search for “Repository Access”.
+                </li>
+                <li class="p-1 text-base">
+                  - Click on the search result with a white L on an orange
+                  square.
+                </li>
               </ul>
             </li>
-            <li class="p-1 text-lg">Attempt to Login. If you encounter the warning “The provided redirect URI does not match any of the approved redirect URIs for this application”, see the section “How to Register Your App in Dev Console”.</li>
+            <li class="p-1 text-lg">
+              Attempt to Login. If you encounter the warning “The provided
+              redirect URI does not match any of the approved redirect URIs for
+              this application”, see the section “How to Register Your App in
+              Dev Console”.
+            </li>
           </ol>
         </li>
 
         <li class="p-1">
-          <p class="text-2xl">
-            The Admin Configuration Web Part:
-          </p>
+          <p class="text-2xl">The Admin Configuration Web Part:</p>
           <ul class="list-decimal p-1 px-10">
-            <li class="p-1 text-lg">Follow the same steps as above, but title the Page “LaserficheSpAdministration”, and add the “Admin Configuration” web part instead of “Repository Access".</li>
+            <li class="p-1 text-lg">
+              Follow the same steps as above, but title the Page
+              “LaserficheSpAdministration”, and add the “Admin Configuration”
+              web part instead of “Repository Access".
+            </li>
           </ul>
         </li>
 
         <li class="p-1">
-          <p class="text-2xl">
-            The Save-To-Laserfiche Web Part:
-          </p>
+          <p class="text-2xl">The Save-To-Laserfiche Web Part:</p>
           <ul class="list-decimal p-1 px-10">
-            <li class="p-1 text-lg">Follow the same steps as above, but title the Page LaserficheSpSignIn, and add the “Save to Laserfiche” web part.</li>
+            <li class="p-1 text-lg">
+              Follow the same steps as above, but title the Page
+              LaserficheSpSignIn, and add the “Save to Laserfiche” web part.
+            </li>
           </ul>
         </li>
       </ul>
@@ -102,23 +137,29 @@
       </h1>
       <ol class="list-decimal px-10">
         <li class="p-1 text-lg">
-          Attempt to Login. If you encounter the warning “The provided redirect URI does not match any of the approved redirect URIs for this application”, copy the client_id in the url. It should be preceded by the characters ‘client_id=’ and followed by the characters ‘&redirect=’
+          Attempt to Login. If you encounter the warning “The provided redirect
+          URI does not match any of the approved redirect URIs for this
+          application”, copy the client_id in the url. It should be preceded by
+          the characters ‘client_id=’ and followed by the characters
+          ‘&redirect=’
         </li>
         <li class="p-1 text-lg">
-          Open the following url in a new tab: https://app.laserfiche.com/devconsole/apps/{your_client_id_goes_here}/config, where the part in brackets should be replaced by the client_id you copied.
+          Open the following url in a new tab:
+          https://app.laserfiche.com/devconsole/apps/{your_client_id_goes_here}/config,
+          where the part in brackets should be replaced by the client_id you
+          copied.
         </li>
         <li class="p-1 text-lg">
           Switch from the General to the Authentication tab
         </li>
         <li class="p-1 text-lg">
-          Add the url of the SharePoint Page which has the Laserfiche Repository Web Part as a new redirect URI
+          Add the url of the SharePoint Page which has the Laserfiche Repository
+          Web Part as a new redirect URI
         </li>
-        <li class="p-1 text-lg">
-          You should now be able to Sign In.
-        </li>
+        <li class="p-1 text-lg">You should now be able to Sign In.</li>
       </ol>
     </div>
     <div class="p-10"></div>
-    <img src="./images/laserfiche_2019 (1).svg">
+    <img src="./images/laserfiche_2019 (1).svg" />
   </body>
 </html>
