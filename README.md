@@ -27,3 +27,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
   - Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
   - **npm run serve**
   - To use a.clouddev.laserfiche.com: Open browser dev tools and go to site Local Storage: set 'spDevMode' to true
+
+## To build solution
+- **npm run build**
+- **npm run package**
