@@ -1,8 +1,33 @@
-<head>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <h1> Sample Github Page</h1>
-  <p>This is an example Github page made using a simple HTML file and some css.
-    Github prefers to present files named "index.html", but will also present files named "README.md"</p>
-</body>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="./output.css" rel="stylesheet" />
+  </head>
+  <body>
+    <nav class="flex items-center flex-wrap outline-orange-600" >
+      <div class="px-16">
+        <img src="https://assets.laserfiche.com/_common/laserfiche_2019.svg" width="215">
+      </div>
+      <div class="flex px-20 ml-20 py-5">
+        <div>
+          <a href="./index.html" class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4">
+            Home
+          </a>
+          <a href="./admin-documentation.html" class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4">
+            Admin
+          </a>
+          <a href="./user-documentation.html" class="font-bold px-5 text-gray-800 hover:text-orange-600 mr-4">
+            User
+          </a>
+        </div>
+      </div>
+    </nav>
+    <div class="Warning text-5xl font-bold">
+      Warning: This documentation is in development.
+    </div>
+
+    <div class="p-10">This is the home page. Not much is here. Check out the Admin page or the User page for actual Documentation in Development</div>
+  </body>
+</html>

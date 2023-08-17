@@ -1,6 +1,12 @@
-h1 {
-    color: rgb(0, 0, 145);
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+nav {
+    border-bottom: 4px #E35205 solid;
+    color: #E35205 !important;
 }
-p {
-    color: purple;
+
+.Warning {
+  color: red
 }
