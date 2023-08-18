@@ -39,4 +39,4 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 ## To build solution for production
 - **npm run build --ship**
 - **npm run package --ship**
-- Once you've built the solution file, we don't quite know how to distribute it to customers... yet.
+- Once you've built the solution file, you can send it to SharePoint
