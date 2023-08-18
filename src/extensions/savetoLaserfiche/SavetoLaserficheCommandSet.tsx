@@ -43,7 +43,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
   public onListViewUpdated(
     event: IListViewCommandSetListViewUpdatedParameters
   ): void {
-    const compareOneCommand: Command = this.tryGetCommand('COMMAND_1');
+    const compareOneCommand: Command = this.tryGetCommand('SAVE_TO_LASERFICHE');
     if (compareOneCommand) {
       // This command should be hidden unless exactly one row is selected.
       compareOneCommand.visible =
