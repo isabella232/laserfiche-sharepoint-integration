@@ -75,8 +75,6 @@ export default function SendToLaserficheLoginComponent(
 
   const logoutCompleted: () => void = () => {
     setLoggedIn(false);
-    window.location.href =
-      props.context.pageContext.web.absoluteUrl + props.laserficheRedirectUrl;
   };
 
   React.useEffect(() => {
@@ -203,8 +201,7 @@ export default function SendToLaserficheLoginComponent(
       <div className={styles.loginButton}>
         <lf-login
           redirect_uri={
-            props.context.pageContext.web.absoluteUrl +
-            props.laserficheRedirectUrl
+            window.location.origin + window.location.pathname
           }
           authorize_url_host_name={region}
           redirect_behavior='Replace'

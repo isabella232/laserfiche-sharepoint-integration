@@ -3,8 +3,6 @@ declare interface ILaserficheRepositoryAccessWebPartWebPartStrings {
   BasicGroupName: string;
   LaserficheApiUrlFieldLabel: string;
   RepositoryApiUrlFieldLabel: string;
-  WebPartTitle:string;
-  LaserficheRedirectUrl:string;
 }
 
 declare module 'LaserficheRepositoryAccessWebPartWebPartStrings' {

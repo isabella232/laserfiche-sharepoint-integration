@@ -24,8 +24,7 @@ export interface ISendToLfCommandSetProperties {
 }
 
 enum SpWebPartNames {
-  'LaserficheSpAdministration' = 'LaserficheSpAdministration',
-  'LaserficheSpSignIn' = 'LaserficheSpSignIn',
+  'LaserficheSignIn' = 'LaserficheSignIn',
 }
 
 const LOG_SOURCE = 'SendToLfCommandSet';
@@ -86,11 +85,7 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       alert('Please select a file below 100MB size');
     } else if (!this.hasSignInPage) {
       alert(
-        'Missing "LaserficheSpSignIn" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
-      );
-    } else if (!this.hasAdminPage) {
-      alert(
-        'Missing "LaserficheSpAdministration" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
+        'Missing "LaserficheSignIn" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
       );
     } else {
       await this.trySaveToLaserficheAsync({
@@ -118,10 +113,8 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
       console.log(sitePages);
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
-        if (pageName === SpWebPartNames.LaserficheSpSignIn) {
+        if (pageName === SpWebPartNames.LaserficheSignIn) {
           this.hasSignInPage = true;
-        } else if (pageName === SpWebPartNames.LaserficheSpAdministration) {
-          this.hasAdminPage = true;
         }
       }
     } catch (error) {

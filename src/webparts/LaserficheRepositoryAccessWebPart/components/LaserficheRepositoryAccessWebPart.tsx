@@ -43,8 +43,7 @@ export default function LaserficheRepositoryAccessWebPart(
 
   const region = getRegion();
 
-  const redirectPage =
-    props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
+  const redirectPage = window.location.origin + window.location.pathname;
 
   useEffect(() => {
     const ensureRepoClientInitializedAsync: () => Promise<void> = async () => {
@@ -89,9 +88,6 @@ export default function LaserficheRepositoryAccessWebPart(
       };
       const logoutCompleted: () => Promise<void> = async () => {
         setLoggedIn(false);
-        window.location.href =
-          props.context.pageContext.web.absoluteUrl +
-          props.laserficheRedirectPage;
       };
 
       loginComponent.current.addEventListener('loginCompleted', loginCompleted);
@@ -130,7 +126,6 @@ export default function LaserficheRepositoryAccessWebPart(
         <RepositoryViewComponent
           webClientUrl={webClientUrl}
           repoClient={repoClient}
-          webPartTitle={props.webPartTitle}
           loggedIn={loggedIn}
         />
       </div>
