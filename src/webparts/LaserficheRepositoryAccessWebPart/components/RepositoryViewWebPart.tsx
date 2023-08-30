@@ -70,7 +70,6 @@ const folderExists = 'Object already exists';
 
 export default function RepositoryViewComponent(props: {
   repoClient: IRepositoryApiClientExInternal;
-  webPartTitle: string;
   webClientUrl: string;
   loggedIn: boolean;
 }): JSX.Element {
@@ -166,7 +165,7 @@ export default function RepositoryViewComponent(props: {
               <img
                 src={require('./../../../Assets/Images/laserfiche-logo.png')}
               />{' '}
-              {props.webPartTitle}
+              Laserfiche Repository Explorer
             </a>
           </nav>
           {props.loggedIn && (

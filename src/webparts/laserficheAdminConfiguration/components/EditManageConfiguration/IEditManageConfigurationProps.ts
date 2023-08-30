@@ -5,7 +5,6 @@ export interface IEditManageConfigurationProps {
   context: WebPartContext;
   // eslint-disable-next-line
   match: any;
-  laserficheRedirectPage: string;
   loggedIn: boolean;
   repoClient: IRepositoryApiClientExInternal;
 }

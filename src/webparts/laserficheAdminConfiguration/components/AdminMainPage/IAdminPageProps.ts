@@ -3,7 +3,6 @@ import { IRepositoryApiClientExInternal } from '../../../../repository-client/re
 
 export interface IAdminPageProps {
   context: WebPartContext;
-  webPartTitle: string;
   loggedIn: boolean;
   repoClient: IRepositoryApiClientExInternal;
 }
