@@ -25,6 +25,6 @@ search:
   button: false
 
 heading_anchors: true
-
+color_scheme: dark
 $link-color: #E35205
 
