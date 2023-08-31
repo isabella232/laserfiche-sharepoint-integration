@@ -28,7 +28,7 @@ navigation bar on the left side of the page.
     1. Title the page “LaserficheSpApp”.
     1. Move your cursor just below the title area to the white space beneath. This should reveal a hidden "+" button. If you hover over it, it should display the message "Add a new web part in column one”.
     1. Click on that button and Search for “Repository Access”.
-    1. Click on the search result with a white L on an orange square. The Repository Access WebPart should now appear on your Page. Before using the Webpart, make sure to [Register Your App in the Laserfiche Developer Console](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html) that link aint to good right now
+    1. Click on the search result with a white L on an orange square. The Repository Access WebPart should now appear on your Page. Before using the Webpart, make sure to [Register Your App in the Laserfiche Developer Console](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html#how-to-register-your-app-in-the-developer-console)
     1. After you register your App and give it the right redirect URI, you should be able to log in and use the component. For Documentation on how to use the components, reference the [User Documentation](./user-documentation.html)
 
 - The Admin Configuration Web Part:
@@ -36,7 +36,7 @@ navigation bar on the left side of the page.
 - The Save-To-Laserfiche Web Part:
     - Follow the same steps as above, but title the Page LaserficheSpSignIn, and add the “Save to Laserfiche” web part.
 
-## How to Register Your App in the Developer Console
+## Register Your App in the Developer Console
 1. Open the [Developer Console](https://developer.laserfiche.com/developer-console.html)
 1. Attempt to Create a New App from Manifest, and copy-paste the manifest provided [here](https://github.com/Laserfiche/laserfiche-sharepoint-integration/blob/1.x/UserDocuments/Laserfiche%20SharePoint%20Integration%20AppManifest.json)
 1. If the attempt fails because an app with that client ID already exists, find the app with that client id by opening the following url in a new tab: https://app.laserfiche.com/devconsole/apps/<b>{your_client_id_goes_here}</b>/config, where the part in brackets should be replaced by the client_id you copied.
