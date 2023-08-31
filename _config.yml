@@ -26,5 +26,5 @@ search:
 
 heading_anchors: true
 
-color-schemes: lf-styles
+$link-color: #E35205
 
