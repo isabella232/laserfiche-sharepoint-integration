@@ -1,26 +1,16 @@
 import * as React from 'react';
 import * as ReactDom from 'react-dom';
 import { Version } from '@microsoft/sp-core-library';
-import {
-  IPropertyPaneConfiguration,
-  PropertyPaneTextField,
-  IPropertyPaneGroup,
-} from '@microsoft/sp-property-pane';
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 
-import * as strings from 'SendToLaserficheLoginComponentWebPartStrings';
 import SendToLaserficheLoginComponent from './components/SendToLaserficheLoginComponent';
 
-export interface ISendToLaserficheLoginComponentWebPartProps {
-  LaserficheRedirectPage: string;
-}
 
-export default class SendToLaserficheLoginComponentWebPart extends BaseClientSideWebPart<ISendToLaserficheLoginComponentWebPartProps> {
+export default class SendToLaserficheLoginComponentWebPart extends BaseClientSideWebPart<{}> {
   public render(): void {
     const element: React.ReactElement = React.createElement(
       SendToLaserficheLoginComponent,
       {
-        laserficheRedirectUrl: this.properties.LaserficheRedirectPage,
         context: this.context,
       }
     );
@@ -36,28 +26,4 @@ export default class SendToLaserficheLoginComponentWebPart extends BaseClientSid
     return Version.parse('1.0');
   }
 
-  protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-    let conditionalGroupFields: IPropertyPaneGroup['groupFields'] = [];
-
-    conditionalGroupFields = [
-      PropertyPaneTextField('LaserficheRedirectPage', {
-        label: strings.LaserficheRedirectPage,
-      }),
-    ];
-    return {
-      pages: [
-        {
-          header: {
-            description: strings.PropertyPaneDescription,
-          },
-          groups: [
-            {
-              groupName: strings.BasicGroupName,
-              groupFields: conditionalGroupFields,
-            },
-          ],
-        },
-      ],
-    };
-  }
 }

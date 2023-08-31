@@ -32,8 +32,7 @@ export default function LaserficheAdminConfiguration(
 
   const region = getRegion();
 
-  const redirectPage =
-    props.context.pageContext.web.absoluteUrl + props.laserficheRedirectPage;
+  const redirectPage = window.location.origin + window.location.pathname;
 
   async function getAndInitializeRepositoryClientAndServicesAsync(): Promise<void> {
     const accessToken =
@@ -74,9 +73,6 @@ export default function LaserficheAdminConfiguration(
       };
       const logoutCompleted: () => Promise<void> = async () => {
         setLoggedIn(false);
-        window.location.href =
-          props.context.pageContext.web.absoluteUrl +
-          props.laserficheRedirectPage;
       };
 
       loginComponent.current.addEventListener('loginCompleted', loginCompleted);
@@ -112,7 +108,6 @@ export default function LaserficheAdminConfiguration(
           </div>
           <AdminMainPage
             context={props.context}
-            webPartTitle={props.webPartTitle}
             loggedIn={loggedIn}
             repoClient={repoClient}
           />
@@ -159,7 +154,6 @@ export default function LaserficheAdminConfiguration(
                   <EditManageConfiguration
                     {...properties}
                     context={props.context}
-                    laserficheRedirectPage={props.laserficheRedirectPage}
                     loggedIn={loggedIn}
                     repoClient={repoClient}
                   />

@@ -37,7 +37,7 @@ import { BaseComponentContext } from '@microsoft/sp-component-base';
 import LoadingDialog from './CommonDialogs';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 
-const signInPageRoute = '/SitePages/LaserficheSpSignIn.aspx';
+const signInPageRoute = '/SitePages/LaserficheSignIn.aspx';
 
 export class GetDocumentDataCustomDialog extends BaseDialog {
   successful = false;
