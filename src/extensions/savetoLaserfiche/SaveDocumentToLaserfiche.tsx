@@ -7,9 +7,7 @@ import {
   ValueToUpdate,
   PutFieldValsRequest,
   Entry,
-  ProblemDetails,
   SetFields,
-  ApiException,
   APIServerException,
 } from '@laserfiche/lf-repository-api-client';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';

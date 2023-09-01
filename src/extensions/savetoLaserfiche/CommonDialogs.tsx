@@ -65,7 +65,7 @@ export function Collapsible(props: {
 }): JSX.Element {
   const [isOpen, setIsOpen] = React.useState<boolean>(props.open ?? false);
 
-  const handleFilterOpening = () => {
+  const handleFilterOpening: () => void = () => {
     setIsOpen((prev) => !prev);
   };
 
