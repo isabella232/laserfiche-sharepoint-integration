@@ -18,6 +18,7 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import { getRegion } from '../../../Utils/Funcs';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 import styles from './LaserficheAdminConfiguration.module.scss';
+import { SPPermission } from '@microsoft/sp-page-context';
 
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
@@ -33,6 +34,14 @@ export default function LaserficheAdminConfiguration(
   const region = getRegion();
 
   const redirectPage = window.location.origin + window.location.pathname;
+
+  function isAdmin() {
+    const permission = new SPPermission(
+      props.context.pageContext.web.permissions.value
+    );
+    const isFullControl = permission.hasPermission(SPPermission.manageWeb);
+    return isFullControl;
+  }
 
   async function getAndInitializeRepositoryClientAndServicesAsync(): Promise<void> {
     const accessToken =
@@ -111,6 +120,7 @@ export default function LaserficheAdminConfiguration(
             loggedIn={loggedIn}
             repoClient={repoClient}
           />
+          {isAdmin() && <span>Test hello</span>}
           <StackItem>
             <Switch>
               <Route
