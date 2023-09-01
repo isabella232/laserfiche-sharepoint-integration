@@ -18,9 +18,7 @@ export default function LoadingDialog(): JSX.Element {
 const DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME =
   'Document successfully uploaded to Laserfiche with name:';
 const METADATA_FAILED_TO_SAVE_INVALID_FIELD =
-  'All metadata failed to save due to at least one invalid field';
-const TEMPLATE_FIELDS_NOT_APPLIED =
-  'The Laserfiche template and fields were not applied to this document.';
+  'All metadata failed to save due to at least one invalid field.';
 const CLOSE = 'Close';
 const VIEW_FILE_IN_LASERFICHE = 'View file in Laserfiche';
 
@@ -37,18 +35,57 @@ export function SavedToLaserficheSuccessDialogText(props: {
   }, []);
 
   const metadataFailedNotice: JSX.Element = (
-    <span>
-      {METADATA_FAILED_TO_SAVE_INVALID_FIELD}
-      <br /> <p style={{ color: 'red' }}>{TEMPLATE_FIELDS_NOT_APPLIED}</p>
-    </span>
+    <>
+      <div className={styles.paddingUnder}>
+        <b>Warning: </b>
+        {METADATA_FAILED_TO_SAVE_INVALID_FIELD}
+      </div>
+      <Collapsible title='Error details'>
+        {props.successfulSave.failedMetadata}
+      </Collapsible>
+    </>
   );
 
   return (
     <>
-      <div>
-        {`${DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME}  ${props.successfulSave.fileName}.`}
+      <div className={styles.successSaveToLaserfiche}>
+        <div className={styles.paddingUnder}>
+          {`${DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME}  ${props.successfulSave.fileName}.`}
+        </div>
         {!props.successfulSave.metadataSaved && metadataFailedNotice}
       </div>
+    </>
+  );
+}
+
+export function Collapsible(props: {
+  open?: boolean;
+  children: JSX.Element;
+  title: string;
+}): JSX.Element {
+  const [isOpen, setIsOpen] = React.useState<boolean>(props.open ?? false);
+
+  const handleFilterOpening = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  return (
+    <>
+      <div className={styles.collapseBox}>
+        <button
+          className={styles.lfMaterialIconButton}
+          onClick={handleFilterOpening}
+        >
+          {!isOpen ? (
+            <span className='material-icons-outlined'> chevron_right </span>
+          ) : (
+            <span className='material-icons-outlined'> expand_less </span>
+          )}
+        </button>
+        <span>{props.title}</span>
+      </div>
+
+      {isOpen && props.children}
     </>
   );
 }

@@ -88,9 +88,9 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
 }
 
 const FOLLOWING_SP_FIELDS_BLANK_MAPPED_TO_REQUIRED_LF_FIELDS =
-  'The following SharePoint field values are blank and are mapped to required Laserfiche fields:';
+  'The following SharePoint properties do not have a value for this document, but are required to save to Laserfiche, based on configured mappings:';
 const PLEASE_FILL_OUT_REQUIRED_FIELDS_TRY_AGAIN =
-  'Please fill out these required fields and try again.';
+  'Please ensure these properties exist for this document and try again.';
 
 const CANCEL = 'Cancel';
 
@@ -117,9 +117,9 @@ function GetDocumentDialogData(props: {
     </span>;
   }
 
-  const listFields = missingFields?.map((field) => (
-    <div key={field.Title}>- {field.Title}</div>
-  ));
+  const listFields = <ul>{missingFields?.map((field) => (
+    <li key={field.Title}>{field.Title}</li>
+  ))}</ul>;
 
   React.useEffect(() => {
     SPComponentLoader.loadCss(
@@ -367,8 +367,9 @@ function GetDocumentDialogData(props: {
     fields: { [key: string]: FieldToUpdate }
   ): void {
     for (const mapping of matchingLFConfig.mappedFields) {
-      const spFieldName = mapping.spField.Title;
-      let spDocFieldValue: string = allSpFieldValues[spFieldName];
+      const spFieldName = mapping.spField.InternalName;
+      // TODO which one to use?
+      let spDocFieldValue: string = allSpFieldValues[spFieldName] ?? allSpFieldValues[mapping.spField.Title];
 
       if (spDocFieldValue?.length > 0) {
         const lfField = mapping.lfField;
@@ -486,7 +487,7 @@ function GetDocumentDialogData(props: {
   );
 }
 
-function MissingFieldsDialog(props: { missingFields: JSX.Element[] }): JSX.Element {
+function MissingFieldsDialog(props: { missingFields: JSX.Element }): JSX.Element {
   const textInside = (
     <span>
       The following SharePoint field values are blank and are mapped to required
