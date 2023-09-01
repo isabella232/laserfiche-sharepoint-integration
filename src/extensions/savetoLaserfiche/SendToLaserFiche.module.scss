@@ -94,3 +94,38 @@
   align-items: center;
   justify-content: center;
 }
+
+.lfMaterialIconButton {
+  cursor: pointer;
+  display: flex;
+  height: 24px;
+  width: 24px;
+  align-items: center;
+  border: none;
+  background: inherit;
+  justify-content: center;
+  color: #646464;
+}
+
+.lfMaterialIconButton:hover {
+  color: #4d4b4b;
+}
+
+.collapseBox {
+  display: flex;
+  align-items: center;
+}
+
+.successSaveToLaserfiche {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+}
+
+.paddingUnder {
+  padding-bottom: 10px;
+}
+
+.noMargin {
+  margin: 0;
+}
