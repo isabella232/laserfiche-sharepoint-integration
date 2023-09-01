@@ -22,6 +22,8 @@ const METADATA_FAILED_TO_SAVE_INVALID_FIELD =
 const CLOSE = 'Close';
 const VIEW_FILE_IN_LASERFICHE = 'View file in Laserfiche';
 
+const WARNING = 'Warning: ';
+const ERROR_DETAILS = 'Error details';
 export function SavedToLaserficheSuccessDialogText(props: {
   successfulSave: SavedToLaserficheDocumentData;
 }): JSX.Element {
@@ -37,10 +39,10 @@ export function SavedToLaserficheSuccessDialogText(props: {
   const metadataFailedNotice: JSX.Element = (
     <>
       <div className={styles.paddingUnder}>
-        <b>Warning: </b>
+        <b>{WARNING}</b>
         {METADATA_FAILED_TO_SAVE_INVALID_FIELD}
       </div>
-      <Collapsible title='Error details'>
+      <Collapsible title={ERROR_DETAILS}>
         {props.successfulSave.failedMetadata}
       </Collapsible>
     </>

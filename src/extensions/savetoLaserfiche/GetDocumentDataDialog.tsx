@@ -87,10 +87,10 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
   }
 }
 
-const FOLLOWING_SP_FIELDS_BLANK_MAPPED_TO_REQUIRED_LF_FIELDS =
-  'The following SharePoint properties do not have a value for this document, but are required to save to Laserfiche, based on configured mappings:';
-const PLEASE_FILL_OUT_REQUIRED_FIELDS_TRY_AGAIN =
-  'Please ensure these properties exist for this document and try again.';
+const FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS =
+  'The following SharePoint fields do not have a value for this document, but are required to save to Laserfiche, based on configured mappings:';
+const PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN =
+  'Please ensure these fields exist for this document and try again.';
 
 const CANCEL = 'Cancel';
 
@@ -111,9 +111,9 @@ function GetDocumentDialogData(props: {
 
   if (missingFields) {
     <span>
-      {FOLLOWING_SP_FIELDS_BLANK_MAPPED_TO_REQUIRED_LF_FIELDS}
+      {FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS}
       {missingFields}
-      {PLEASE_FILL_OUT_REQUIRED_FIELDS_TRY_AGAIN}
+      {PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN}
     </span>;
   }
 
