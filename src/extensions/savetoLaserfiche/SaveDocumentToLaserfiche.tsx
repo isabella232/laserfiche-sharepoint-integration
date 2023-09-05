@@ -7,6 +7,8 @@ import {
   ValueToUpdate,
   PutFieldValsRequest,
   Entry,
+  SetFields,
+  APIServerException,
 } from '@laserfiche/lf-repository-api-client';
 import { RepositoryClientExInternal } from '../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../repository-client/repository-client-types';
@@ -17,11 +19,14 @@ import { PathUtils } from '@laserfiche/lf-js-utils';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { SP_LOCAL_STORAGE_KEY } from '../../webparts/constants';
+import * as React from 'react';
+import styles from './SendToLaserFiche.module.scss';
 
 export interface SavedToLaserficheDocumentData {
   fileLink: string;
   pathBack: string;
   metadataSaved: boolean;
+  failedMetadata?: JSX.Element;
   fileName: string;
 }
 
@@ -215,9 +220,16 @@ export class SaveDocumentToLaserfiche {
       return fileInfo;
     } catch (error) {
       const conflict409 =
-        error.operations.setFields.exceptions[0].statusCode === 409;
+        error.problemDetails.extensions.createEntryResult.operations.setFields
+          .exceptions[0].statusCode === 409;
       if (conflict409) {
-        const entryId = error.operations.entryCreate.entryId;
+        const setFields: SetFields = error.problemDetails.extensions.createEntryResult.operations.setFields;
+        const errorMessages = setFields.exceptions.map((value: APIServerException, index: number) => {
+          return <li key={index}>{value.message}</li>;
+        });
+        const entryId =
+          error.problemDetails.extensions.createEntryResult.operations
+            .entryCreate.entryId;
 
         const fileLink = getEntryWebAccessUrl(
           entryId.toString(),
@@ -232,10 +244,12 @@ export class SaveDocumentToLaserfiche {
         );
         const path = window.location.origin + fileUrlWithoutDocName;
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
+        const failedMetadata = <ul className={styles.noMargin}>{errorMessages}</ul>;
         const fileInfo: SavedToLaserficheDocumentData = {
           fileLink,
           pathBack: path,
           metadataSaved: false,
+          failedMetadata,
           fileName,
         };
 
@@ -249,7 +263,9 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  getRequestMetadata(request: PostEntryWithEdocMetadataRequest): PostEntryWithEdocMetadataRequest {
+  getRequestMetadata(
+    request: PostEntryWithEdocMetadataRequest
+  ): PostEntryWithEdocMetadataRequest {
     const fileMetadata: IPostEntryWithEdocMetadataRequest =
       this.spFileMetadata.metadata;
     const fieldsAlone = fileMetadata.metadata.fields;
@@ -380,7 +396,9 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async deleteSPFileAndReplaceWithLinkAsync(docFilelink: string): Promise<void> {
+  async deleteSPFileAndReplaceWithLinkAsync(
+    docFilelink: string
+  ): Promise<void> {
     const filenameWithoutExt = PathUtils.removeFileExtension(
       this.spFileMetadata.fileName
     );
@@ -419,7 +437,11 @@ export class SaveDocumentToLaserfiche {
     if (resp.ok) {
       const data = await resp.json();
       const FormDigestValue = data.d.GetContextWebInformation.FormDigestValue;
-      await this.createLinkAsync(filenameWithoutExt, docFileLink, FormDigestValue);
+      await this.createLinkAsync(
+        filenameWithoutExt,
+        docFileLink,
+        FormDigestValue
+      );
     } else {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       console.log('Failed');
