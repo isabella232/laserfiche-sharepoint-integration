@@ -39,4 +39,5 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 ## To build solution for production
 - **npm run build --ship**
 - **npm run package --ship**
-- Once you've built the solution file, you can send it to SharePoint
+- This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
+- Once you've built and packaged the solution file, you can upload it in the SharePonit admin center.
