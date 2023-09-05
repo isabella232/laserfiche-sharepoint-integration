@@ -3,6 +3,7 @@ layout: default
 title: Admin Documentation
 nav_order: 2
 ---
+### Warning: this is a pre-release and is subject to change at any time.
 
 ## Deploy Laserfiche Apps to SharePoint Sites
 
