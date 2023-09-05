@@ -1,8 +1,13 @@
 ---
-title: Overview
+title: Working with the Laserfiche SharePoint Integration
 layout: home
 nav_order: 1
 ---
 
-## Overview
-Welcome to the Laserfiche SharePoint Integration Documentation. Navigate to the Admin Documentation for guidance on how to set up the integration, or User Documentation for instructions on how to use the web parts.
+# Working with the Laserfiche SharePoint Integration
+
+Laserfiche SharePoint Integration allows users to save documents from a SharePoint Online site to a Laserfiche Cloud Repository.
+Features include:
+- Saving documents and metadata
+- Browsing a Laserfiche Cloud Repository from within a SharePoint page
+- Replacing a SharePoint document with a link to the corresponding archived Laserfiche Repository document
