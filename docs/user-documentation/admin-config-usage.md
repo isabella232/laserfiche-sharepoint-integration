@@ -4,19 +4,21 @@ title: Admin Configuration
 nav_order: 3
 parent: Laserfiche SharePoint Integration User Guide
 ---
-### About Tab
+## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
+
+## About Tab
 Provides information about the Web Part.
 
-### Profiles Mapping Tab
+## Profiles Mapping Tab
 - Open: Clicking this button will open the selected entry, if one
 exists
 - Upload File: Clicking this button will prompt you to select a file to upload to the currently open folder in the Repository Access web part
 - New Folder: Clicking this button will prompt you to input a name for a new folder within the currently open folder.
 
-### Profiles Tab
+## Profiles Tab
 Displays the list of currently defined Profiles. Click on the “Add Profile” Button, or on the Pencil Icon to open the Profile Editor to add a new profile or edit an Existing Profile, respectively.
 
-### Profile Editor
+## Profile Editor
 - Name: this is the identifier used to associate SharePoint content types with this profile in the Profile Mapping tab
 - Laserfiche Template: If a profile is assigned a template, then all files saved to Laserfiche through that profile will be assigned that template in Laserfiche. [Learn more about templates](https://doc.laserfiche.com/laserfiche.documentation/en-us/Content/Fields_and_Templates.html)
 - After Import: This option specifies what to do with the
