@@ -1,4 +1,6 @@
-title: SP Integration Documentation
+# Jekyll Documentation Generator Configuration File
+
+title: Laserfiche SharePoint Integration
 theme: just-the-docs
 search_enabled: true
 search:

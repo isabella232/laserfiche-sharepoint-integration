@@ -2,7 +2,7 @@ name: jekyll-CI
 
 on:
   push:
-    branches: ["1.x"]
+    branches: ["robbie/documentation"]
   pull_request:
 
 jobs:
