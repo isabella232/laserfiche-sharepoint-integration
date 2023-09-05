@@ -18,7 +18,6 @@ nav_order: 2
 1. Open "Apps".
 1. Click Upload and select the Laserfiche SharePoint package file (.sppkg). 
   - NOTE: It's possible to build a new SharePoint Integration package file directly from source code by following instructions in [README.md](https://github.com/Laserfiche/laserfiche-sharepoint-integration#readme)
-solution.
 1. In your SharePoint Site (Not the Admin Center), navigate to your
 site’s App catalog by clicking on the "Site Contents" item in the
 navigation bar on the left side of the page.
@@ -36,7 +35,7 @@ navigation bar on the left side of the page.
     1. Title the page “LaserficheSpApp”.
     1. Move your cursor just below the title area to the white space beneath. This should reveal a hidden "+" button. If you hover over it, it should display the message "Add a new web part in column one”.
     1. Click on that button and Search for “Repository Explorer.
-    1. Click on the search result with a white L on an orange square. The Repository Explorer WebPart should now appear on your Page. Before using the Webpart, make sure to [Register Your App in the Laserfiche Developer Console](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html#how-to-register-your-app-in-the-developer-console)
+    1. Click on the search result with a white L on an orange square. The Repository Explorer WebPart should now appear on your Page. Before using the web part, make sure to [Register Your App in the Laserfiche Developer Console](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html#how-to-register-your-app-in-the-developer-console)
     1. After you register your App and give it the right redirect URI, you should be able to log in and use the component. For Documentation on how to use the components, reference the [User Documentation](./user-documentation.html)
 
 - The Admin Configuration Page:
