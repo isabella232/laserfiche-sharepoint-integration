@@ -12,7 +12,7 @@ nav_order: 2
 
 ### Prerequisites
   - Have a SharePoint Online account with "Site owner" permission.
-  - Download the Laserfiche SharePoint Integration [latest package file](./assets/laserfiche-sharepoint-integration.sppkg)
+  - Download the latest Laserfiche SharePoint Integration [package file](./assets/laserfiche-sharepoint-integration.sppkg)
 1. [Click here](https://go.microsoft.com/fwlink/?linkid=2185219) to go to the SharePoint Admin Center or find the same link at [learn.microsoft.com](https://learn.microsoft.com/en-us/sharepoint/sharepoint-admin-role#about-the-sharepoint-administrator-role-in-microsoft-365).
 1. In the navigation menu, select the "More features" item.
 1. Open "Apps".
