@@ -1,5 +1,5 @@
 ---
-title: Working with the Laserfiche SharePoint Integration
+title: Introduction
 layout: home
 nav_order: 1
 ---
@@ -7,7 +7,8 @@ nav_order: 1
 # Working with the Laserfiche SharePoint Integration
 
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
-
+{: .warning }
+> This website documents the features of the not-yet-released Laserfiche SharePoint Integration, and may change at any time
 ## Introduction
 
 Laserfiche SharePoint Integration comprises of three web parts:
