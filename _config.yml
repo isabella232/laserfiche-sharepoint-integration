@@ -29,4 +29,5 @@ search:
 
 heading_anchors: true
 color_scheme: lf-styles
+favicon_ico: "/assets/favicon.webp"
 

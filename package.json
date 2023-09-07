@@ -15,7 +15,7 @@
     "test": "gulp test",
     "serve": "gulp serve",
     "gulp-trust-dev-cert": "gulp trust-dev-cert",
-    "tailwind": "npx tailwindcss -i ./docs/styles.css -o ./docs/output.css"
+    "serve-docs": "bundle exec jekyll serve"
   },
   "dependencies": {
     "@laserfiche/lf-repository-api-client": "^1.0.12",
