@@ -12,7 +12,7 @@ Gem::Specification.new do |spec|
   spec.metadata      = {
     "bug_tracker_uri"   => "https://github.com/Laserfiche/laserfiche-sharepoint-integration/issues",
     "changelog_uri"     => "https://github.com/Laserfiche/laserfiche-sharepoint-integration/CHANGELOG.md",
-    "documentation_uri" => "https://laserfiche.github.io/laserfiche-sharepoint-integration/"
+    "documentation_uri" => "https://laserfiche.github.io/laserfiche-sharepoint-integration/",
     "source_code_uri"   => "https://github.com/Laserfiche/laserfiche-sharepoint-integration",
   }
 
