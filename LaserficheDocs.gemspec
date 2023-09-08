@@ -9,7 +9,12 @@ Gem::Specification.new do |spec|
   spec.summary       = %q{Jekyll theme for Laserfiche Technical Documentation based on Just-The-Docs}
   spec.homepage      = "https://github.com/Laserfiche/laserfiche-sharepoint-integration"
   spec.license       = "MIT"
-  spec.metadata      = {}
+  spec.metadata      = {
+    "bug_tracker_uri"   => "https://github.com/Laserfiche/laserfiche-sharepoint-integration/issues",
+    "changelog_uri"     => "https://github.com/Laserfiche/laserfiche-sharepoint-integration/CHANGELOG.md",
+    "documentation_uri" => "https://laserfiche.github.io/laserfiche-sharepoint-integration/"
+    "source_code_uri"   => "https://github.com/Laserfiche/laserfiche-sharepoint-integration",
+  }
 
   # spec.files         = `git ls-files -z ':!:*.jpg' ':!:*.png'`.split("\x0").select { |f| f.match(%r{^(assets|bin|_layouts|_includes|lib|Rakefile|_sass|LICENSE|README|CHANGELOG|favicon)}i) }
   # spec.executables   << 'just-the-docs'
