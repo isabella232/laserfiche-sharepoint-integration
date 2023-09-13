@@ -9,15 +9,16 @@ parent: Laserfiche SharePoint Integration User Guide
 ## Tabs of the Admin Configuration web part
 ### About Tab
 Provides information about the Web Part.
-
+<a href="../assets/images/aboutTab.png"><img src="../assets/images/aboutTab.png"></a>
 ### Profiles Mapping Tab
 Displays a list of SharePoint Content Types and their corresponding Laserfiche Profile. If you add a content type/profile pair, then
 any SharePoint content matching that type will be assigned the corresponding profile when you attempt to save the content to Laserfiche.
-
+<a href="../assets/images/profileMappingTab.png"><img src="../assets/images/profileMappingTab.png"></a>
 ### Profiles Tab
 Displays the list of currently defined Profiles. Click on the “Add Profile” button, or on the pencil icon to open the [Profile Editor](#profile-editor) to add a new profile or edit an existing profile, respectively.
-
+<a href="../assets/images/profileTab.png"><img src="../assets/images/profileTab.png"></a>
 ## Profile Editor
+<a href="../assets/images/profileEditor.png"><img src="../assets/images/profileEditor.png"></a>
 - Name: this is the identifier used to associate SharePoint content types with this profile in the Profile Mapping tab.
 - Laserfiche Template: If a profile is assigned a template, then all files saved to Laserfiche through that profile will be assigned that template in Laserfiche. [Learn more about templates](https://doc.laserfiche.com/laserfiche.documentation/en-us/Content/Fields_and_Templates.html).
 - After Import: This option specifies what to do with the
