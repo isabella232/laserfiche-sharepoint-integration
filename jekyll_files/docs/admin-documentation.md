@@ -17,31 +17,34 @@ nav_order: 2
 ### Steps
 1. [Click here](https://go.microsoft.com/fwlink/?linkid=2185219) to go to the SharePoint Admin Center or find the same link at [learn.microsoft.com](https://learn.microsoft.com/en-us/sharepoint/sharepoint-admin-role#about-the-sharepoint-administrator-role-in-microsoft-365).
 1. In the navigation menu, select the "More features" item.
-<img src="./assets/images/adminCenterMoreFeatures.png">
+<a href="./assets/images/adminCenterMoreFeatures.png"><img src="./assets/images/adminCenterMoreFeatures.png"></a>
 1. Open "Apps".
 1. Click Upload and select the Laserfiche SharePoint package file (.sppkg).
-<img src="./assets/images/uploadSppkgFile.png">
+<a href="./assets/images/uploadSppkgFile.png"><img src="./assets/images/uploadSppkgFile.png"></a>
   - NOTE: It's possible to build a new SharePoint Integration package file directly from source code by following the instructions in this [README.md](https://github.com/Laserfiche/laserfiche-sharepoint-integration#readme).
 1. In your SharePoint Site (Not the Admin Center), navigate to your
 site’s app catalog by clicking on the "Site Contents" item in the
 navigation bar.
-<img src="./assets/images/sharePointSiteContents.png">
+<a href="./assets/images/sharePointSiteContents.png"><img src="./assets/images/sharePointSiteContents.png"></a>
 1. Open the "New" Dropdown menu by clicking on the "+" icon.
-<img src="./assets/images/NewDropDown.png">
+<a href="./assets/images/NewDropDown.png"><img src="./assets/images/NewDropDown.png"></a>
 1. Add the App named “laserfiche-sharepoint-integration-client-side-solution”.
-<img src="./assets/images/addTheApp.png">
+<a href="./assets/images/addTheApp.png"><img src="./assets/images/addTheApp.png"></a>
 1. Enable the app if you are asked to do so.
 1. Navigate to your SharePoint site. On successful installation "Laserfiche SharePoint Integration" app is listed under the “Site Contents” tab.
-
+<a href="./assets/images/appInstalled.png"><img src="./assets/images/appInstalled.png"></a>
 
 ## Use Laserfiche Apps on SharePoint Pages
 
 ### The Repository Explorer Page:
 1. In your SharePoint Site, select the "Pages" item in the navigation bar on the left side of the page.
+<a href="./assets/images/newSitePage.png"><img src="./assets/images/newSitePage.png"></a>
 1. Create and open a new site page by clicking the blue "+ New" button and selecting "Site Page" from the dropdown.
 1. Title the page “LaserficheSpApp”.
 1. Move your cursor just below the title area to the white space beneath. This should reveal a hidden "+" button. If you hover over it, it should display the message "Add a new web part in column one”.
+<a href="./assets/images/hiddenPlusButton.png"><img src="./assets/images/hiddenPlusButton.png"></a>
 1. Click on that button and Search for “Repository Explorer".
+<a href="./assets/images/searchRepositoryExplorer.png"><img src="./assets/images/searchRepositoryExplorer.png"></a>
 1. Click on the search result with a white L on an orange square. The Repository Explorer web part should now appear on your Page. Before using the web part, make sure to [Register Your App in the Laserfiche Developer Console](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html#register-your-app-in-the-developer-console)
 1. After you register your App and give it the right redirect URI, you should be able to log in and use the component. For Documentation on how to use the components, reference the [User Documentation](./user-documentation/).
 
@@ -52,8 +55,12 @@ Follow the same steps as above, but title the Page LaserficheSignIn, and add the
 
 ## Register Your App in the Developer Console
 1. Open the [Developer Console](https://developer.laserfiche.com/developer-console.html).
-1. Attempt to Create a New App from Manifest, and copy-paste the manifest provided [here](https://github.com/Laserfiche/laserfiche-sharepoint-integration/blob/1.x/UserDocuments/Laserfiche%20SharePoint%20Integration%20AppManifest.json).
+<a href="./assets/images/createAppFromManifest.png"><img src="./assets/images/createAppFromManifest.png"></a>
+1. Attempt to Create a New App from Manifest, and upload the manifest provided [here](https://github.com/Laserfiche/laserfiche-sharepoint-integration/blob/1.x/UserDocuments/Laserfiche%20SharePoint%20Integration%20AppManifest.json).
+<a href="./assets/images/createApplication.png"><img src="./assets/images/createApplication.png"></a>
 1. If the attempt fails because an app with that client ID already exists, find the app with that client id by opening the following url in a new tab: https://app.laserfiche.com/devconsole/apps/<b>{your_client_id_goes_here}</b>/config, where the part enclosed in braces should be replaced by the client_id of the manifest linked in the previous step.
+<a href="./assets/images/clientIdRegistered.png"><img src="./assets/images/clientIdRegistered.png"></a>
 1. One way or another, an app with that client ID should now exist. Open the app and switch from the general tab to the authentication tab.
+<a href="./assets/images/redirectUri.png"><img src="./assets/images/redirectUri.png"></a>
 1. Add the URL of your SharePoint Page with the Laserfiche web part as a new redirect URI.
 1. You should now be able to Sign In.
