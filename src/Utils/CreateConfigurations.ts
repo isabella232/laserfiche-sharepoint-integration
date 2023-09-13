@@ -3,11 +3,11 @@ import {
   SPHttpClientResponse,
   ISPHttpClientOptions,
 } from '@microsoft/sp-http';
-import {
-  ADMIN_CONFIGURATION_LIST,
-} from '../webparts/constants';
+import { ADMIN_CONFIGURATION_LIST } from '../webparts/constants';
 import { getSPListURL } from './Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
+
+const targetRoleDefinitionName = 'Read';
 
 export class CreateConfigurations {
   public static async ensureAdminConfigListCreatedAsync(
@@ -22,13 +22,23 @@ export class CreateConfigurations {
       return;
     }
     if (response.status === 404) {
-      await CreateConfigurations.createAdminConfigListAsync(context);
+      const formDigestValue = await this.getFormDigestValueAsync(context);
+      const listTitle = await CreateConfigurations.createAdminConfigListAsync(
+        context,
+        formDigestValue
+      );
+      await CreateConfigurations.updateAdminConfigListSecurityAsync(
+        context,
+        formDigestValue,
+        listTitle
+      );
     }
   }
 
   private static async createAdminConfigListAsync(
-    context: BaseComponentContext
-  ): Promise<void> {
+    context: BaseComponentContext,
+    formDigestValue: string
+  ): Promise<string> {
     const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
     const listDefinition = {
       Title: ADMIN_CONFIGURATION_LIST,
@@ -45,11 +55,153 @@ export class CreateConfigurations {
     );
     const adminConfigList = await responses.json();
     const listTitle = adminConfigList.Title;
-    const formDigestValue = await this.getFormDigestValueAsync(context);
     await this.createColumnsAsync(context, listTitle, formDigestValue);
+    return listTitle;
   }
 
-  private static async getFormDigestValueAsync(context: BaseComponentContext): Promise<string> {
+  private static async updateAdminConfigListSecurityAsync(
+    context: BaseComponentContext,
+    formDigestValue: string,
+    listTitle: string
+  ) {
+    const groupId = await CreateConfigurations.getMembersGroupIdAsync(context);
+
+    const targetRoleDefinitionId =
+      await CreateConfigurations.getTargetRoleDefinitionIdAsync(context);
+
+    await CreateConfigurations.breakRoleInheritanceOfListAsync(
+      context,
+      formDigestValue,
+      listTitle
+    );
+
+    await CreateConfigurations.deleteCurrentRoleForGroupAsync(
+      context,
+      formDigestValue,
+      groupId,
+      listTitle
+    );
+
+    await CreateConfigurations.setNewPermissionsForGroupAsync(
+      context,
+      formDigestValue,
+      groupId,
+      targetRoleDefinitionId,
+      listTitle
+    );
+  }
+
+  private static async getMembersGroupIdAsync(context: BaseComponentContext) {
+    const membersGroupName = `${context.pageContext.web.title} Members`;
+
+    const res = await fetch(
+      context.pageContext.web.absoluteUrl +
+        "/_api/web/sitegroups/getbyname('" +
+        membersGroupName +
+        "')/id",
+      {
+        method: 'GET',
+        headers: { accept: 'application/json;odata=verbose' },
+      }
+    );
+
+    const siteGroup = await res.json();
+    const groupId = siteGroup.d.Id;
+    return groupId;
+  }
+
+  private static async getTargetRoleDefinitionIdAsync(
+    context: BaseComponentContext
+  ): Promise<string> {
+    const res = await fetch(
+      context.pageContext.web.absoluteUrl +
+        "/_api/web/roledefinitions/getbyname('" +
+        targetRoleDefinitionName +
+        "')/id",
+      {
+        method: 'GET',
+        headers: { accept: 'application/json;odata=verbose' },
+      }
+    );
+
+    const targetRole = await res.json();
+    const targetRoleDefinitionId = targetRole.d.Id;
+    return targetRoleDefinitionId;
+  }
+
+  private static async breakRoleInheritanceOfListAsync(
+    context: BaseComponentContext,
+    formDigestValue: string,
+    listTitle: string
+  ) {
+    await fetch(
+      context.pageContext.web.absoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        listTitle +
+        "')/breakroleinheritance(true)",
+      {
+        method: 'POST',
+        headers: {
+          accept: 'application/json;odata=verbose',
+          'X-RequestDigest': formDigestValue,
+        },
+      }
+    );
+  }
+
+  private static async deleteCurrentRoleForGroupAsync(
+    context: BaseComponentContext,
+    formDigestValue: string,
+    groupId: string,
+    listTitle: string
+  ) {
+    await fetch(
+      context.pageContext.web.absoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        listTitle +
+        "')/roleassignments/getbyprincipalid(" +
+        groupId +
+        ')',
+      {
+        method: 'POST',
+        headers: {
+          accept: 'application/json;odata=verbose',
+          'X-HTTP-Method': 'DELETE',
+          'X-RequestDigest': formDigestValue,
+        },
+      }
+    );
+  }
+
+  private static async setNewPermissionsForGroupAsync(
+    context: BaseComponentContext,
+    formDigestValue: string,
+    groupId: string,
+    targetRoleDefinitionId: string,
+    listTitle: string
+  ) {
+    await fetch(
+      context.pageContext.web.absoluteUrl +
+        "/_api/web/lists/getbytitle('" +
+        listTitle +
+        "')/roleassignments/addroleassignment(principalid=" +
+        groupId +
+        ',roledefid=' +
+        targetRoleDefinitionId +
+        ')',
+      {
+        method: 'POST',
+        headers: {
+          accept: 'application/json;odata=verbose',
+          'X-RequestDigest': formDigestValue,
+        },
+      }
+    );
+  }
+
+  private static async getFormDigestValueAsync(
+    context: BaseComponentContext
+  ): Promise<string> {
     try {
       const res = await fetch(
         context.pageContext.web.absoluteUrl + '/_api/contextinfo',

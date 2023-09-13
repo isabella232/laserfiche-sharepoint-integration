@@ -20,6 +20,8 @@ import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { SPPermission } from '@microsoft/sp-page-context';
 
+const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN = 'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
+
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
 ): JSX.Element {
@@ -106,72 +108,77 @@ export default function LaserficheAdminConfiguration(
     <React.StrictMode>
       <HashRouter>
         <Stack>
-          <div className={styles.loginButton}>
-            <lf-login
-              redirect_uri={redirectPage}
-              authorize_url_host_name={region}
-              redirect_behavior='Replace'
-              client_id={clientId}
-              ref={loginComponent}
-            />
-          </div>
-          <AdminMainPage
-            context={props.context}
-            loggedIn={loggedIn}
-            repoClient={repoClient}
-          />
-          {isAdmin() && <span>Test hello</span>}
-          <StackItem>
-            <Switch>
-              <Route
-                exact={true}
-                component={() => <HomePage />}
-                path='/HomePage'
+          {isAdmin() && (
+            <>
+              <div className={styles.loginButton}>
+                <lf-login
+                  redirect_uri={redirectPage}
+                  authorize_url_host_name={region}
+                  redirect_behavior='Replace'
+                  client_id={clientId}
+                  ref={loginComponent}
+                />
+              </div>
+              <AdminMainPage
+                context={props.context}
+                loggedIn={loggedIn}
+                repoClient={repoClient}
               />
-              <Route exact={true} component={() => <HomePage />} path='/' />
-              <Route
-                exact={true}
-                component={() => (
-                  <ManageConfigurationsPage context={props.context} />
-                )}
-                path='/ManageConfigurationsPage'
-              />
-              <Route
-                exact={true}
-                component={() => (
-                  <ManageMappingsPage
-                    context={props.context}
-                    isLoggedIn={loggedIn}
-                    repoClient={repoClient}
+              <StackItem>
+                <Switch>
+                  <Route
+                    exact={true}
+                    component={() => <HomePage />}
+                    path='/HomePage'
                   />
-                )}
-                path='/ManageMappingsPage'
-              />
-              <Route
-                exact={true}
-                component={() => (
-                  <AddNewManageConfiguration
-                    context={props.context}
-                    loggedIn={loggedIn}
-                    repoClient={repoClient}
+                  <Route exact={true} component={() => <HomePage />} path='/' />
+                  <Route
+                    exact={true}
+                    component={() => (
+                      <ManageConfigurationsPage context={props.context} />
+                    )}
+                    path='/ManageConfigurationsPage'
                   />
-                )}
-                path='/AddNewManageConfiguration'
-              />
-              <Route
-                exact={true}
-                render={(properties) => (
-                  <EditManageConfiguration
-                    {...properties}
-                    context={props.context}
-                    loggedIn={loggedIn}
-                    repoClient={repoClient}
+                  <Route
+                    exact={true}
+                    component={() => (
+                      <ManageMappingsPage
+                        context={props.context}
+                        isLoggedIn={loggedIn}
+                        repoClient={repoClient}
+                      />
+                    )}
+                    path='/ManageMappingsPage'
                   />
-                )}
-                path='/EditManageConfiguration/:name'
-              />
-            </Switch>
-          </StackItem>
+                  <Route
+                    exact={true}
+                    component={() => (
+                      <AddNewManageConfiguration
+                        context={props.context}
+                        loggedIn={loggedIn}
+                        repoClient={repoClient}
+                      />
+                    )}
+                    path='/AddNewManageConfiguration'
+                  />
+                  <Route
+                    exact={true}
+                    render={(properties) => (
+                      <EditManageConfiguration
+                        {...properties}
+                        context={props.context}
+                        loggedIn={loggedIn}
+                        repoClient={repoClient}
+                      />
+                    )}
+                    path='/EditManageConfiguration/:name'
+                  />
+                </Switch>
+              </StackItem>
+            </>
+          )}
+          {!isAdmin() &&
+          <span><b>{YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN}</b></span>}
         </Stack>
       </HashRouter>
     </React.StrictMode>
