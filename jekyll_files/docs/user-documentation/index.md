@@ -7,7 +7,7 @@ has_children: true
 
 # Laserfiche SharePoint Integration User Guide
 
-## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
+## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE TEST
 
 ## Overview
 Laserfiche SharePoint Integration comprises of three web parts:
