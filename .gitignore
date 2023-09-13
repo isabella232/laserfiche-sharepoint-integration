@@ -34,4 +34,4 @@ output.css
 .heft/
 
 # locally generated documentation
-_site/**
+**/_site/**

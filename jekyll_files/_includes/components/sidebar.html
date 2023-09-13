@@ -4,7 +4,7 @@
   Results in: HTML for the side bar.
   Includes:
     title.html, nav.html, nav_footer_custom.html
-  Overwrites: 
+  Overwrites:
     pages_top_size, collections_size, collection_entry,
     collection_key, collection_value, collection, nav_footer_custom.
   Should not be cached, because nav_footer_custom.html might depend on page.
@@ -76,8 +76,8 @@
   {% if nav_footer_custom != "" %}
     {{ nav_footer_custom }}
   {% else %}
-    <footer class="site-footer">
+    <!-- <footer class="site-footer">
       This site uses <a href="https://github.com/Laserfiche/laserfiche-sharepoint-integration">Laserfiche Technical Documentation Theme</a>, a Jekyll theme based on <a href="https://github.com/just-the-docs/just-the-docs">Just the Docs</a>.
-    </footer>
+    </footer> -->
   {% endif %}
 </div>
