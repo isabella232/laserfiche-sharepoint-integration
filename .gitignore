@@ -34,4 +34,4 @@ output.css
 .heft/
 
 # locally generated documentation
-jekyll_files/_site/**
+jekyll_files/_site/
