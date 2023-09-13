@@ -63,7 +63,7 @@ export class CreateConfigurations {
     context: BaseComponentContext,
     formDigestValue: string,
     listTitle: string
-  ) {
+  ): Promise<void> {
     const groupId = await CreateConfigurations.getMembersGroupIdAsync(context);
 
     const targetRoleDefinitionId =
@@ -91,7 +91,7 @@ export class CreateConfigurations {
     );
   }
 
-  private static async getMembersGroupIdAsync(context: BaseComponentContext) {
+  private static async getMembersGroupIdAsync(context: BaseComponentContext): Promise<string> {
     const membersGroupName = `${context.pageContext.web.title} Members`;
 
     const res = await fetch(
@@ -133,7 +133,7 @@ export class CreateConfigurations {
     context: BaseComponentContext,
     formDigestValue: string,
     listTitle: string
-  ) {
+  ): Promise<void> {
     await fetch(
       context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getbytitle('" +
@@ -154,7 +154,7 @@ export class CreateConfigurations {
     formDigestValue: string,
     groupId: string,
     listTitle: string
-  ) {
+  ): Promise<void> {
     await fetch(
       context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getbytitle('" +
@@ -179,7 +179,7 @@ export class CreateConfigurations {
     groupId: string,
     targetRoleDefinitionId: string,
     listTitle: string
-  ) {
+  ): Promise<void> {
     await fetch(
       context.pageContext.web.absoluteUrl +
         "/_api/web/lists/getbytitle('" +

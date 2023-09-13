@@ -37,7 +37,7 @@ export default function LaserficheAdminConfiguration(
 
   const redirectPage = window.location.origin + window.location.pathname;
 
-  function isAdmin() {
+  function isAdmin(): boolean {
     const permission = new SPPermission(
       props.context.pageContext.web.permissions.value
     );
