@@ -7,6 +7,7 @@ parent: Laserfiche SharePoint Integration User Guide
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 
 ## Usage
+<a href="../assets/images/repositoryExplorer.png"><img src="../assets/images/repositoryExplorer.png"></a>
 - Sign In: To view your folders and documents, authenticate yourself
 by clicking on the button labeled "Sign in to Laserfiche" and
 subsequently logging in.
