@@ -522,16 +522,28 @@ export function SharePointLaserficheColumnMatching(props: {
       );
     }
   }
-  // TODO also filter for ones that are already mapped
-  const optionalFields = props.lfFieldsForSelectedTemplate
-    ?.filter((field) => !field.isRequired)
-    ?.map((items) => {
-      return (
-        <option key={items.id} value={items.id}>
-          {items.name} ({items.fieldType})
-        </option>
-      );
-    });
+
+  function getAvailableOptionalFields(
+    fieldMapping: MappedFields
+  ): React.ReactNode {
+    return props.lfFieldsForSelectedTemplate
+      ?.filter(
+        (field) =>
+          !field.isRequired &&
+          (field.id === fieldMapping.lfField?.id ||
+            !props.profileConfig.mappedFields.find(
+              (item) => item?.lfField?.id === field?.id
+            ))
+      )
+      ?.map((items) => {
+        return (
+          <option key={items.id} value={items.id}>
+            {items.name} ({items.fieldType})
+          </option>
+        );
+      });
+  }
+
   const mappedList = props.profileConfig.mappedFields?.map(
     (fieldMapping, index) => {
       const errorMessageMapping: JSX.Element | undefined =
@@ -562,7 +574,7 @@ export function SharePointLaserficheColumnMatching(props: {
               <option>Select</option>
               {fieldMapping.lfField?.isRequired
                 ? laserficheFields
-                : optionalFields}
+                : getAvailableOptionalFields(fieldMapping)}
             </select>
           </td>
           <td>
