@@ -571,18 +571,16 @@ function ImportFileModal(props: {
               />
             </div>
           </div>
-          <div className='card'>
-            <div
-              className={`lf-component-container${
-                adhocDialogOpened ? ' lfAdhocMinHeight' : ''
-              }`}
-            >
-              <lf-field-container
-                collapsible='true'
-                startCollapsed='true'
-                ref={fieldContainer}
-              />
-            </div>
+          <div
+            className={`lf-component-container${
+              adhocDialogOpened ? ' lfAdhocMinHeight' : ''
+            }`}
+          >
+            <lf-field-container
+              collapsible='true'
+              startCollapsed='true'
+              ref={fieldContainer}
+            />
           </div>
         </div>
         <div className='modal-footer'>
