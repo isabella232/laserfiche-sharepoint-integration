@@ -95,9 +95,32 @@ export default function RepositoryViewComponent(props: {
 
     const onEntryOpened: (
       event: CustomEvent<LfRepoTreeNode[] | undefined>
-    ) => void = (event: CustomEvent<LfRepoTreeNode[] | undefined>) => {
+    ) => Promise<void> = async (
+      event: CustomEvent<LfRepoTreeNode[] | undefined>
+    ) => {
       const openedNode = event.detail ? event.detail[0] : undefined;
-      setParentItem(openedNode);
+      const entryType =
+        openedNode.entryType === EntryType.Shortcut
+          ? openedNode.targetType
+          : openedNode.entryType;
+      if (
+        entryType === EntryType.Folder ||
+        entryType === EntryType.RecordSeries
+      ) {
+        setParentItem(openedNode);
+      } else {
+        const repoId = await props.repoClient.getCurrentRepoId();
+
+        if (openedNode?.id) {
+          const webClientNodeUrl = getEntryWebAccessUrl(
+            openedNode.id,
+            props.webClientUrl,
+            openedNode.isContainer,
+            repoId
+          );
+          window.open(webClientNodeUrl);
+        }
+      }
     };
 
     const initializeTreeAsync: () => Promise<void> = async () => {
@@ -243,13 +266,25 @@ function RepositoryBrowserToolbar(props: {
     <>
       <div id='mainWebpartContent'>
         <div className={styles.buttonContainer}>
-          <button className={styles.lfMaterialIconButton} title='Open File' onClick={openFileOrFolder}>
+          <button
+            className={styles.lfMaterialIconButton}
+            title='Open File'
+            onClick={openFileOrFolder}
+          >
             <span className='material-icons-outlined'>description</span>
           </button>
-          <button className={styles.lfMaterialIconButton} title='Upload File' onClick={openImportFileModal}>
+          <button
+            className={styles.lfMaterialIconButton}
+            title='Upload File'
+            onClick={openImportFileModal}
+          >
             <span className='material-icons-outlined'>upload</span>
           </button>
-          <button className={styles.lfMaterialIconButton} title='Create Folder' onClick={openNewFolderModal}>
+          <button
+            className={styles.lfMaterialIconButton}
+            title='Create Folder'
+            onClick={openNewFolderModal}
+          >
             <span className='material-icons-outlined'>create_new_folder</span>
           </button>
         </div>
