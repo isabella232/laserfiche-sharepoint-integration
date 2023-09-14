@@ -458,7 +458,7 @@ function GetDocumentDialogData(props: {
             width='30'
             height='30'
           />
-          <span>Laserfiche</span>
+          <span className={styles.paddingLeft}>Laserfiche</span>
         </div>
 
         <button
