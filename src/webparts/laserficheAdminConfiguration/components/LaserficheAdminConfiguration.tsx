@@ -9,7 +9,7 @@ import ManageConfigurationsPage from './ManageConfigurationsPage/ManageConfigura
 import ManageMappingsPage from './ManageMappingsPage/ManageMappingsPage';
 import EditManageConfiguration from './EditManageConfiguration/EditManageConfiguration';
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
-import { clientId } from '../../constants';
+import { clientId, LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL, LF_UI_COMPONENTS_URL, ZONE_JS_URL } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
@@ -67,16 +67,16 @@ export default function LaserficheAdminConfiguration(
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       SPComponentLoader.loadCss(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+        LF_INDIGO_PINK_CSS_URL
       );
       SPComponentLoader.loadCss(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+        LF_MS_OFFICE_LITE_CSS_URL
       );
       await SPComponentLoader.loadScript(
-        'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+        ZONE_JS_URL
       );
       await SPComponentLoader.loadScript(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
+        LF_UI_COMPONENTS_URL
       );
       const loginCompleted: () => Promise<void> = async () => {
         await getAndInitializeRepositoryClientAndServicesAsync();

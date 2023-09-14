@@ -2,6 +2,7 @@ import * as React from 'react';
 import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';
+import { LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL } from '../../webparts/constants';
 
 const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 
@@ -29,10 +30,10 @@ export function SavedToLaserficheSuccessDialogText(props: {
 }): JSX.Element {
   React.useEffect(() => {
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+      LF_INDIGO_PINK_CSS_URL
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+      LF_MS_OFFICE_LITE_CSS_URL
     );
   }, []);
 
@@ -98,10 +99,10 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
 }): JSX.Element {
   React.useEffect(() => {
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+      LF_INDIGO_PINK_CSS_URL
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+      LF_MS_OFFICE_LITE_CSS_URL
     );
   }, []);
 

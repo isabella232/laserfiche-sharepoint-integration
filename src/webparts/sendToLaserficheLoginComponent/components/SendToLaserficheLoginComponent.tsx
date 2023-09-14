@@ -5,7 +5,7 @@ import {
   LfLoginComponent,
   LoginState,
 } from '@laserfiche/types-lf-ui-components';
-import { clientId, SP_LOCAL_STORAGE_KEY } from '../../constants';
+import { clientId, LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL, LF_UI_COMPONENTS_URL, SP_LOCAL_STORAGE_KEY, ZONE_JS_URL } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
@@ -80,16 +80,16 @@ export default function SendToLaserficheLoginComponent(
   React.useEffect(() => {
     const setUpLoginComponentAsync: () => Promise<void> = async () => {
       SPComponentLoader.loadCss(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+        LF_INDIGO_PINK_CSS_URL
       );
       SPComponentLoader.loadCss(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+        LF_MS_OFFICE_LITE_CSS_URL
       );
       await SPComponentLoader.loadScript(
-        'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+        ZONE_JS_URL
       );
       await SPComponentLoader.loadScript(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
+        LF_UI_COMPONENTS_URL
       );
       loginComponent.current.addEventListener('loginCompleted', loginCompleted);
       loginComponent.current.addEventListener(
