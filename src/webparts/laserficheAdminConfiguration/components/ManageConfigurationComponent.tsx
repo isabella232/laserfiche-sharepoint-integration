@@ -160,7 +160,7 @@ export default function ManageConfiguration(
     }
   }
 
-  function hasError(hasError: boolean) {
+  function hasError(hasError: boolean): void {
     if (hasError) {
       setSaveDisabled(true);
     }
