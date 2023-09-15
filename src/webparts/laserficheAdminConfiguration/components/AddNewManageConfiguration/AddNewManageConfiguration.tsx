@@ -17,7 +17,7 @@ import {
 import { getSPListURL } from '../../../../Utils/Funcs';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../adminConfig.css');
+require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {

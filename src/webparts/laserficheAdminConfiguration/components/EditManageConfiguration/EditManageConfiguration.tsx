@@ -17,7 +17,7 @@ import {
 import { getSPListURL } from '../../../../Utils/Funcs';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../adminConfig.css');
+require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {

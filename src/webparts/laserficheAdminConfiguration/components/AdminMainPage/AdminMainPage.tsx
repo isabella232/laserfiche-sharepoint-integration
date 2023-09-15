@@ -5,7 +5,7 @@ import { IAdminPageProps } from './IAdminPageProps';
 import { CreateConfigurations } from '../../../../Utils/CreateConfigurations';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../adminConfig.css');
+require('./../../../../Assets/CSS/commonStyles.css');
 import styles from './../LaserficheAdminConfiguration.module.scss';
 
 declare global {
