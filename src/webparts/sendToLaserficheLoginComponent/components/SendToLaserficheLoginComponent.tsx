@@ -5,7 +5,14 @@ import {
   LfLoginComponent,
   LoginState,
 } from '@laserfiche/types-lf-ui-components';
-import { clientId, LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL, LF_UI_COMPONENTS_URL, SP_LOCAL_STORAGE_KEY, ZONE_JS_URL } from '../../constants';
+import {
+  clientId,
+  LF_INDIGO_PINK_CSS_URL,
+  LF_MS_OFFICE_LITE_CSS_URL,
+  LF_UI_COMPONENTS_URL,
+  SP_LOCAL_STORAGE_KEY,
+  ZONE_JS_URL,
+} from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { ISendToLaserficheLoginComponentProps } from './ISendToLaserficheLoginComponentProps';
 import { ISPDocumentData } from '../../../Utils/Types';
@@ -79,18 +86,10 @@ export default function SendToLaserficheLoginComponent(
 
   React.useEffect(() => {
     const setUpLoginComponentAsync: () => Promise<void> = async () => {
-      SPComponentLoader.loadCss(
-        LF_INDIGO_PINK_CSS_URL
-      );
-      SPComponentLoader.loadCss(
-        LF_MS_OFFICE_LITE_CSS_URL
-      );
-      await SPComponentLoader.loadScript(
-        ZONE_JS_URL
-      );
-      await SPComponentLoader.loadScript(
-        LF_UI_COMPONENTS_URL
-      );
+      SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+      SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
+      await SPComponentLoader.loadScript(ZONE_JS_URL);
+      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       loginComponent.current.addEventListener('loginCompleted', loginCompleted);
       loginComponent.current.addEventListener(
         'logoutCompleted',
@@ -138,7 +137,12 @@ export default function SendToLaserficheLoginComponent(
               {webClientUrl && (
                 <>
                   {' Go to '}
-                  <a href={webClientUrl} target='_blank' rel='noreferrer'>
+                  <a
+                    href={webClientUrl}
+                    target='_blank'
+                    rel='noreferrer'
+                    style={{ color: '#0079d6' }}
+                  >
                     your Laserfiche repository
                   </a>
                 </>
@@ -200,9 +204,7 @@ export default function SendToLaserficheLoginComponent(
       <div className={styles.signInLabel}>{loginText}</div>
       <div className={styles.loginButton}>
         <lf-login
-          redirect_uri={
-            window.location.origin + window.location.pathname
-          }
+          redirect_uri={window.location.origin + window.location.pathname}
           authorize_url_host_name={region}
           redirect_behavior='Replace'
           client_id={clientId}

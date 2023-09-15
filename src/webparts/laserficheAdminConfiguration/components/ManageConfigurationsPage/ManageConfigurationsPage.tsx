@@ -16,7 +16,6 @@ import {
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 const ADD_PROFILE = 'Add Profile';
@@ -147,12 +146,12 @@ export default function ManageConfigurationsPage(
   const tableData = configRows.map((item, index) => {
     return (
       <tr id='addr0' key={index}>
-        <td>{item.ConfigurationName}</td>
-        <td className='text-center'>
+        <td className='align-middle'>{item.ConfigurationName}</td>
+        <td className='align-middle'>
           <div className={styles.iconsContainer}>
             <NavLink
               to={'/EditManageConfiguration/' + item.ConfigurationName}
-              className={styles.navLinkNoUnderline}
+              className={styles.navLink}
             >
               <button className={styles.lfMaterialIconButton}>
                 <span className='material-icons-outlined'>edit</span>
@@ -186,15 +185,18 @@ export default function ManageConfigurationsPage(
                   marginRight: '18px',
                   fontWeight: '500',
                   fontSize: '15px',
+                  color: '#0079d6',
                 }}
               >
-                <a className='btn btn-primary pl-5 pr-5'>{ADD_PROFILE}</a>
+                <button className='lf-button primary-button'>
+                  {ADD_PROFILE}
+                </button>
               </NavLink>
             </div>
             <div className='card-body'>
               <table className='table table-bordered table-striped table-hover'>
                 <thead>
-                  <tr>
+                  <tr className='align-middle'>
                     <th className='text-center'>{PROFILE_NAME}</th>
                     <th className='text-center'>{ACTION}</th>
                   </tr>
@@ -207,7 +209,7 @@ export default function ManageConfigurationsPage(
       </div>
       <div>
         <div
-          className='modal'
+          className={styles.modal}
           id='deleteModal'
           hidden={!deleteModal}
           data-backdrop='static'

@@ -119,9 +119,10 @@ export function ConfigurationBody(props: {
   }
   return (
     <>
-      <div className={`${styles.formGroupRow} form-group row`}>
+      {/* Do not need document name for now as the document will always be saved with the SharePoint document name until tokens are supported */}
+      {/* <div className={`${styles.formGroupRow} form-group row`}>
         <DocumentName documentName={props.profileConfig?.DocumentName} />
-      </div>
+      </div> */}
       <div className={`${styles.formGroupRow} form-group row`}>
         <TemplateSelector
           availableLfTemplates={props.availableLfTemplates}
@@ -131,7 +132,7 @@ export function ConfigurationBody(props: {
         />
       </div>
       <div className={`${styles.formGroupRow} form-group row`}>
-        <label htmlFor='txt3' className='col-sm-2 col-form-label'>
+        <label htmlFor='txt3' className='col-sm-3 col-form-label'>
           Laserfiche Destination
         </label>
         <div className='col-sm-6'>
@@ -151,7 +152,7 @@ export function ConfigurationBody(props: {
         </div>
       </div>
       <div className={`${styles.formGroupRow} form-group row`}>
-        <label htmlFor='dwl4' className='col-sm-2 col-form-label'>
+        <label htmlFor='dwl4' className='col-sm-3 col-form-label'>
           After import
         </label>
         <div className='col-sm-6'>
@@ -172,14 +173,9 @@ export function ConfigurationBody(props: {
             </option>
           </select>
         </div>
-        <div className='col-sm-2'>
-          {/* <div className="custom-control custom-checkbox mt-2" style={{ paddingLeft: "3px !important", "marginLeft": "-23px" }}>
-                          <a data-toggle="tooltip" style={{ "color": "#0062cc" }}><span className="fa fa-question-circle fa-2"></span></a>
-                        </div> */}
-        </div>
       </div>
       <div
-        className='modal'
+        className={styles.modal}
         id='folderModal'
         data-backdrop='static'
         data-keyboard='false'
@@ -310,7 +306,7 @@ export function RepositoryBrowserModal(props: {
 
   return (
     <>
-      <div className={styles.wrapper}>
+      <div className={`${styles.wrapper}`}>
         <div className={styles.header}>
           <div className={styles.logoHeader}>
             <div>Select folder</div>
@@ -364,7 +360,7 @@ export function RepositoryBrowserModal(props: {
 export function DocumentName(props: { documentName: string }): JSX.Element {
   return (
     <>
-      <label htmlFor='txt1' className='col-sm-2 col-form-label'>
+      <label htmlFor='txt1' className='col-sm-3 col-form-label'>
         Document Name
       </label>
       <div className='col-sm-6'>
@@ -394,7 +390,7 @@ export function TemplateSelector(props: {
   ));
   return (
     <>
-      <label htmlFor='dwl2' className='col-sm-2 col-form-label'>
+      <label htmlFor='dwl2' className='col-sm-3 col-form-label'>
         Laserfiche Template
       </label>
       <div className='col-sm-6'>
@@ -416,6 +412,7 @@ export function SharePointLaserficheColumnMatching(props: {
   availableSPFields: SPProfileConfigurationData[];
   lfFieldsForSelectedTemplate: TemplateFieldInfo[];
   validate: boolean;
+  hasError: (hasError: boolean) => void;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
 }): JSX.Element {
   const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
@@ -548,51 +545,67 @@ export function SharePointLaserficheColumnMatching(props: {
     (fieldMapping, index) => {
       const errorMessageMapping: JSX.Element | undefined =
         getMappingErrorMessage(fieldMapping);
+      if (errorMessageMapping) {
+        props.hasError(true);
+      } else {
+        props.hasError(false);
+      }
       return (
-        <tr id={index.toString()} key={index}>
-          <td className={styles.dataCellWidth}>
-            <select
-              name='SharePointField'
-              className='custom-select'
-              value={fieldMapping.spField?.InternalName ?? 'Select'}
-              id={fieldMapping.id}
-              onChange={(e) => handleSpFieldChange(e, fieldMapping)}
-            >
-              <option>Select</option>
-              {spFields}
-            </select>
-          </td>
-          <td className={styles.dataCellWidth}>
-            <select
-              name='LaserficheField'
-              className='custom-select'
-              value={fieldMapping.lfField?.id ?? 'Select'}
-              id={fieldMapping.id}
-              disabled={fieldMapping.lfField?.isRequired}
-              onChange={(e) => handleLfFieldChange(e, fieldMapping)}
-            >
-              <option>Select</option>
-              {fieldMapping.lfField?.isRequired
-                ? laserficheFields
-                : getAvailableOptionalFields(fieldMapping)}
-            </select>
-          </td>
-          <td>
-            {fieldMapping.lfField?.isRequired ? (
-              <span style={{ fontSize: '13px', color: 'red' }}>
+        <>
+          <div className={styles.rowDiv} id={index.toString()} key={index}>
+            <span className={styles.dataCellWidth}>
+              <select
+                name='SharePointField'
+                className='custom-select'
+                value={fieldMapping.spField?.InternalName ?? 'Select'}
+                id={fieldMapping.id}
+                onChange={(e) => handleSpFieldChange(e, fieldMapping)}
+              >
+                <option>Select</option>
+                {spFields}
+              </select>
+            </span>
+            <span className={styles.dataCellWidth}>
+              <select
+                name='LaserficheField'
+                className='custom-select'
+                value={fieldMapping.lfField?.id ?? 'Select'}
+                id={fieldMapping.id}
+                disabled={fieldMapping.lfField?.isRequired}
+                onChange={(e) => handleLfFieldChange(e, fieldMapping)}
+              >
+                <option>Select</option>
+                {fieldMapping.lfField?.isRequired
+                  ? laserficheFields
+                  : getAvailableOptionalFields(fieldMapping)}
+              </select>
+            </span>
+            <span>
+              {!fieldMapping.lfField?.isRequired && (
+                <button
+                  className={styles.lfMaterialIconButton}
+                  onClick={() => removeSpecificMapping(index)}
+                >
+                  <span className='material-icons-outlined'> close </span>
+                </button>
+              )}
+            </span>
+          </div>
+          {fieldMapping.lfField?.isRequired && (
+            <div style={{ display: 'flex' }}>
+              <span className={styles.dataCellWidth} />
+              <span
+                className={styles.dataCellWidth}
+                style={{ fontSize: '13px', color: 'red' }}
+              >
                 *Required field in Laserfiche
               </span>
-            ) : (
-              <button
-                className={styles.lfMaterialIconButton}
-                onClick={() => removeSpecificMapping(index)}
-              >
-                <span className='material-icons-outlined'> close </span>
-              </button>
-            )}
-            {errorMessageMapping}
-          </td>
-        </tr>
+            </div>
+          )}
+
+          {errorMessageMapping}
+          <hr />
+        </>
       );
     }
   );
@@ -601,28 +614,28 @@ export function SharePointLaserficheColumnMatching(props: {
     <>
       {props.profileConfig.selectedTemplateName ? (
         <>
-          <table className='table table-sm'>
-            <thead>
-              <tr>
-                <th className='text-center'>SharePoint Column</th>
-                <th className='text-center'>Laserfiche Field</th>
-              </tr>
-            </thead>
-            <tbody id='tableEditBodyId'>{mappedList}</tbody>
-          </table>
+          <div>
+            <div className={styles.rowDiv}>
+              <span className={styles.dataCellWidth}>SharePoint Column</span>
+              <span className={styles.dataCellWidth}>Laserfiche Field</span>
+            </div>
+            <div id='tableEditBodyId'>{mappedList}</div>
+          </div>
           {fullValidationError}
-          <a
-            onClick={addNewMappingFields}
-            className='btn btn-primary pl-5 pr-5 float-right ml-2'
-          >
-            Add Field
-          </a>
+          <div className={styles.footerIcons}>
+            <button
+              onClick={addNewMappingFields}
+              className='lf-button primary-button'
+            >
+              Add Field
+            </button>
+          </div>
         </>
       ) : (
         <span>Please select a template above to map fields</span>
       )}
       <div
-        className='modal'
+        className={styles.modal}
         id='deleteModal'
         hidden={!deleteModal}
         data-backdrop='static'
@@ -641,8 +654,8 @@ export function DeleteModal(props: {
 }): JSX.Element {
   return (
     <div className='modal-dialog modal-dialog-centered'>
-      <div className='modal-content'>
-        <div className='modal-header'>
+      <div className={`modal-content ${styles.wrapper}`}>
+        <div className={styles.header}>
           <h5 className='modal-title' id='ModalLabel'>
             Delete Confirmation
           </h5>
@@ -656,14 +669,14 @@ export function DeleteModal(props: {
             <span aria-hidden='true'>&times;</span>
           </button>
         </div>
-        <div className='modal-body'>
+        <div className={styles.contentBox}>
           Do you want to permanently delete &quot;
           {props.configurationName}&quot;?
         </div>
-        <div className='modal-footer'>
+        <div className={styles.footer}>
           <button
             type='button'
-            className='btn btn-primary btn-sm'
+            className='lf-button primary-button'
             data-dismiss='modal'
             onClick={props.onConfirmDelete}
           >
@@ -671,7 +684,7 @@ export function DeleteModal(props: {
           </button>
           <button
             type='button'
-            className='btn btn-secondary btn-sm'
+            className={`lf-button sec-button ${styles.marginLeftButton}`}
             data-dismiss='modal'
             onClick={props.onCancel}
           >
@@ -694,16 +707,23 @@ function getMappingErrorMessage(
       return (
         <div
           style={{
-            color: 'red',
             fontSize: '13px',
             marginLeft: '10px',
+            display: 'flex',
+            alignItems: 'center',
           }}
           title={`SharePoint field type of ${spFieldtype} cannot be mapped with Laserfiche field type of ${lfFieldtype}`}
         >
-          SharePoint field type of {spFieldtype} cannot be mapped with
-          Laserfiche field type of {lfFieldtype}
-          <span className='material-icons-outlined'>warning</span>Data types
-          mismatch
+          <span
+            className='material-icons-outlined'
+            style={{
+              color: 'red',
+            }}
+          >
+            warning
+          </span>
+          Data types mismatch. SharePoint field type of {spFieldtype} cannot be
+          mapped with Laserfiche field type of {lfFieldtype}
         </div>
       );
     } else {

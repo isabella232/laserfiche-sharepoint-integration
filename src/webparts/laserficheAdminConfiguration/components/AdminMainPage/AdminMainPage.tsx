@@ -20,11 +20,13 @@ declare global {
 
 export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   useEffect(() => {
-    CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch(
+      (err: Error | ProblemDetails) => {
+        console.warn(
+          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+        );
+      }
+    );
   }, []);
 
   const linkData: LinkInfo[] = [
@@ -34,11 +36,9 @@ export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   ];
 
   return (
-    <div style={{ borderBottom: '3px solid #CE7A14'}}>
+    <div style={{ borderBottom: '3px solid #CE7A14' }}>
       <div>
-        <span className={styles.profileTitle}>
-          Profile Editor
-        </span>
+        <span className={styles.profileTitle}>Profile Editor</span>
         {props.loggedIn && <Links linkData={linkData} />}
       </div>
     </div>
@@ -55,11 +55,12 @@ function Links(props: { linkData: LinkInfo[] }): JSX.Element {
     <span key={link.name}>
       <NavLink
         to={link.route}
-        activeStyle={{ fontWeight: 'bold', color: 'red' }}
+        activeStyle={{ fontWeight: 'bold', textDecoration: 'underline' }}
         style={{
           marginRight: '25px',
           fontWeight: '500',
           fontSize: '15px',
+          color: '#0079d6',
         }}
       >
         {link.name}
