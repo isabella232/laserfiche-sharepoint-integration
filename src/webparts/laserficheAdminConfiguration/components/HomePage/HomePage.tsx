@@ -1,5 +1,5 @@
 import * as React from 'react';
-require('./../../adminConfig.css');
+require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../Assets/CSS/bootstrap.min.css');
 
 export default function HomePage(): JSX.Element {
@@ -17,37 +17,36 @@ export default function HomePage(): JSX.Element {
             href='https://doc.laserfiche.com/laserfiche.documentation/11/administration/en-us/Default.htm#../Subsystems/Integrations/Content/SharePoint/SharePoint2022Integration.htm'
             target='_blank'
             rel='noreferrer'
+            style={{color: '#0079d6'}}
           >
             help documentation.
           </a>{' '}
           <i>Note: the help link is not live yet.</i>{' '}
         </p>
-        <div className='row mt-3'>
-          <div className='adminContent'>
-            <p>
-              <strong>Profiles</strong>
-            </p>
-            <p style={{ marginLeft: '38px' }}>
-              <span>
-                Profiles govern how documents in SharePoint will be saved to
-                Laserfiche. You can create multiple profiles for different
-                SharePoint content types. For example, you may want applications
-                stored differently than invoices, and thus you’ll create
-                separate profiles for each.
-              </span>
-            </p>
-            <p>
-              <strong>Profile Mapping</strong>
-            </p>
-            <p style={{ marginLeft: '38px' }}>
-              <span>
-                In this tab, you can map a specific SharePoint content type with
-                a corresponding Laserfiche profile. This profile will then be
-                used when saving all documents of the specified SharePoint
-                content type.
-              </span>
-            </p>
-          </div>
+        <div className='adminContent'>
+          <p>
+            <strong>Profiles</strong>
+          </p>
+          <p style={{ marginLeft: '38px' }}>
+            <span>
+              Profiles govern how documents in SharePoint will be saved to
+              Laserfiche. You can create multiple profiles for different
+              SharePoint content types. For example, you may want applications
+              stored differently than invoices, and thus you’ll create separate
+              profiles for each.
+            </span>
+          </p>
+          <p>
+            <strong>Profile Mapping</strong>
+          </p>
+          <p style={{ marginLeft: '38px' }}>
+            <span>
+              In this tab, you can map a specific SharePoint content type with a
+              corresponding Laserfiche profile. This profile will then be used
+              when saving all documents of the specified SharePoint content
+              type.
+            </span>
+          </p>
         </div>
       </main>
     </div>

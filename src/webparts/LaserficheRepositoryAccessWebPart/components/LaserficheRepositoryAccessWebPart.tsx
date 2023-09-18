@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
 require('../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 require('../../../Assets/CSS/bootstrap.min.css');
-require('../../../Assets/CSS/custom.css');
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { getRegion } from '../../../Utils/Funcs';

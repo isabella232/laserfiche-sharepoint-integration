@@ -15,8 +15,9 @@ import {
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
+import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../adminConfig.css');
+require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 declare global {
@@ -210,10 +211,10 @@ export default function AddNewManageConfiguration(
   );
   const extraConfiguration = (
     <>
-      <div className='form-group row'>
+      <div className={`${styles.formGroupRow} form-group row`}>
         <label
           htmlFor='txt0'
-          className='col-sm-2 col-form-label'
+          className='col-sm-3 col-form-label'
         >
           Profile Name <span style={{ color: 'red' }}>*</span>
         </label>
