@@ -19,21 +19,21 @@ Steps:
 Expected Result
 - Instructions in documentation are clear and effective
 - sppkg file ends up added to SharePoint
-### Use Documentation to set up Save To Laserfiche Page
+### Use Documentation to set up Laserfiche Sign In Page
 
 Prerequisites:
 - the SharePoint package (.sppkg) file must already be installed to SharePoint.
 
 Steps:
-1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html#the-laserfiche-sign-in-page) for setting up the Save To Laserfiche Page.
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html#the-laserfiche-sign-in-page) for setting up the Laserfiche Sign In Page.
 
 Expected Result:
 - Instructions in documentation are clear and effective
-- the Save to Laserfiche Page is created
+- the Laserfiche Sign In Page is created
 
 ### Verify Save To Laserfiche Works
 Prerequisites:
-- Save to Laserfiche Page must already Exist
+- Laserfiche Sign In Page must already Exist
 
 Steps:
 1. Upload a word document with some text to a SharePoint site

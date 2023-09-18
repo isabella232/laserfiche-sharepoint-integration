@@ -6,7 +6,10 @@ parent: Laserfiche SharePoint Integration Administration Guide
 ---
 # Configure App in Laserfiche
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
+### Prerequisites
+  - Have developer rights in your laserfiche account.
 
+### Steps
 1. Open the [Developer Console](https://developer.laserfiche.com/developer-console.html).
 <a href="./assets/images/createAppFromManifest.png"><img src="./assets/images/createAppFromManifest.png"></a>
 1. Attempt to Create a New App from Manifest, and upload the manifest provided [here](https://github.com/Laserfiche/laserfiche-sharepoint-integration/blob/1.x/UserDocuments/Laserfiche%20SharePoint%20Integration%20AppManifest.json).

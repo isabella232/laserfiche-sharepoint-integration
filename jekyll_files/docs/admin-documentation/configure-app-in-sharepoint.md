@@ -1,12 +1,14 @@
 ---
 layout: default
-title: Admin Configuration
-nav_order: 3
-parent: Laserfiche SharePoint Integration User Guide
+title: Configure App in SharePoint
+nav_order: 4
+parent: Laserfiche SharePoint Integration Administration Guide
 ---
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 
-## Tabs of the Admin Configuration web part
+### Prerequisites
+- be a Site Owner of the SharePoint Site for which the integration will be configured
+
 ### About Tab
 Provides information about the Web Part.
 <a href="../assets/images/aboutTab.png"><img src="../assets/images/aboutTab.png"></a>
