@@ -21,4 +21,4 @@ Configuration web parts support this functionality.
 
 ## Guides
 - The [Admin Guides](./docs/admin-documentation) explain how to set up the integration, and may require specialized permission.
-- The [User Guides](./docs/user-documentation) explain how to use a page with an integration already set up to save documents or browse the laserfiche repository.
+- The [User Guides](./docs/user-documentation) explain how to use a page with an integration already set up to save documents or browse the Laserfiche repository.

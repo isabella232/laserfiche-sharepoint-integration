@@ -4,6 +4,8 @@ title: Configure App in SharePoint
 nav_order: 4
 parent: Laserfiche SharePoint Integration Administration Guide
 ---
+# Configure App in SharePoint
+
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 
 ### Prerequisites

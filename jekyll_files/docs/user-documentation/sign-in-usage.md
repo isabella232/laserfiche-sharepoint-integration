@@ -1,11 +1,19 @@
 ---
 layout: default
-title: Save To Laserfiche
+title: Save a Document to Laserfiche
 nav_order: 2
 parent: Laserfiche SharePoint Integration User Guide
 ---
+
+# Save a Document to Laserfiche
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
-## Usage
-- First-Time Setup - Authenticate yourself by clicking on the button labeled "Sign in to Laserfiche".
-- Typical Use - Right-click on any document in SharePoint and find the “Save to Laserfiche” item in the drop-down. If it does not exist, consult the [Admin Documentation](./../admin-documentation#the-laserfiche-sign-in-page) for instructions on how to add the Sign In page. This should enable saving documents to Laserfiche via right-click.
-<a href="../assets/images/rightClickToSave.png"><img src="../assets/images/rightClickToSave.png"></a>
+### Prerequisites
+- Be able to open the documents tab in Laserfiche
+
+### Steps
+1. Navigate to the Documents tab in your SharePoint Site and choose which document you wish to send to Laserfiche.
+1. Right-click on the entry you chose or select the ellipses to the right of the name.
+<a href="../assets/images/saveToLaserfiche.png"><img src="../assets/images/saveToLaserfiche.png"></a>
+1. Choose `Save to Laserfiche` from the drop-down menu.
+1. If the Document saved, you should see the following message:
+<a href="../assets/images/successfulSave.png"><img src="../assets/images/successfulSave.png"></a>

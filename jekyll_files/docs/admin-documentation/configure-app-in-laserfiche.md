@@ -7,7 +7,7 @@ parent: Laserfiche SharePoint Integration Administration Guide
 # Configure App in Laserfiche
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 ### Prerequisites
-  - Have developer rights in your laserfiche account.
+  - Have developer rights in your Laserfiche account.
 
 ### Steps
 1. Open the [Developer Console](https://developer.laserfiche.com/developer-console.html).
@@ -19,4 +19,4 @@ parent: Laserfiche SharePoint Integration Administration Guide
 1. One way or another, an app with that client ID should now exist. Open the app and switch from the general tab to the authentication tab.
 <a href="./assets/images/redirectUri.png"><img src="./assets/images/redirectUri.png"></a>
 1. Add the URL of your SharePoint Page with the Laserfiche web part as a new redirect URI.
-1. You should now be able to Sign In.
+1. You should now be able to sign in.
