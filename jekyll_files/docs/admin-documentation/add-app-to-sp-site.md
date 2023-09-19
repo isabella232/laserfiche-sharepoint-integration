@@ -9,7 +9,8 @@ parent: Laserfiche SharePoint Integration Administration Guide
 # Add App to SharePoint Site
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 ### Prerequisites
-  - Be the owner of a SharePoint Site in an organization which has the Laserfiche integration installed. (see [Add App to Organization](./add-app-organization)])
+  - Be the owner of a SharePoint Site in an organization which has the Laserfiche integration installed. (see [Add App to Organization](./add-app-organization))
+  
 ###  The Laserfiche Sign In Page:
 1. In your SharePoint Site, select the "Pages" item in the navigation bar on the left side of the page.
 <a href="../assets/images/newSitePage.png"><img src="../assets/images/newSitePage.png"></a>
