@@ -18,7 +18,7 @@ Laserfiche cloud repository and open documents in Web Client. For more informati
 
 ### The Laserfiche Sign In web part
 
-This SharePoint web part allows you to export files directly from SharePoint to Laserfiche. It provides the essential functionality of the SharePoint/Laserfiche Integration. Advanced Settings can be configured in the [Admin Configuration Documentation](../admin-documentation/configure-app-in-sharepoint). For more information, consult the [Sign In Usage Guide](./sign-in-usage)
+This SharePoint web part allows you to export files directly from SharePoint to Laserfiche. It provides the essential functionality of the SharePoint/Laserfiche Integration. Advanced Settings can be configured in the [Admin Configuration Documentation](../admin-documentation/configure-app-in-sharepoint).
 
 ### The Admin Configuration web part 
 
