@@ -23,9 +23,10 @@ Expected Result
 
 Prerequisites:
 - the SharePoint package (.sppkg) file must already be installed to SharePoint.
+- follow the instructions in the README.md for running locally
 
 Steps:
-1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation.html#the-laserfiche-sign-in-page) for setting up the Laserfiche Sign In Page.
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/add-app-to-sp-site#) for setting up the Laserfiche Sign In Page.
 
 Expected Result:
 - Instructions in documentation are clear and effective
@@ -45,3 +46,15 @@ Steps:
 Expected Result(s):
 1. Each of the steps above can be done (e.g., the Save To Laserfiche Option exists for Step #3)
 1. A word document is saved to Laserfiche, and its contents are identical to the original in SharePoint
+
+### Set up Repository Explorer web part using Documentation
+Prerequisites
+- the SharePoint package (.sppkg) file must already be installed to SharePoint.
+- follow the instructions in the README.md for running locally
+
+Steps:
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/add-app-to-sp-site) for setting up the Laserfiche Sign In Page.
+
+Expected Result:
+- Instructions in documentation are clear and effective
+- the Laserfiche Sign In Page is created
