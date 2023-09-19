@@ -53,8 +53,10 @@ Prerequisites
 - follow the instructions in the README.md for running locally
 
 Steps:
-1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/add-app-to-sp-site) for setting up the Laserfiche Sign In Page.
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/add-app-to-sp-site) for setting up the Repository Explorer Page.
 
 Expected Result:
 - Instructions in documentation are clear and effective
-- the Laserfiche Sign In Page is created
+- the Laserfiche Repository Explorer is created
+
+### Verify ability to navigate and open files
