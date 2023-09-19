@@ -61,9 +61,9 @@ Steps:
 
 Expected Results:
 - Instructions in documentation are clear and effective
-- the Laserfiche Repository Explorer is created
+- a SharePoint page containing the Repository Explorer web part is created
 
-### Test functionality of Repository Explorer
+### Test functionality of repository explorer web part
 Prerequisites
 - Repository Explorer web part must exist
 
@@ -83,3 +83,29 @@ Expected Results:
 1. the selected file row should be visibly distinguished from the other non-selected rows. Additionally, clicking on the arrow-in-square should open a new tab to view the file in Laserfiche.
 1. the breadcrumb navigation links should take us to the named locations.
 
+### Use Documentation to set up Admin Configuration Page
+Prerequisites
+- the SharePoint package (.sppkg) file must already be installed to SharePoint.
+- follow the instructions in the README.md for running locally
+
+Steps:
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/add-app-to-sp-site) for setting up the Admin Configuration Page.
+
+Expected Results:
+- Instructions in documentation are clear and effective
+- a SharePoint page containing the admin configuration web part is created
+
+### Test Functionality of admin configuration web part
+Prerequisites:
+- the admin configuration web part must exist in a SharePoint Page
+- finish testing the functionality of the repository explorer web part
+
+Steps:
+1. Go to the Profiles tab and click the `Add Profile` button.
+1. Name the Profile `Example Profile Name`, do not select a template, select the Folder which you created in the functionality test of the Repository Explorer web part as the destination folder, and choose `Leave a copy of the file in SharePoint` for the `After import` behavior. Click the Save button.
+1. Go to the Profile Mapping tab and click the `Add` button.
+1. Select `Document` for the SharePoint Content Type and select `Example Profile Name` for the `Laserfiche Profile`. Click the floppy disk icon to save.
+
+Expected Results:
+1. Something resembling the following Profile Editor appears: [Could Not Display Image](./assets/profileCreator.png)
+1. You should get a Success dialog, and then get returned to the `Profiles Tab`, where the new profile should be visible.
