@@ -36,16 +36,21 @@
   align-items: center;
 }
 
-a.navLinkNoUnderline:hover {
+a.navLink:hover {
   text-decoration: none;
 }
 
-table td {
-  vertical-align: middle;
-  &.dataCellWidth {
-    width: 50%;
-  }
+.navLink {
+  color: '#0079d6';
 }
+
+.dataCellWidth {
+  width: 45%;
+  min-width: 45%;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+
 .loginButton {
   display: flex;
   justify-content: flex-end;
@@ -99,7 +104,7 @@ lf-repository-browser {
   /* default is the standard padding, but expose variables
        in case contents have additional padding */
   padding-top: var(--content-padding-top, 20px);
-  padding-bottom: var(--content-padding-bottom, 10px);
+  padding-bottom: var(--content-padding-bottom, 20px);
   padding-left: var(--content-padding-left, 20px);
   padding-right: var(--content-padding-right, 20px);
   max-height: calc(100vh - var(--header-min-height) - var(--footer-min-height));
@@ -151,4 +156,32 @@ lf-repository-browser {
   font-style: 'Open Sans';
   font-size: 16px;
   font-weight: 600;
+}
+
+.modal {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalContent {
+  width: 500px;
+  background-color: #fff;
+  overflow: auto;
+  max-height: -webkit-fill-available;
+  margin: 30px 0px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.rowDiv {
+  display: flex;
+  align-items: center;
 }

@@ -29,6 +29,7 @@ export default function ManageConfiguration(
     SPProfileConfigurationData[] | undefined
   >(undefined);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
 
   async function getAllAvailableTemplates(): Promise<WTemplateInfo[]> {
     const repoId = await props.repoClient.getCurrentRepoId();
@@ -159,6 +160,15 @@ export default function ManageConfiguration(
     }
   }
 
+  function hasError(hasError: boolean): void {
+    if (hasError) {
+      setSaveDisabled(true);
+    }
+    else {
+      setSaveDisabled(false);
+    }
+  }
+
   return (
     <div>
       <div className='p-3'>
@@ -195,6 +205,7 @@ export default function ManageConfiguration(
                   lfFieldsForSelectedTemplate={lfFieldsForSelectedTemplate}
                   handleProfileConfigUpdate={props.handleProfileConfigUpdate}
                   validate={props.validate}
+                  hasError={hasError}
                 />
               </div>
               <div
@@ -204,7 +215,7 @@ export default function ManageConfiguration(
                   <NavLink
                     id='navid'
                     to='/ManageConfigurationsPage'
-                    className={styles.navLinkNoUnderline}
+                    className={styles.navLink}
                   >
                     <button className='lf-button sec-button'>Back</button>
                   </NavLink>
@@ -212,6 +223,7 @@ export default function ManageConfiguration(
                 <button
                   className={`${styles.marginLeftButton} lf-button primary-button`}
                   onClick={saveConfigurationAsync}
+                  disabled={saveDisabled}
                 >
                   Save
                 </button>
@@ -221,21 +233,21 @@ export default function ManageConfiguration(
         </main>
       </div>
       <div
-        className='modal'
+        className={styles.modal}
         data-backdrop='static'
         data-keyboard='false'
         id='ConfirmModal'
         hidden={!showConfirmModal}
       >
         <div className='modal-dialog modal-dialog-centered'>
-          <div className='modal-content'>
+          <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
             <div className='modal-body'>
               {props.createNew ? 'Profile Added' : 'Profile Updated'}
             </div>
             <div className='modal-footer'>
               <button
                 type='button'
-                className='btn btn-primary btn-sm'
+                className='lf-button primary-button'
                 data-dismiss='modal'
                 onClick={onClickConfirmButton}
               >

@@ -2,7 +2,7 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
-import { clientId } from '../../webparts/constants';
+import { clientId, LF_UI_COMPONENTS_URL, ZONE_JS_URL } from '../../webparts/constants';
 import LoadingDialog, {
   SavedToLaserficheSuccessDialogButtons,
   SavedToLaserficheSuccessDialogText,
@@ -85,10 +85,10 @@ function SaveToLaserficheDialog(props: {
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
       await SPComponentLoader.loadScript(
-        'https://cdn.jsdelivr.net/npm/zone.js@0.11.4/bundles/zone.umd.min.js'
+        ZONE_JS_URL
       );
       await SPComponentLoader.loadScript(
-        'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ui-components.js'
+        LF_UI_COMPONENTS_URL
       );
       if (loginComponent.current?.authorization_credentials) {
         const saveToLF = new SaveDocumentToLaserfiche(props.spFileMetadata);
@@ -132,7 +132,7 @@ function SaveToLaserficheDialog(props: {
             width='30'
             height='30'
           />
-          <span>Laserfiche</span>
+          <span className={styles.paddingLeft}>Laserfiche</span>
         </div>
 
         <button

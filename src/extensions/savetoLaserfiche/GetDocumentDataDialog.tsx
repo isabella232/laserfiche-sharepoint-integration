@@ -4,6 +4,8 @@ import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import {
   ADMIN_CONFIGURATION_LIST,
+  LF_INDIGO_PINK_CSS_URL,
+  LF_MS_OFFICE_LITE_CSS_URL,
   MANAGE_CONFIGURATIONS,
   MANAGE_MAPPING,
   SP_LOCAL_STORAGE_KEY,
@@ -123,10 +125,10 @@ function GetDocumentDialogData(props: {
 
   React.useEffect(() => {
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/indigo-pink.css'
+      LF_INDIGO_PINK_CSS_URL
     );
     SPComponentLoader.loadCss(
-      'https://cdn.jsdelivr.net/npm/@laserfiche/lf-ui-components@14/cdn/lf-ms-office-lite.css'
+      LF_MS_OFFICE_LITE_CSS_URL
     );
 
     saveDocumentToLaserficheAsync().catch((err: Error | ProblemDetails) => {
@@ -456,7 +458,7 @@ function GetDocumentDialogData(props: {
             width='30'
             height='30'
           />
-          <span>Laserfiche</span>
+          <span className={styles.paddingLeft}>Laserfiche</span>
         </div>
 
         <button

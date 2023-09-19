@@ -17,7 +17,6 @@ import { ProfileMappingConfiguration } from '../../../../Utils/Types';
 import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
-require('../../adminConfig.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
 
 interface SPContentType {
@@ -401,7 +400,7 @@ export default function ManageMappingsPage(
           SPHttpClient.configurations.v1,
           options
         );
-        const existingSPContentType = rows.find(
+        const existingSPContentType = newMappings.find(
           (mapping) =>
             mapping.SharePointContentType === rows[idx].SharePointContentType
         );
@@ -557,7 +556,7 @@ export default function ManageMappingsPage(
   const renderTableData = mappingRows.map((item, index) => {
     if (item.toggle) {
       return (
-        <tr id='addr0' key={index}>
+        <tr className='align-middle' id='addr0' key={index}>
           <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
@@ -584,7 +583,7 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td>
+          <td className='align-middle'>
             <div className={styles.iconsContainer}>
               <button
                 className={styles.lfMaterialIconButton}
@@ -604,7 +603,7 @@ export default function ManageMappingsPage(
       );
     } else {
       return (
-        <tr id='addr0' key={index}>
+        <tr className='align-middle' id='addr0' key={index}>
           <td className={styles.dataCellWidth}>
             <select
               name='SharePointContentType'
@@ -629,7 +628,7 @@ export default function ManageMappingsPage(
               {lfContentTypesDisplay}
             </select>
           </td>
-          <td>
+          <td className='align-middle'>
             <div className={styles.iconsContainer}>
               <button
                 className={styles.lfMaterialIconButton}
@@ -665,6 +664,7 @@ export default function ManageMappingsPage(
                 href=''
                 onClick={() => window.open(viewSharePointContentTypes)}
                 target='_blank'
+                style={{color: '#0079d6'}}
               >
                 View SharePoint Content Types
               </a>
@@ -673,7 +673,7 @@ export default function ManageMappingsPage(
           <div className='card-body'>
             <table className='table table-sm'>
               <thead>
-                <tr>
+                <tr className='align-middle'>
                   <th className='text-center'>SharePoint Content Type</th>
                   <th className='text-center'>Laserfiche Profile</th>
                   <th className='text-center'>Action</th>
@@ -702,7 +702,7 @@ export default function ManageMappingsPage(
         </div>
       </div>
       <div
-        className='modal'
+        className={styles.modal}
         id='deleteModal'
         hidden={!deleteModal}
         data-backdrop='static'

@@ -27,6 +27,7 @@ import { IRepositoryApiClientExInternal } from '../../../repository-client/repos
 import { ChangeEvent } from 'react';
 import { getEntryWebAccessUrl } from '../../../Utils/Funcs';
 import styles from './LaserficheRepositoryAccess.module.scss';
+require('./../../../Assets/CSS/commonStyles.css');
 
 const cols: ColumnDef[] = [
   {
@@ -183,14 +184,13 @@ export default function RepositoryViewComponent(props: {
     <>
       <div>
         <main className='bg-white shadow-sm'>
-          <nav className='navbar navbar-dark bg-white flex-md-nowrap'>
-            <a className='navbar-brand pl-0' href='#'>
-              <img
-                src={require('./../../../Assets/Images/laserfiche-logo.png')}
-              />{' '}
-              Laserfiche Repository Explorer
-            </a>
-          </nav>
+          <div style={{margin: '10px 0px'}}>
+            <img
+              style={{ width: '30px' }}
+              src={require('./../../../Assets/Images/laserfiche-logo.png')}
+            />
+            <span className={styles.browserTitle}>Laserfiche Repository Explorer</span>
+          </div>
           {props.loggedIn && (
             <>
               <RepositoryBrowserToolbar
@@ -271,7 +271,7 @@ function RepositoryBrowserToolbar(props: {
             title='Open File'
             onClick={openFileOrFolder}
           >
-            <span className='material-icons-outlined'>description</span>
+            <span className='material-icons-outlined'>open_in_new</span>
           </button>
           <button
             className={styles.lfMaterialIconButton}
@@ -290,7 +290,7 @@ function RepositoryBrowserToolbar(props: {
         </div>
       </div>
       <div
-        className='modal'
+        className={styles.modal}
         id='uploadModal'
         data-backdrop='static'
         data-keyboard='false'
@@ -306,7 +306,7 @@ function RepositoryBrowserToolbar(props: {
         )}
       </div>
       <div
-        className='modal'
+        className={styles.modal}
         id='createModal'
         data-backdrop='static'
         data-keyboard='false'
@@ -319,19 +319,21 @@ function RepositoryBrowserToolbar(props: {
         />
       </div>
       <div
-        className='modal'
+        className={styles.modal}
         id='AlertModal'
         data-backdrop='static'
         data-keyboard='false'
         hidden={!showAlertModal}
       >
         <div className='modal-dialog'>
-          <div className='modal-content'>
+          <div
+            className={`${styles.modalContent} ${styles.wrapper}`}
+          >
             <div className='modal-body'>Please select file/folder to open</div>
             <div className='modal-footer'>
               <button
                 type='button'
-                className='btn btn-primary btn-sm'
+                className='lf-button primary-button'
                 data-dismiss='modal'
                 onClick={confirmAlertButton}
               >
@@ -518,7 +520,7 @@ function ImportFileModal(props: {
 
   return (
     <div className='modal-dialog modal-dialog-scrollable modal-lg'>
-      <div className='modal-content'>
+      <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
         <div className='modal-header'>
           <h5 className='modal-title' id='ModalLabel'>
             Upload File
@@ -560,7 +562,7 @@ function ImportFileModal(props: {
           </div>
           {validationError}
           <div className='form-group row mb-3'>
-            <label className='col-sm-2 col-form-label'>Name</label>
+            <label className='col-sm-3 col-form-label'>Name</label>
             <div className='col-sm-10'>
               <input
                 type='text'
@@ -571,31 +573,29 @@ function ImportFileModal(props: {
               />
             </div>
           </div>
-          <div className='card'>
-            <div
-              className={`lf-component-container${
-                adhocDialogOpened ? ' lfAdhocMinHeight' : ''
-              }`}
-            >
-              <lf-field-container
-                collapsible='true'
-                startCollapsed='true'
-                ref={fieldContainer}
-              />
-            </div>
+          <div
+            className={`lf-component-container${
+              adhocDialogOpened ? ' lfAdhocMinHeight' : ''
+            }`}
+          >
+            <lf-field-container
+              collapsible='true'
+              startCollapsed='true'
+              ref={fieldContainer}
+            />
           </div>
         </div>
         <div className='modal-footer'>
           <button
             type='button'
-            className='btn btn-primary btn-sm'
+            className='lf-button primary-button'
             onClick={importFileToRepositoryAsync}
           >
             OK
           </button>
           <button
             type='button'
-            className='btn btn-secondary btn-sm'
+            className='lf-button sec-button'
             onClick={closeImportFileModal}
           >
             Cancel
@@ -666,7 +666,7 @@ function CreateFolderModal(props: {
 
   return (
     <div className='modal-dialog'>
-      <div className='modal-content'>
+      <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
         <div className='modal-header'>
           <h5 className='modal-title' id='ModalLabel'>
             Create Folder
@@ -699,7 +699,7 @@ function CreateFolderModal(props: {
         <div className='modal-footer'>
           <button
             type='button'
-            className='btn btn-primary btn-sm'
+            className='lf-button primary-button'
             data-dismiss='modal'
             onClick={createNewFolderAsync}
           >
@@ -707,7 +707,7 @@ function CreateFolderModal(props: {
           </button>
           <button
             type='button'
-            className='btn btn-secondary btn-sm'
+            className='lf-button sec-button'
             data-dismiss='modal'
             onClick={closeNewFolderModal}
           >
