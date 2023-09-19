@@ -8,7 +8,7 @@ import { ChangeEvent, useState } from 'react';
 import { IManageMappingsPageProps } from './IManageMappingsPageProps';
 import { IListItem } from '../IListItem';
 import {
-  ADMIN_CONFIGURATION_LIST,
+  LASERFICHE_ADMIN_CONFIGURATION_NAME,
   MANAGE_CONFIGURATIONS,
   MANAGE_MAPPING,
 } from '../../../constants';
@@ -82,7 +82,7 @@ export default function ManageMappingsPage(
     const array: IListItem[] = [];
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
@@ -165,7 +165,7 @@ export default function ManageMappingsPage(
         } else {
           const restApiUrl = `${getSPListURL(
             props.context,
-            ADMIN_CONFIGURATION_LIST
+            LASERFICHE_ADMIN_CONFIGURATION_NAME
           )}/items(${existingMappings.id})`;
           const row = [...mappingRows];
           const newjsonValue = [
@@ -202,7 +202,7 @@ export default function ManageMappingsPage(
       } else {
         const restApiUrl = `${getSPListURL(
           props.context,
-          ADMIN_CONFIGURATION_LIST
+          LASERFICHE_ADMIN_CONFIGURATION_NAME
         )}/items`;
         const newRow = [...mappingRows];
         const jsonValues = [
@@ -255,7 +255,7 @@ export default function ManageMappingsPage(
     if (!exitEntry) {
       const restApiUrl = `${getSPListURL(
         props.context,
-        ADMIN_CONFIGURATION_LIST
+        LASERFICHE_ADMIN_CONFIGURATION_NAME
       )}/items(${itemId})`;
       const newJsonValue = [
         ...jsonValue,
@@ -315,7 +315,7 @@ export default function ManageMappingsPage(
       jsonValue[matchingId].toggle = rows[idx].toggle;
       const restApiUrl = `${getSPListURL(
         props.context,
-        ADMIN_CONFIGURATION_LIST
+        LASERFICHE_ADMIN_CONFIGURATION_NAME
       )}/items(${itemId})`;
       const newJsonValue = [...jsonValue];
       const jsonObject = JSON.stringify(newJsonValue);
@@ -377,7 +377,7 @@ export default function ManageMappingsPage(
         mappings.splice(matchingMappingIndex, 1);
         const restApiUrl = `${getSPListURL(
           props.context,
-          ADMIN_CONFIGURATION_LIST
+          LASERFICHE_ADMIN_CONFIGURATION_NAME
         )}/items(${itemId})`;
         const newMappings = [...mappings];
         const jsonObject = JSON.stringify(newMappings);
@@ -438,7 +438,7 @@ export default function ManageMappingsPage(
     const array: IListItem[] = [];
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_MAPPING}'`;
     try {
       const res = await fetch(restApiUrl, {

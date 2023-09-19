@@ -11,7 +11,7 @@ import {
 import ManageConfiguration from '../ManageConfigurationComponent';
 import { ProfileConfiguration } from '../ProfileConfigurationComponents';
 import {
-  ADMIN_CONFIGURATION_LIST,
+  LASERFICHE_ADMIN_CONFIGURATION_NAME,
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
@@ -50,7 +50,7 @@ export default function EditManageConfiguration(
   async function GetItemIdByTitle(): Promise<IListItem[]> {
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
@@ -130,7 +130,7 @@ export default function EditManageConfiguration(
   ): Promise<boolean> {
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/items(${Id})`;
     const body: string = JSON.stringify({
       Title: MANAGE_CONFIGURATIONS,
