@@ -12,7 +12,7 @@ parent: Laserfiche SharePoint Integration Administration Guide
 
 ### Prerequisites
   - Have a SharePoint Online account with administrator privileges for the tenant app catalog.
-  - Download the latest Laserfiche SharePoint Integration [package](./assets/laserfiche-sharepoint-integration.sppkg)
+  - Download the latest Laserfiche SharePoint Integration [package](../assets/laserfiche-sharepoint-integration.sppkg)
 
 ### Steps
 1. Navigate to the following url: https://<b>{your-full-subdomain.and-domain.com}</b>/sites/appcatalog/AppCatalog/Forms/AllItems.aspx, where the part in curly braces is replaced by the domain and subdomain of your SharePoint-related websites.
