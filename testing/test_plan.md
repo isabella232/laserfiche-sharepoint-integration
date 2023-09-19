@@ -59,4 +59,23 @@ Expected Result:
 - Instructions in documentation are clear and effective
 - the Laserfiche Repository Explorer is created
 
-### Verify ability to navigate and open files
+### Test functionality of Repository Explorer
+Prerequisites
+- Repository Explorer web part must exist
+
+Steps:
+1. Create a new folder by clicking on the folder icon with the plus sign inside
+1. Double Click on the folder to go into it.
+1. Create another folder within the first and click into it.
+1. Click on the upload button and choose a file to upload.
+1. Click on the uploaded file to select it and then click the icon of the the northeast arrow in a square to open the file in Laserfiche
+1. Use the breadcrumb navigation above the Column titles to navigate back to the top level of the repository.
+
+Expected Results:
+1. We should be able to see the new folder without needing to reload anything
+1. We should see an empty set of children and the breadcrumb navigation should appear
+1. We should be able to see the new folder without needing to reload anything. Upon double clicking, we should see an empty set of children and the breadcrumb navigation should be still allow us to move back up to the ancestor folders.
+1. A dialog should pop up allowing you to choose the file. After you've chose, the file should be immediately visible.
+1. the file row should be visibly selected after clicking and clickingon the arrow-in-square should open a new tab to view the file in Laserfiche
+1. the breadcrumb navigation links should take us to the named locations.
+
