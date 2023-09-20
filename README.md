@@ -37,17 +37,18 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - reference the [Admin Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/) for instructions on how to use the solution file to test your changes to the WebParts in SharePoint Sites.
 
 ## To build solution for production
-- **npm run build --ship**
-- **npm run package --ship**
+- **npm run bundle-prod**
+- **npm run package-prod**
 - This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
 - Once you've built and packaged the solution file, you can upload it in the SharePoint admin center.
 
 ## To build documentation locally
-1. follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler
+1. follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler.
     - if any dependency installation fails, try downloading the package manually.
-    - navigate to the download directory
-    - run `gem install problematic-dependency-name`, where the last word is replaced by the package you downloaded manually
+    - navigate to the download directory.
+    - run `gem install problematic-dependency-name`, where the last word is replaced by the package you downloaded manually.
     - retry installing the original package now that its dependency is installed.
-1. run `bundle install`  to install all the dependencies needed to serve
+1. run `bundle install`  to install all the dependencies needed to serve.
+1. Navigate to the `jekyll_files` directory.
 1. run `bundle exec jekyll serve` to serve the documentation.
 1. Open `localhost:4000` in a browser.

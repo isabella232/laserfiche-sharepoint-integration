@@ -9,6 +9,8 @@
     "url": "https://github.com/Laserfiche/laserfiche-sharepoint-integration"
   },
   "scripts": {
+    "bundle-prod": "gulp bundle --ship",
+    "package-prod": "gulp package-solution --ship",
     "build": "gulp bundle",
     "package": "gulp package-solution",
     "clean": "gulp clean",
