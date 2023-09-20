@@ -40,7 +40,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - **npm run build --ship**
 - **npm run package --ship**
 - This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
-- Once you've built and packaged the solution file, you can upload it in the SharePonit admin center.
+- Once you've built and packaged the solution file, you can upload it in the SharePoint admin center.
 
 ## To build documentation locally
 1. follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler
