@@ -288,8 +288,6 @@ module.exports = {
         //
         // STANDARDIZED BY:   @typescript-eslint\eslint-plugin\dist\configs\recommended.json
         'no-var': 2,
-        // RATIONALE:         Generally not needed in modern code.
-        'no-void': 1,
         // RATIONALE:         Obsolete language feature that is deprecated.
         // STANDARDIZED BY:   eslint\conf\eslint-recommended.js
         'no-with': 2,

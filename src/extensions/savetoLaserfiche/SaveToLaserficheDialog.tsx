@@ -2,7 +2,11 @@ import { NgElement, WithProperties } from '@angular/elements';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import * as React from 'react';
 import { ISPDocumentData } from '../../Utils/Types';
-import { clientId, LF_UI_COMPONENTS_URL, ZONE_JS_URL } from '../../webparts/constants';
+import {
+  clientId,
+  LF_UI_COMPONENTS_URL,
+  ZONE_JS_URL,
+} from '../../webparts/constants';
 import LoadingDialog, {
   SavedToLaserficheSuccessDialogButtons,
   SavedToLaserficheSuccessDialogText,
@@ -47,7 +51,7 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
       <React.StrictMode>
         <SaveToLaserficheDialog
           spFileMetadata={this.spFileData}
-          successSave={this.handleSuccessSave}
+          isSuccessfulLoggedIn={this.handleSuccessSave}
           closeClick={this.closeClick}
         />
       </React.StrictMode>
@@ -65,7 +69,7 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
 }
 
 function SaveToLaserficheDialog(props: {
-  successSave: (success: boolean) => void;
+  isSuccessfulLoggedIn: (success: boolean) => void;
   closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void>;
   spFileMetadata: ISPDocumentData;
 }): JSX.Element {
@@ -77,6 +81,9 @@ function SaveToLaserficheDialog(props: {
   const [success, setSuccess] = React.useState<
     SavedToLaserficheDocumentData | undefined
   >();
+  const [error, setError] = React.useState<
+    string | undefined
+  >();
 
   const saveToDialogCloseClick: () => Promise<void> = async () => {
     await props.closeClick(success);
@@ -84,26 +91,36 @@ function SaveToLaserficheDialog(props: {
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      await SPComponentLoader.loadScript(
-        ZONE_JS_URL
-      );
-      await SPComponentLoader.loadScript(
-        LF_UI_COMPONENTS_URL
-      );
+      await SPComponentLoader.loadScript(ZONE_JS_URL);
+      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
       if (loginComponent.current?.authorization_credentials) {
         const saveToLF = new SaveDocumentToLaserfiche(props.spFileMetadata);
-        const successSaveToLF =
-          await saveToLF.trySaveDocumentToLaserficheAsync();
-        if (successSaveToLF) {
-          props.successSave(true);
-          setSuccess(successSaveToLF);
-        } else {
-          // TODO is this handled correctly when an error occured when deleting the file
-          props.successSave(false);
-          await props.closeClick();
+        try {
+          const successSaveToLF =
+            await saveToLF.trySaveDocumentToLaserficheAsync();
+          if (successSaveToLF) {
+            props.isSuccessfulLoggedIn(true);
+            setSuccess(successSaveToLF);
+          } else {
+            props.isSuccessfulLoggedIn(false);
+            await props.closeClick();
+          }
+        } catch (err) {
+          if(err.status === 401 || err.status === 403) {
+            props.isSuccessfulLoggedIn(false);
+            await props.closeClick();
+          }
+          else if (err.status === 404) {
+            props.isSuccessfulLoggedIn(true);
+            setError(`${err.message}. Check to see if entry ${props.spFileMetadata.entryId} exists and you have access to it. If you do not, contact your administrator.`)
+          }
+          else {
+            props.isSuccessfulLoggedIn(true);
+            setError(err.message)
+          }
         }
       } else {
-        props.successSave(false);
+        props.isSuccessfulLoggedIn(false);
         await props.closeClick();
       }
     };
@@ -145,10 +162,11 @@ function SaveToLaserficheDialog(props: {
       </div>
 
       <div className={styles.contentBox}>
-        {!success && <LoadingDialog />}
+        {!success && !error && <LoadingDialog />}
         {success && (
           <SavedToLaserficheSuccessDialogText successfulSave={success} />
         )}
+        {error && <span>{`Error saving document: ${error}`}</span>}
       </div>
 
       <div className={styles.footer}>

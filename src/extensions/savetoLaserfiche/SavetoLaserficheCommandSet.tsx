@@ -110,7 +110,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         }
       );
       const sitePages = await res.json();
-      console.log(sitePages);
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
         if (pageName === SpWebPartNames.LaserficheSignIn) {

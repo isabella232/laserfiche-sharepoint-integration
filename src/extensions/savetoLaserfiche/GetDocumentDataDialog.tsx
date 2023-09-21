@@ -30,7 +30,6 @@ import {
   TemplateFieldInfo,
   ValueToUpdate,
   WFieldType,
-  ProblemDetails,
 } from '@laserfiche/lf-repository-api-client';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import { getSPListURL } from '../../Utils/Funcs';
@@ -56,7 +55,9 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
     super();
   }
 
-  showNextDialog: (data: ISPDocumentData) => Promise<void> = async (data: ISPDocumentData) => {
+  showNextDialog: (data: ISPDocumentData) => Promise<void> = async (
+    data: ISPDocumentData
+  ) => {
     const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () =>
       this.close()
     );
@@ -111,79 +112,79 @@ function GetDocumentDialogData(props: {
     undefined | SPProfileConfigurationData[]
   >(undefined);
 
+  const [error, setError] = React.useState<string | undefined>(undefined);
+
   if (missingFields) {
     <span>
-      {FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS}
+      {
+        FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS
+      }
       {missingFields}
       {PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN}
     </span>;
   }
 
-  const listFields = <ul>{missingFields?.map((field) => (
-    <li key={field.Title}>{field.Title}</li>
-  ))}</ul>;
+  const listFields = (
+    <ul>
+      {missingFields?.map((field) => (
+        <li key={field.Title}>{field.Title}</li>
+      ))}
+    </ul>
+  );
 
   React.useEffect(() => {
-    SPComponentLoader.loadCss(
-      LF_INDIGO_PINK_CSS_URL
-    );
-    SPComponentLoader.loadCss(
-      LF_MS_OFFICE_LITE_CSS_URL
-    );
+    SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+    SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
 
-    saveDocumentToLaserficheAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void saveDocumentToLaserficheAsync();
   }, []);
 
   async function saveDocumentToLaserficheAsync(): Promise<void> {
-    const libraryUrl = props.context.pageContext.list.title;
-    const allSPFieldValues: { [key: string]: string } =
-      await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
-    const allSPFieldProperties: SPProfileConfigurationData[] =
-      await getAllFieldsPropertiesAsync(libraryUrl);
-    const docData = await getDocumentDataAsync(
-      allSPFieldValues,
-      allSPFieldProperties
-    );
-
-    if (docData) {
-      window.localStorage.setItem(
-        SP_LOCAL_STORAGE_KEY,
-        JSON.stringify(docData)
+    try {
+      const libraryUrl = props.context.pageContext.list.title;
+      const allSPFieldValues: { [key: string]: string } =
+        await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
+      const allSPFieldProperties: SPProfileConfigurationData[] =
+        await getAllFieldsPropertiesAsync(libraryUrl);
+      const docData = await getDocumentDataAsync(
+        allSPFieldValues,
+        allSPFieldProperties
       );
 
-      props.showSaveToDialog(docData);
+      if (docData) {
+        window.localStorage.setItem(
+          SP_LOCAL_STORAGE_KEY,
+          JSON.stringify(docData)
+        );
+
+        props.showSaveToDialog(docData);
+      }
+    } catch (err) {
+      setError(`Error saving: ${err.message}`);
     }
   }
 
   async function getAllFieldsPropertiesAsync(
     libraryUrl: string
   ): Promise<SPProfileConfigurationData[]> {
-    try {
-      const res = await fetch(
-        `${getSPListURL(
-          this.context,
-          libraryUrl
-        )}/Fields?$filter=Group ne '_Hidden'`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      const results = await res.json();
-      const spFieldNameDefs: SPProfileConfigurationData[] = JSON.parse(
-        results.value
-      );
-      return spFieldNameDefs;
-    } catch (error) {
-      console.log('error occured' + error);
-    }
+    const res = await fetch(
+      `${getSPListURL(
+        this.context,
+        libraryUrl
+      )}/Fields?$filter=Group ne '_Hidden'`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const results = await res.json();
+    const spFieldNameDefs: SPProfileConfigurationData[] = JSON.parse(
+      results.value
+    );
+    return spFieldNameDefs;
   }
 
   async function getDocumentDataAsync(
@@ -300,7 +301,6 @@ function GetDocumentDialogData(props: {
     libraryUrl: string,
     fileId: string
   ): Promise<{ [key: string]: string }> {
-    try {
       const res = await props.context.spHttpClient.get(
         `${getSPListURL(
           props.context,
@@ -317,9 +317,6 @@ function GetDocumentDialogData(props: {
 
       const allSpFieldValues = await res.json();
       return allSpFieldValues;
-    } catch (error) {
-      console.log('error ocurred' + error);
-    }
   }
 
   function getDocumentDataWithMetadata(
@@ -371,7 +368,9 @@ function GetDocumentDialogData(props: {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.InternalName;
       // TODO which one to use?
-      let spDocFieldValue: string = allSpFieldValues[spFieldName] ?? allSpFieldValues[mapping.spField.Title];
+      let spDocFieldValue: string =
+        allSpFieldValues[spFieldName] ??
+        allSpFieldValues[mapping.spField.Title];
 
       if (spDocFieldValue?.length > 0) {
         const lfField = mapping.lfField;
@@ -471,10 +470,11 @@ function GetDocumentDialogData(props: {
       </div>
 
       <div className={styles.contentBox}>
-        {!(missingFields?.length > 0) && <LoadingDialog />}
+        {!(missingFields?.length > 0) && !error && <LoadingDialog />}
         {missingFields?.length > 0 && (
           <MissingFieldsDialog missingFields={listFields} />
         )}
+        {error && <span>{error}</span>}
       </div>
 
       <div className={styles.footer}>
@@ -489,7 +489,9 @@ function GetDocumentDialogData(props: {
   );
 }
 
-function MissingFieldsDialog(props: { missingFields: JSX.Element }): JSX.Element {
+function MissingFieldsDialog(props: {
+  missingFields: JSX.Element;
+}): JSX.Element {
   const textInside = (
     <span>
       The following SharePoint field values are blank and are mapped to required

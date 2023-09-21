@@ -31,8 +31,6 @@ declare global {
   }
 }
 
-const SIGN_IN = 'Sign In';
-const SIGN_OUT = 'Sign Out';
 const CANCEL = 'Cancel';
 const NOTE_THIS_PAGE_ONLY_NEEDED_WHEN_SAVING_TO_LASERFICHE =
   '*Note: This page should only be needed if you are attempting to save a document to Laserfiche.';
@@ -208,8 +206,6 @@ export default function SendToLaserficheLoginComponent(
           authorize_url_host_name={region}
           redirect_behavior='Replace'
           client_id={clientId}
-          sign_in_text={SIGN_IN}
-          sign_out_text={SIGN_OUT}
           ref={loginComponent}
         />
         <br />
