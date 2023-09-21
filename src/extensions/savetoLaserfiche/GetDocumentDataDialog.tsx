@@ -3,7 +3,7 @@ import styles from './SendToLaserFiche.module.scss';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import {
-  ADMIN_CONFIGURATION_LIST,
+  LASERFICHE_ADMIN_CONFIGURATION_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   MANAGE_CONFIGURATIONS,
@@ -193,7 +193,7 @@ function GetDocumentDialogData(props: {
     const response: SPHttpClientResponse = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
-        ADMIN_CONFIGURATION_LIST
+        LASERFICHE_ADMIN_CONFIGURATION_NAME
       )}/items?$filter=Title eq '${MANAGE_MAPPING}'&$top=1`,
       SPHttpClient.configurations.v1,
       {
@@ -239,7 +239,7 @@ function GetDocumentDialogData(props: {
     const adminConfigList = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
-        ADMIN_CONFIGURATION_LIST
+        LASERFICHE_ADMIN_CONFIGURATION_NAME
       )}/items?$filter=Title eq '${MANAGE_CONFIGURATIONS}'&$top=1`,
       SPHttpClient.configurations.v1,
       {

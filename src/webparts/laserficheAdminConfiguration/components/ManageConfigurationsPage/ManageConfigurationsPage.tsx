@@ -5,7 +5,7 @@ import { IManageConfigurationPageProps } from './IManageConfigurationPageProps';
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
 import {
-  ADMIN_CONFIGURATION_LIST,
+  LASERFICHE_ADMIN_CONFIGURATION_NAME,
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
@@ -52,7 +52,7 @@ export default function ManageConfigurationsPage(
     const array: IListItem[] = [];
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
     try {
       const res = await fetch(restApiUrl, {
@@ -116,7 +116,7 @@ export default function ManageConfigurationsPage(
         setConfigRows(manageConfigs.configs);
         const restApiUrl = `${getSPListURL(
           props.context,
-          ADMIN_CONFIGURATION_LIST
+          LASERFICHE_ADMIN_CONFIGURATION_NAME
         )}/items(${manageConfigs.id})`;
 
         const updatedConfigurations = JSON.stringify(manageConfigs.configs);

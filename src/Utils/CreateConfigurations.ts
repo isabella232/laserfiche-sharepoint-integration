@@ -3,7 +3,7 @@ import {
   SPHttpClientResponse,
   ISPHttpClientOptions,
 } from '@microsoft/sp-http';
-import { ADMIN_CONFIGURATION_LIST } from '../webparts/constants';
+import { LASERFICHE_ADMIN_CONFIGURATION_NAME } from '../webparts/constants';
 import { getSPListURL } from './Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 
@@ -13,7 +13,10 @@ export class CreateConfigurations {
   public static async ensureAdminConfigListCreatedAsync(
     context: BaseComponentContext
   ): Promise<void> {
-    const listUrl: string = getSPListURL(context, ADMIN_CONFIGURATION_LIST);
+    const listUrl: string = getSPListURL(
+      context,
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
+    );
     const response = await context.spHttpClient.get(
       listUrl,
       SPHttpClient.configurations.v1
@@ -41,7 +44,7 @@ export class CreateConfigurations {
   ): Promise<string> {
     const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
     const listDefinition = {
-      Title: ADMIN_CONFIGURATION_LIST,
+      Title: LASERFICHE_ADMIN_CONFIGURATION_NAME,
       Description: 'My description',
       BaseTemplate: 100,
     };
@@ -91,7 +94,9 @@ export class CreateConfigurations {
     );
   }
 
-  private static async getMembersGroupIdAsync(context: BaseComponentContext): Promise<string> {
+  private static async getMembersGroupIdAsync(
+    context: BaseComponentContext
+  ): Promise<string> {
     const membersGroupName = `${context.pageContext.web.title} Members`;
 
     const res = await fetch(

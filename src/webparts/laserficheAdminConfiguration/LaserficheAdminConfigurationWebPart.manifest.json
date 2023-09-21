@@ -14,8 +14,6 @@
   "requiresCustomScript": false,
   "supportedHosts": [
     "SharePointWebPart",
-    "TeamsPersonalApp",
-    "TeamsTab",
     "SharePointFullPage"
   ],
   "supportsThemeVariants": true,
@@ -32,5 +30,5 @@
       "officeFabricIconFontName": "Page",
       "properties": {}
     }
-  ]
+  ],
 }
