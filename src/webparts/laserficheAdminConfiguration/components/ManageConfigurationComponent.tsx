@@ -82,8 +82,8 @@ export default function ManageConfiguration(
         spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
         setAvailableSPFields(spColumns);
       } catch (err) {
-        console.warn(
-          `Error initializing configuration component: ${err.message}`
+        console.error(
+          `Error initializing configuration component: ${err}`
         );
       }
     };

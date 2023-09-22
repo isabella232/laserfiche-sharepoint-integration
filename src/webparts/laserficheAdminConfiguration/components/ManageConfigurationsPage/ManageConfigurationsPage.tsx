@@ -39,7 +39,7 @@ export default function ManageConfigurationsPage(
           setConfigRows(configRows.concat(...configurations.configs));
         }
       } catch (err) {
-        console.warn(`Error: ${err.message}`);
+        console.error(`Error: ${err.message}`);
       }
     };
     void updateConfigurationsAsync();

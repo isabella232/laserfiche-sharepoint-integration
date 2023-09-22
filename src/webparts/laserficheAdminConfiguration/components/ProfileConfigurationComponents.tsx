@@ -1,7 +1,6 @@
 import { NgElement, WithProperties } from '@angular/elements';
 import {
   EntryType,
-  ProblemDetails,
   TemplateFieldInfo,
   WFieldType,
   WTemplateInfo,
@@ -232,11 +231,7 @@ export function RepositoryBrowserModal(props: {
         EntryType.Folder,
         EntryType.Shortcut,
       ];
-      initializeTreeAsync().catch((err: Error | ProblemDetails) => {
-        console.warn(
-          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-        );
-      });
+      void initializeTreeAsync()
     }
   }, [props.repoClient]);
 
@@ -256,23 +251,28 @@ export function RepositoryBrowserModal(props: {
   };
 
   async function initializeTreeAsync(): Promise<void> {
-    if (!props.repoClient) {
-      throw new Error('RepoId is undefined');
+    try {
+      if (!props.repoClient) {
+        throw new Error('RepoId is undefined');
+      }
+      repositoryBrowser.current?.addEventListener(
+        'entrySelected',
+        onEntrySelected
+      );
+  
+      if (lfRepoTreeService) {
+        await repositoryBrowser?.current?.initAsync(
+          lfRepoTreeService,
+          props.selectedEntryNodePath
+        );
+      } else {
+        console.debug(
+          'Unable to initialize tree, lfRepoTreeService is undefined'
+        );
+      }
     }
-    repositoryBrowser.current?.addEventListener(
-      'entrySelected',
-      onEntrySelected
-    );
-
-    if (lfRepoTreeService) {
-      await repositoryBrowser?.current?.initAsync(
-        lfRepoTreeService,
-        props.selectedEntryNodePath
-      );
-    } else {
-      console.debug(
-        'Unable to initialize tree, lfRepoTreeService is undefined'
-      );
+    catch (err) {
+      console.error(`Unable to initialize repository browser: ${err}`);
     }
   }
 
