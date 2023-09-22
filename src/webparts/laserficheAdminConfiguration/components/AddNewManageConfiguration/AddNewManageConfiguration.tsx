@@ -100,7 +100,7 @@ export default function AddNewManageConfiguration(
     setConfigNameError(undefined);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] = await GetItemIdByTitle();
+      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] =
@@ -132,7 +132,7 @@ export default function AddNewManageConfiguration(
     }
   }
 
-  async function GetItemIdByTitle(): Promise<IListItem[]> {
+  async function GetItemIdForManageConfigurations(): Promise<IListItem[]> {
     const restApiUrl = `${getSPListURL(
       props.context,
       LASERFICHE_ADMIN_CONFIGURATION_NAME

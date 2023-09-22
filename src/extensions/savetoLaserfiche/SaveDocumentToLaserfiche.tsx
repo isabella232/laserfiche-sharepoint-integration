@@ -34,7 +34,7 @@ export class SaveDocumentToLaserfiche {
   constructor(private spFileMetadata: ISPDocumentData) {}
 
   async trySaveDocumentToLaserficheAsync(): Promise<
-    SavedToLaserficheDocumentData | undefined
+    SavedToLaserficheDocumentData
   > {
     const loginComponent: NgElement & WithProperties<LfLoginComponent> =
       document.querySelector('lf-login');
@@ -52,7 +52,7 @@ export class SaveDocumentToLaserfiche {
         );
         return result;
       } else {
-        return undefined;
+        throw Error('You are not logged in or there was an issue retrieving data from SharePoint. Please try again.')
       }
     } else {
       // user is not logged in
@@ -199,7 +199,7 @@ export class SaveDocumentToLaserfiche {
       if (this.spFileMetadata.action === ActionTypes.COPY) {
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       } else if (this.spFileMetadata.action === ActionTypes.MOVE_AND_DELETE) {
-        await this.deleteSPFileAsync();
+        await this.deleteAndHandleSPFileAsync();
       } else if (this.spFileMetadata.action === ActionTypes.REPLACE) {
         await this.deleteSPFileAndReplaceWithLinkAsync(fileLink);
       } else {
@@ -377,7 +377,15 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async deleteSPFileAsync(): Promise<void> {
+  async deleteAndHandleSPFileAsync(): Promise<void> {
+    const response = await this.deleteFileAsync();
+    window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
+    if (!response.ok) {
+      throw Error(`Error occurred deleting file: ${response.statusText}`);
+    }
+  }
+
+  private async deleteFileAsync(): Promise<Response> {
     const encodedFileName = encodeURIComponent(this.spFileMetadata.fileName);
     const spUrlWithEncodedFileName = this.spFileMetadata.fileUrl.replace(
       this.spFileMetadata.fileName,
@@ -391,11 +399,7 @@ export class SaveDocumentToLaserfiche {
       method: 'DELETE',
     };
     const response = await fetch(fullSpFileUrl, init);
-    window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-    if (!response.ok) {
-      window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      throw Error(`Error occurred deleting file: ${response.statusText}`);
-    }
+    return response;
   }
 
   async deleteSPFileAndReplaceWithLinkAsync(
@@ -404,18 +408,7 @@ export class SaveDocumentToLaserfiche {
     const filenameWithoutExt = PathUtils.removeFileExtension(
       this.spFileMetadata.fileName
     );
-    const encodedFileName = encodeURIComponent(this.spFileMetadata.fileName);
-    const spFileUrlWithEncodedFileName = this.spFileMetadata.fileUrl.replace(
-      this.spFileMetadata.fileName,
-      encodedFileName
-    );
-    const fullSpFileUrl = window.location.origin + spFileUrlWithEncodedFileName;
-    const deleteFile = await fetch(fullSpFileUrl, {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/json;odata=verbose',
-      },
-    });
+    const deleteFile = await this.deleteFileAsync();
     if (deleteFile.ok) {
       await this.replaceFileWithLinkAsync(filenameWithoutExt, docFilelink);
     }

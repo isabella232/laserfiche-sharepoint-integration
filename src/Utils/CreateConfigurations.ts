@@ -63,8 +63,7 @@ export class CreateConfigurations {
       return listTitle;
     }
     catch (err) {
-      console.warn('Error when creating LaserficheAdminConfiguration List');
-      console.error(err);
+      console.error(`Error when creating LaserficheAdminConfiguration List: ${err}`);
     }
   }
 

@@ -408,8 +408,6 @@ function ImportFileModal(props: {
         lfFieldsService = new LfFieldsService(props.repoClient);
         await fieldContainer.current.initAsync(lfFieldsService);
       } catch (err) {
-        setFileUploadPercentage(0);
-        setError(err.message);
         console.error(error);
       }
     };

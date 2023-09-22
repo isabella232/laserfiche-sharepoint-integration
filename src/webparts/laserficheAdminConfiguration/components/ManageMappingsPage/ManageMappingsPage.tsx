@@ -57,7 +57,7 @@ export default function ManageMappingsPage(
         setMappingRows(mappingRows.concat(results.mappings));
       }
     } catch (err) {
-      console.warn(`Error getting mappings: ${err.message}`);
+      console.error(`Error getting mappings: ${err.message}`);
     }
   }
 

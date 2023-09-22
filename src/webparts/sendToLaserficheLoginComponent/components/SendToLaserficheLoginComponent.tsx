@@ -19,7 +19,6 @@ import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
 import { getEntryWebAccessUrl, getRegion } from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
-import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 
 declare global {
   // eslint-disable-next-line
@@ -84,43 +83,46 @@ export default function SendToLaserficheLoginComponent(
 
   React.useEffect(() => {
     const setUpLoginComponentAsync: () => Promise<void> = async () => {
-      SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
-      SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
-      await SPComponentLoader.loadScript(ZONE_JS_URL);
-      await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
-      loginComponent.current.addEventListener('loginCompleted', loginCompleted);
-      loginComponent.current.addEventListener(
-        'logoutCompleted',
-        logoutCompleted
-      );
-
-      const isLoggedIn: boolean =
-        loginComponent.current.state === LoginState.LoggedIn;
-
-      setLoggedIn(isLoggedIn);
-
-      if (isLoggedIn && spFileMetadata) {
-        const dialog = new SaveToLaserficheCustomDialog(
-          spFileMetadata,
-          async (success) => {
-            if (success) {
-              Navigation.navigate(success.pathBack, true);
-            }
-          }
+      try {
+        SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+        SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
+        await SPComponentLoader.loadScript(ZONE_JS_URL);
+        await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompleted
+        );
+        loginComponent.current.addEventListener(
+          'logoutCompleted',
+          logoutCompleted
         );
 
-        await dialog.show();
-        if (!dialog.successful) {
-          console.warn('Could not login successfully');
+        const isLoggedIn: boolean =
+          loginComponent.current.state === LoginState.LoggedIn;
+
+        setLoggedIn(isLoggedIn);
+
+        if (isLoggedIn && spFileMetadata) {
+          const dialog = new SaveToLaserficheCustomDialog(
+            spFileMetadata,
+            async (success) => {
+              if (success) {
+                Navigation.navigate(success.pathBack, true);
+              }
+            }
+          );
+
+          await dialog.show();
+          if (!dialog.successful) {
+            console.warn('Could not login successfully');
+          }
         }
+      } catch (err) {
+        console.error(`Unable to initialize login page: ${err}`);
       }
     };
 
-    setUpLoginComponentAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void setUpLoginComponentAsync();
   }, []);
 
   function getLoginText(): JSX.Element {

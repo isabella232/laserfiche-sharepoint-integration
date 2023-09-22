@@ -15,7 +15,6 @@ import {
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
-import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -47,7 +46,7 @@ export default function EditManageConfiguration(
     setProfileConfig(profileConfig);
   };
 
-  async function GetItemIdByTitle(): Promise<IListItem[]> {
+  async function GetItemIdForManageConfigurations(): Promise<IListItem[]> {
     const restApiUrl = `${getSPListURL(
       props.context,
       LASERFICHE_ADMIN_CONFIGURATION_NAME
@@ -69,32 +68,33 @@ export default function EditManageConfiguration(
 
   useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      const results = await GetItemIdByTitle();
-      const configurationName = props.match.params.name;
-      if (results?.length > 0) {
-        const profileConfigs = JSON.parse(results[0].JsonValue);
-        if (profileConfigs.length > 0) {
-          for (let i = 0; i < profileConfigs.length; i++) {
-            if (profileConfigs[i].ConfigurationName === configurationName) {
-              const selectedConfig: ProfileConfiguration = profileConfigs[i];
-              setProfileConfig(selectedConfig);
+      try {
+        const results = await GetItemIdForManageConfigurations();
+        const configurationName = props.match.params.name;
+        if (results?.length > 0) {
+          const profileConfigs = JSON.parse(results[0].JsonValue);
+          if (profileConfigs.length > 0) {
+            for (let i = 0; i < profileConfigs.length; i++) {
+              if (profileConfigs[i].ConfigurationName === configurationName) {
+                const selectedConfig: ProfileConfiguration = profileConfigs[i];
+                setProfileConfig(selectedConfig);
+              }
             }
           }
         }
       }
+      catch (err) {
+        console.error(`Error initializing edit configuration page: ${err}`);
+      }
     };
-    initializeComponentAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void initializeComponentAsync()
   }, []);
 
   async function saveEditExistingConfigurationAsync(): Promise<void> {
     setValidate(true);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] = await GetItemIdByTitle();
+      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] = JSON.parse(
