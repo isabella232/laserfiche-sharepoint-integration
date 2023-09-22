@@ -34,7 +34,7 @@ export class SaveDocumentToLaserfiche {
   constructor(private spFileMetadata: ISPDocumentData) {}
 
   async trySaveDocumentToLaserficheAsync(): Promise<
-    SavedToLaserficheDocumentData | undefined
+    SavedToLaserficheDocumentData
   > {
     const loginComponent: NgElement & WithProperties<LfLoginComponent> =
       document.querySelector('lf-login');
@@ -52,7 +52,7 @@ export class SaveDocumentToLaserfiche {
         );
         return result;
       } else {
-        return undefined;
+        throw Error('You are not logged in or there was an issue retrieving data from SharePoint. Please try again.')
       }
     } else {
       // user is not logged in
@@ -91,7 +91,8 @@ export class SaveDocumentToLaserfiche {
       const spFileDataBlob = await res.blob();
       return spFileDataBlob;
     } catch (error) {
-      console.log('error ocurred' + error);
+      window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
+      throw error;
     }
   }
 
@@ -198,7 +199,7 @@ export class SaveDocumentToLaserfiche {
       if (this.spFileMetadata.action === ActionTypes.COPY) {
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       } else if (this.spFileMetadata.action === ActionTypes.MOVE_AND_DELETE) {
-        await this.deleteSPFileAsync();
+        await this.deleteAndHandleSPFileAsync();
       } else if (this.spFileMetadata.action === ActionTypes.REPLACE) {
         await this.deleteSPFileAndReplaceWithLinkAsync(fileLink);
       } else {
@@ -220,13 +221,17 @@ export class SaveDocumentToLaserfiche {
       return fileInfo;
     } catch (error) {
       const conflict409 =
-        error.problemDetails.extensions.createEntryResult.operations.setFields
-          .exceptions[0].statusCode === 409;
+        error.problemDetails.extensions.createEntryResult.operations?.setFields
+          ?.exceptions[0].statusCode === 409;
       if (conflict409) {
-        const setFields: SetFields = error.problemDetails.extensions.createEntryResult.operations.setFields;
-        const errorMessages = setFields.exceptions.map((value: APIServerException, index: number) => {
-          return <li key={index}>{value.message}</li>;
-        });
+        const setFields: SetFields =
+          error.problemDetails.extensions.createEntryResult.operations
+            .setFields;
+        const errorMessages = setFields.exceptions.map(
+          (value: APIServerException, index: number) => {
+            return <li key={index}>{value.message}</li>;
+          }
+        );
         const entryId =
           error.problemDetails.extensions.createEntryResult.operations
             .entryCreate.entryId;
@@ -244,7 +249,9 @@ export class SaveDocumentToLaserfiche {
         );
         const path = window.location.origin + fileUrlWithoutDocName;
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-        const failedMetadata = <ul className={styles.noMargin}>{errorMessages}</ul>;
+        const failedMetadata = (
+          <ul className={styles.noMargin}>{errorMessages}</ul>
+        );
         const fileInfo: SavedToLaserficheDocumentData = {
           fileLink,
           pathBack: path,
@@ -256,9 +263,8 @@ export class SaveDocumentToLaserfiche {
         await this.tryUpdateFileNameAsync(repoClient, repoId, error, fileInfo);
         return fileInfo;
       } else {
-        window.alert(`Error uploading file: ${JSON.stringify(error)}`);
         window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-        return undefined;
+        throw error;
       }
     }
   }
@@ -348,9 +354,8 @@ export class SaveDocumentToLaserfiche {
       );
       return fileInfo;
     } catch (error) {
-      window.alert(`Error uploading file: ${JSON.stringify(error)}`);
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      return undefined;
+      throw error;
     }
   }
 
@@ -372,7 +377,15 @@ export class SaveDocumentToLaserfiche {
     }
   }
 
-  async deleteSPFileAsync(): Promise<void> {
+  async deleteAndHandleSPFileAsync(): Promise<void> {
+    const response = await this.deleteFileAsync();
+    window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
+    if (!response.ok) {
+      throw Error(`Error occurred deleting file: ${response.statusText}`);
+    }
+  }
+
+  private async deleteFileAsync(): Promise<Response> {
     const encodedFileName = encodeURIComponent(this.spFileMetadata.fileName);
     const spUrlWithEncodedFileName = this.spFileMetadata.fileUrl.replace(
       this.spFileMetadata.fileName,
@@ -386,14 +399,7 @@ export class SaveDocumentToLaserfiche {
       method: 'DELETE',
     };
     const response = await fetch(fullSpFileUrl, init);
-    if (response.ok) {
-      window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      //Perform further activity upon success, like displaying a notification
-      alert('File deleted successfully');
-    } else {
-      window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      console.log('An error occurred. Please try again.');
-    }
+    return response;
   }
 
   async deleteSPFileAndReplaceWithLinkAsync(
@@ -402,24 +408,15 @@ export class SaveDocumentToLaserfiche {
     const filenameWithoutExt = PathUtils.removeFileExtension(
       this.spFileMetadata.fileName
     );
-    const encodedFileName = encodeURIComponent(this.spFileMetadata.fileName);
-    const spFileUrlWithEncodedFileName = this.spFileMetadata.fileUrl.replace(
-      this.spFileMetadata.fileName,
-      encodedFileName
-    );
-    const fullSpFileUrl = window.location.origin + spFileUrlWithEncodedFileName;
-    const deleteFile = await fetch(fullSpFileUrl, {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/json;odata=verbose',
-      },
-    });
+    const deleteFile = await this.deleteFileAsync();
     if (deleteFile.ok) {
-      alert('File replaced with link successfully');
       await this.replaceFileWithLinkAsync(filenameWithoutExt, docFilelink);
-    } else {
+    }
+    if (!deleteFile.ok) {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      console.log('An error occurred. Please try again.');
+      throw Error(
+        `Error occurred replacing file with link: ${deleteFile.statusText}`
+      );
     }
   }
 
@@ -444,7 +441,9 @@ export class SaveDocumentToLaserfiche {
       );
     } else {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      console.log('Failed');
+      throw Error(
+        `Error occurred replacing file with link: ${resp.statusText}`
+      );
     }
   }
 
@@ -471,14 +470,12 @@ export class SaveDocumentToLaserfiche {
         'X-RequestDigest': formDigestValue,
       },
     });
-    if (resp.ok) {
+    window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
+    if (!resp.ok) {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      console.log('Item Inserted..!!');
-      console.log(await resp.json());
-    } else {
-      window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
-      console.log('API Error');
-      console.log(await resp.json());
+      throw Error(
+        `Error occurred replacing file with link: ${resp.statusText}`
+      );
     }
   }
 }

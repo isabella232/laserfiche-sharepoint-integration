@@ -13,7 +13,6 @@ import {
   DeleteModal,
   ProfileConfiguration,
 } from '../ProfileConfigurationComponents';
-import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 import styles from './../LaserficheAdminConfiguration.module.scss';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -29,20 +28,21 @@ export default function ManageConfigurationsPage(
   const [deleteModal, setDeleteModal] = useState<JSX.Element | undefined>(
     undefined
   );
+  const [error, setError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const updateConfigurationsAsync: () => Promise<void> = async () => {
-      const configurations: { id: string; configs: ProfileConfiguration[] } =
-        await getManageConfigurationsAsync();
-      if (configurations?.configs.length > 0) {
-        setConfigRows(configRows.concat(...configurations.configs));
+      try {
+        const configurations: { id: string; configs: ProfileConfiguration[] } =
+          await getManageConfigurationsAsync();
+        if (configurations?.configs.length > 0) {
+          setConfigRows(configRows.concat(...configurations.configs));
+        }
+      } catch (err) {
+        console.error(`Error: ${err.message}`);
       }
     };
-    updateConfigurationsAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void updateConfigurationsAsync();
   }, []);
 
   async function getManageConfigurationsAsync(): Promise<{
@@ -54,25 +54,21 @@ export default function ManageConfigurationsPage(
       props.context,
       LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
-    try {
-      const res = await fetch(restApiUrl, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
-      const results = await res.json();
-      if (results.value.length > 0) {
-        for (let i = 0; i < results.value.length; i++) {
-          array.push(results.value[i]);
-        }
-        return { id: array[0].Id, configs: JSON.parse(array[0].JsonValue) };
-      } else {
-        return null;
+    const res = await fetch(restApiUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    const results = await res.json();
+    if (results.value.length > 0) {
+      for (let i = 0; i < results.value.length; i++) {
+        array.push(results.value[i]);
       }
-    } catch (error) {
-      console.log('error occurred' + error);
+      return { id: array[0].Id, configs: JSON.parse(array[0].JsonValue) };
+    } else {
+      return null;
     }
   }
 
@@ -90,11 +86,15 @@ export default function ManageConfigurationsPage(
   }
 
   async function removeRowAsync(id: number): Promise<void> {
-    const rows = [...configRows];
-    const deleteRows = [...configRows];
-    rows.splice(id, 1);
-    await deleteMappingAsync(deleteRows, id);
-    setDeleteModal(undefined);
+    try {
+      const rows = [...configRows];
+      const deleteRows = [...configRows];
+      rows.splice(id, 1);
+      await deleteMappingAsync(deleteRows, id);
+      setDeleteModal(undefined);
+    } catch (err) {
+      setError(`Error when removing configuration: ${err.message}`);
+    }
   }
 
   function closeModal(): void {
@@ -207,15 +207,41 @@ export default function ManageConfigurationsPage(
           </div>
         </main>
       </div>
-      <div>
-        <div
-          className={styles.modal}
-          id='deleteModal'
-          hidden={!deleteModal}
-          data-backdrop='static'
-          data-keyboard='false'
-        >
-          {deleteModal}
+      <div
+        className={styles.modal}
+        id='deleteModal'
+        hidden={!deleteModal}
+        data-backdrop='static'
+        data-keyboard='false'
+      >
+        {deleteModal}
+      </div>
+      <div
+        className={styles.modal}
+        id='errorModal'
+        hidden={!error}
+        data-backdrop='static'
+        data-keyboard='false'
+      >
+        <div className='modal-dialog modal-dialog-centered'>
+          <div className={`modal-content ${styles.wrapper}`}>
+            <div className={styles.header}>
+              <div className='modal-title' id='ModalLabel'>
+                Laserfiche
+              </div>
+            </div>
+            <div className={styles.contentBox}>{error}</div>
+            <div className={styles.footer}>
+              <button
+                type='button'
+                className='lf-button primary-button'
+                data-dismiss='modal'
+                onClick={() => setError(undefined)}
+              >
+                OK
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </>

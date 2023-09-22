@@ -42,24 +42,29 @@ export class CreateConfigurations {
     context: BaseComponentContext,
     formDigestValue: string
   ): Promise<string> {
-    const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
-    const listDefinition = {
-      Title: LASERFICHE_ADMIN_CONFIGURATION_NAME,
-      Description: 'My description',
-      BaseTemplate: 100,
-    };
-    const spHttpClientOptions: ISPHttpClientOptions = {
-      body: JSON.stringify(listDefinition),
-    };
-    const responses: SPHttpClientResponse = await context.spHttpClient.post(
-      url,
-      SPHttpClient.configurations.v1,
-      spHttpClientOptions
-    );
-    const adminConfigList = await responses.json();
-    const listTitle = adminConfigList.Title;
-    await this.createColumnsAsync(context, listTitle, formDigestValue);
-    return listTitle;
+    try {
+      const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
+      const listDefinition = {
+        Title: LASERFICHE_ADMIN_CONFIGURATION_NAME,
+        Description: 'My description',
+        BaseTemplate: 100,
+      };
+      const spHttpClientOptions: ISPHttpClientOptions = {
+        body: JSON.stringify(listDefinition),
+      };
+      const responses: SPHttpClientResponse = await context.spHttpClient.post(
+        url,
+        SPHttpClient.configurations.v1,
+        spHttpClientOptions
+      );
+      const adminConfigList = await responses.json();
+      const listTitle = adminConfigList.Title;
+      await this.createColumnsAsync(context, listTitle, formDigestValue);
+      return listTitle;
+    }
+    catch (err) {
+      console.error(`Error when creating LaserficheAdminConfiguration List: ${err}`);
+    }
   }
 
   private static async updateAdminConfigListSecurityAsync(
@@ -230,7 +235,6 @@ export class CreateConfigurations {
     formDigestValue: string
   ): Promise<void> {
     const siteUrl: string = getSPListURL(context, listTitle) + '/fields';
-    try {
       await fetch(siteUrl, {
         method: 'POST',
         body: JSON.stringify({
@@ -244,9 +248,5 @@ export class CreateConfigurations {
           'X-RequestDigest': formDigestValue,
         },
       });
-      console.log('Fields created');
-    } catch {
-      console.log('Error!');
-    }
   }
 }

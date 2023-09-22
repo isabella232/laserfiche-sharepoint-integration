@@ -15,7 +15,6 @@ import {
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
-import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('./../../../../Assets/CSS/commonStyles.css');
 require('../../../../../node_modules/bootstrap/dist/js/bootstrap.min.js');
@@ -47,58 +46,55 @@ export default function EditManageConfiguration(
     setProfileConfig(profileConfig);
   };
 
-  async function GetItemIdByTitle(): Promise<IListItem[]> {
+  async function GetItemIdForManageConfigurations(): Promise<IListItem[]> {
     const restApiUrl = `${getSPListURL(
       props.context,
       LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
-    try {
-      const res = await fetch(restApiUrl, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
-      const results = await res.json();
-      if (results.value.length > 0) {
-        return results.value as IListItem[];
-      } else {
-        return null;
-      }
-    } catch (error) {
-      console.log('error occured' + error);
+    const res = await fetch(restApiUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    const results = await res.json();
+    if (results.value.length > 0) {
+      return results.value as IListItem[];
+    } else {
+      return null;
     }
   }
 
   useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      const results = await GetItemIdByTitle();
-      const configurationName = props.match.params.name;
-      if (results?.length > 0) {
-        const profileConfigs = JSON.parse(results[0].JsonValue);
-        if (profileConfigs.length > 0) {
-          for (let i = 0; i < profileConfigs.length; i++) {
-            if (profileConfigs[i].ConfigurationName === configurationName) {
-              const selectedConfig: ProfileConfiguration = profileConfigs[i];
-              setProfileConfig(selectedConfig);
+      try {
+        const results = await GetItemIdForManageConfigurations();
+        const configurationName = props.match.params.name;
+        if (results?.length > 0) {
+          const profileConfigs = JSON.parse(results[0].JsonValue);
+          if (profileConfigs.length > 0) {
+            for (let i = 0; i < profileConfigs.length; i++) {
+              if (profileConfigs[i].ConfigurationName === configurationName) {
+                const selectedConfig: ProfileConfiguration = profileConfigs[i];
+                setProfileConfig(selectedConfig);
+              }
             }
           }
         }
       }
+      catch (err) {
+        console.error(`Error initializing edit configuration page: ${err}`);
+      }
     };
-    initializeComponentAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void initializeComponentAsync()
   }, []);
 
-  async function saveEditExistingConfigurationAsync(): Promise<boolean> {
+  async function saveEditExistingConfigurationAsync(): Promise<void> {
     setValidate(true);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] = await GetItemIdByTitle();
+      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] = JSON.parse(
@@ -111,23 +107,23 @@ export default function EditManageConfiguration(
         if (profileIndex !== -1) {
           savedProfileConfigurations[profileIndex] = profileConfig;
           const configsToSave = savedProfileConfigurations;
-          const succeeded = await saveSPConfigurationsAsync(
+          await saveSPConfigurationsAsync(
             configWithCurrentName.Id,
             configsToSave
           );
-          return succeeded;
         } else {
           // error this config should exist
         }
       }
+    } else {
+      throw Error('Invalid configuration. Please review any errors.');
     }
-    return false;
   }
 
   async function saveSPConfigurationsAsync(
     Id: string,
     configsToSave: ProfileConfiguration[]
-  ): Promise<boolean> {
+  ): Promise<void> {
     const restApiUrl = `${getSPListURL(
       props.context,
       LASERFICHE_ADMIN_CONFIGURATION_NAME
@@ -151,12 +147,9 @@ export default function EditManageConfiguration(
       SPHttpClient.configurations.v1,
       options
     );
-    if (response.ok) {
-      return true;
-    } else {
-      return false;
+    if (!response.ok) {
+      throw Error(response.statusText);
     }
-    // TODO should this really throw?
   }
 
   const header = (
