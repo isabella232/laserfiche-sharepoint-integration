@@ -179,10 +179,14 @@ export default function RepositoryViewComponent(props: {
     }
   };
 
+  const refreshFolderBrowserAsync: () => Promise<void> = async () => {
+    await repositoryBrowser.current.refreshAsync(false);
+  };
+
   return (
     <>
       <div>
-        <main className='bg-white shadow-sm'>
+        <main className='bg-white'>
           <div style={{ margin: '10px 0px' }}>
             <img
               style={{ width: '30px' }}
@@ -200,6 +204,7 @@ export default function RepositoryViewComponent(props: {
                 parentItem={parentItem}
                 loggedIn={props.loggedIn}
                 webClientUrl={props.webClientUrl}
+                refreshFolderBrowserAsync={refreshFolderBrowserAsync}
               />
               <div
                 className='lf-folder-browser-sample-container'
@@ -230,6 +235,7 @@ function RepositoryBrowserToolbar(props: {
   selectedItem: LfRepoTreeNode;
   parentItem: LfRepoTreeNode;
   loggedIn: boolean;
+  refreshFolderBrowserAsync: () => Promise<void>;
 }): JSX.Element {
   const [showUploadModal, setShowUploadModal] = React.useState(false);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
@@ -272,21 +278,40 @@ function RepositoryBrowserToolbar(props: {
             title='Open File'
             onClick={openFileOrFolder}
           >
-            <span className='material-icons-outlined'>open_in_new</span>
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#open`}
+            />
           </button>
           <button
             className={styles.lfMaterialIconButton}
             title='Upload File'
             onClick={openImportFileModal}
           >
-            <span className='material-icons-outlined'>upload</span>
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#upload`}
+            />
           </button>
           <button
             className={styles.lfMaterialIconButton}
             title='Create Folder'
             onClick={openNewFolderModal}
           >
-            <span className='material-icons-outlined'>create_new_folder</span>
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#add-folder`}
+            />
+          </button>
+          <button
+            className={styles.lfMaterialIconButton}
+            title='Refresh'
+            onClick={props.refreshFolderBrowserAsync}
+          >
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#refresh`}
+            />
           </button>
         </div>
       </div>
@@ -597,12 +622,17 @@ function ImportFileModal(props: {
               </div>
             </>
           )}
-          {error && <span style={{justifyContent: 'center'}}>{`Error uploading: ${error}`}</span>}
+          {error && (
+            <span
+              style={{ justifyContent: 'center' }}
+            >{`Error uploading: ${error}`}</span>
+          )}
         </div>
         <div className={`modal-footer ${styles.footer}`}>
           <button
             type='button'
             className='lf-button primary-button'
+            disabled={fileUploadPercentage > 0}
             onClick={importFileToRepositoryAsync}
           >
             OK
