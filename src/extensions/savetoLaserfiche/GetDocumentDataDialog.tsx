@@ -17,7 +17,6 @@ import {
 import { Navigation } from 'spfx-navigation';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import {
-  ActionTypes,
   ProfileConfiguration,
   SPProfileConfigurationData,
 } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
