@@ -94,8 +94,9 @@ const FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_M
   'The following SharePoint fields do not have a value for this document, but are required to save to Laserfiche, based on configured mappings:';
 const PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN =
   'Please ensure these fields exist for this document and try again.';
-
 const CANCEL = 'Cancel';
+const NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING = 'No SharePoint Content Type exists for this document and no default mapping exists.';
+const PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING = 'Please update the Content Type or contact your administrator to set up a default mapping.';
 
 function GetDocumentDialogData(props: {
   showSaveToDialog: (fileData: ISPDocumentData) => void;
@@ -214,11 +215,25 @@ function GetDocumentDialogData(props: {
       matchingMapping = manageMappingDetails.find(
         (el) => el.SharePointContentType === props.spFileInfo.spContentType
       );
+      if (!matchingMapping) {
+        matchingMapping = manageMappingDetails.find(
+          (el) => el.SharePointContentType === 'DEFAULT'
+        );
+      }
     }
 
     let docData: ISPDocumentData;
     if (!matchingMapping) {
-      docData = getDocumentDataNoMetadata();
+      if (!props.spFileInfo.spContentType) {
+        setError(
+          `${NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING} ${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`
+        );
+      } else {
+        const NO_MAPPING_EXISTS = `No mapping exists for SharePoint Content Type "${props.spFileInfo.spContentType}" and no default mapping exists.`;
+        setError(
+          `${NO_MAPPING_EXISTS} ${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`
+        );
+      }
     } else {
       docData = await getDocumentDataWithMapping(
         matchingMapping,
@@ -300,22 +315,22 @@ function GetDocumentDialogData(props: {
     libraryUrl: string,
     fileId: string
   ): Promise<{ [key: string]: string }> {
-      const res = await props.context.spHttpClient.get(
-        `${getSPListURL(
-          props.context,
-          libraryUrl
-        )}/items(${fileId})/FieldValuesForEdit`,
-        SPHttpClient.configurations.v1,
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const res = await props.context.spHttpClient.get(
+      `${getSPListURL(
+        props.context,
+        libraryUrl
+      )}/items(${fileId})/FieldValuesForEdit`,
+      SPHttpClient.configurations.v1,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-      const allSpFieldValues = await res.json();
-      return allSpFieldValues;
+    const allSpFieldValues = await res.json();
+    return allSpFieldValues;
   }
 
   function getDocumentDataWithMetadata(
@@ -339,19 +354,6 @@ function GetDocumentDialogData(props: {
       fileName: props.spFileInfo.fileName,
       metadata,
       lfProfile: laserficheProfileName,
-    };
-
-    return fileData;
-  }
-
-  function getDocumentDataNoMetadata(): ISPDocumentData {
-    const fileData: ISPDocumentData = {
-      fileName: props.spFileInfo.fileName,
-      documentName: props.spFileInfo.fileName,
-      fileUrl: props.spFileInfo.spFileUrl,
-      entryId: '1',
-      contextPageAbsoluteUrl: props.context.pageContext.web.absoluteUrl,
-      action: ActionTypes.COPY,
     };
 
     return fileData;
