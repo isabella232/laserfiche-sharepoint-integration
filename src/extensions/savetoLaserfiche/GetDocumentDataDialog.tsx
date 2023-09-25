@@ -161,6 +161,7 @@ function GetDocumentDialogData(props: {
       }
     } catch (err) {
       setError(`Error saving: ${err.message}`);
+      console.error(err);
     }
   }
 
@@ -169,7 +170,7 @@ function GetDocumentDialogData(props: {
   ): Promise<SPProfileConfigurationData[]> {
     const res = await fetch(
       `${getSPListURL(
-        this.context,
+        props.context,
         libraryUrl
       )}/Fields?$filter=Group ne '_Hidden'`,
       {
@@ -181,9 +182,7 @@ function GetDocumentDialogData(props: {
       }
     );
     const results = await res.json();
-    const spFieldNameDefs: SPProfileConfigurationData[] = JSON.parse(
-      results.value
-    );
+    const spFieldNameDefs: SPProfileConfigurationData[] = results.value;
     return spFieldNameDefs;
   }
 

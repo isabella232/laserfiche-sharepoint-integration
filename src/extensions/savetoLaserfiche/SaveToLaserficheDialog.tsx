@@ -107,9 +107,11 @@ function SaveToLaserficheDialog(props: {
               setError(
                 `${err.message}. Check to see if entry ${props.spFileMetadata.entryId} exists and you have access to it. If you do not, contact your administrator.`
               );
+              console.error(err);
             } else {
               props.isSuccessfulLoggedIn(true);
               setError(err.message);
+              console.error(err);
             }
           }
         } else {
