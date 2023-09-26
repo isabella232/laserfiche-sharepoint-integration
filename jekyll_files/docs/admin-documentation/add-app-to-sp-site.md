@@ -11,10 +11,8 @@ parent: Laserfiche SharePoint Integration Administration Guide
 ### Prerequisites
   - Be the owner of a SharePoint Site in an organization which has the Laserfiche integration installed. (see [Add App to Organization](./add-app-organization))
 
-1. Create a new SharePoint site by going to the Home Page and selecting the Create Site button
-<a href="../assets/images/createSite.png"><img src="../assets/images/createSite.png"></a>
-1. Choose Team Site or Communication Site according to your preference and finish initializing the site.
-1. In your newly created site, Navigate to the app catalog by clicking on the "Site Contents" item in the
+1. Go to the SharePoint Site that you would like to install the integration on. If you do not have a SharePoint Site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8)
+1. Navigate to the app catalog by clicking on the "Site Contents" item in the
 navigation bar.
 <a href="../assets/images/sharePointSiteContents.png"><img src="../assets/images/sharePointSiteContents.png"></a>
 1. Open the "New" Dropdown menu by clicking on the "+" icon.
