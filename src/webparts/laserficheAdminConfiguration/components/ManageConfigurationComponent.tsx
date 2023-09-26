@@ -1,7 +1,6 @@
 import {
   ODataValueContextOfIListOfWTemplateInfo,
   ODataValueOfIListOfTemplateFieldInfo,
-  ProblemDetails,
   TemplateFieldInfo,
   WTemplateInfo,
 } from '@laserfiche/lf-repository-api-client';
@@ -29,6 +28,7 @@ export default function ManageConfiguration(
     SPProfileConfigurationData[] | undefined
   >(undefined);
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+  const [showErrorModal, setShowErrorModal] = useState<string | undefined>();
   const [saveDisabled, setSaveDisabled] = useState<boolean>(false);
 
   async function getAllAvailableTemplates(): Promise<WTemplateInfo[]> {
@@ -66,27 +66,29 @@ export default function ManageConfiguration(
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      const templates: WTemplateInfo[] = await getAllAvailableTemplates();
-      templates.sort();
-      setAvailableLfTemplates(templates);
-      if (props.profileConfig.selectedTemplateName) {
-        const templateFields: TemplateFieldInfo[] =
-          await getLaserficheFieldsAsync(
-            props.profileConfig.selectedTemplateName
-          );
-        setLfFieldsForSelectedTemplate(templateFields);
+      try {
+        const templates: WTemplateInfo[] = await getAllAvailableTemplates();
+        templates.sort();
+        setAvailableLfTemplates(templates);
+        if (props.profileConfig.selectedTemplateName) {
+          const templateFields: TemplateFieldInfo[] =
+            await getLaserficheFieldsAsync(
+              props.profileConfig.selectedTemplateName
+            );
+          setLfFieldsForSelectedTemplate(templateFields);
+        }
+        const spColumns: SPProfileConfigurationData[] =
+          await getAllSharePointSiteColumnsAsync();
+        spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
+        setAvailableSPFields(spColumns);
+      } catch (err) {
+        console.error(
+          `Error initializing configuration component: ${err}`
+        );
       }
-      const spColumns: SPProfileConfigurationData[] =
-        await getAllSharePointSiteColumnsAsync();
-      spColumns.sort((a, b) => (a.Title > b.Title ? 1 : -1));
-      setAvailableSPFields(spColumns);
     };
     if (props.repoClient) {
-      initializeComponentAsync().catch((err: Error | ProblemDetails) => {
-        console.warn(
-          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-        );
-      });
+      void initializeComponentAsync();
     }
   }, [props.repoClient]);
 
@@ -96,21 +98,17 @@ export default function ManageConfiguration(
     const restApiUrl: string =
       props.context.pageContext.web.absoluteUrl +
       "/_api/web/fields?$filter=(Hidden ne true and Group ne '_Hidden')";
-    try {
-      const res = await fetch(restApiUrl, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json;odata=nometadata',
-          'content-type': 'application/json;odata=nometadata',
-          'odata-version': '',
-        },
-      });
-      const results = (await res.json()).value as SPProfileConfigurationData[];
+    const res = await fetch(restApiUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json;odata=nometadata',
+        'content-type': 'application/json;odata=nometadata',
+        'odata-version': '',
+      },
+    });
+    const results = (await res.json()).value as SPProfileConfigurationData[];
 
-      return results;
-    } catch (error) {
-      console.log('error occured' + error);
-    }
+    return results;
   }
 
   const onChangeTemplateAsync: (templateName: string) => Promise<void> = async (
@@ -151,20 +149,23 @@ export default function ManageConfiguration(
     setShowConfirmModal(false);
   }
 
+  function onClickErrorButton(): void {
+    setShowErrorModal(undefined);
+  }
+
   async function saveConfigurationAsync(): Promise<void> {
-    const succeeded: boolean = await props.saveConfiguration();
-    if (succeeded) {
+    try {
+      await props.saveConfiguration();
       setShowConfirmModal(true);
-    } else {
-      // TODO add error dialog
+    } catch (err) {
+      setShowErrorModal(err.message);
     }
   }
 
   function hasError(hasError: boolean): void {
     if (hasError) {
       setSaveDisabled(true);
-    }
-    else {
+    } else {
       setSaveDisabled(false);
     }
   }
@@ -240,7 +241,9 @@ export default function ManageConfiguration(
         hidden={!showConfirmModal}
       >
         <div className='modal-dialog modal-dialog-centered'>
-          <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
+          <div
+            className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
+          >
             <div className='modal-body'>
               {props.createNew ? 'Profile Added' : 'Profile Updated'}
             </div>
@@ -250,6 +253,36 @@ export default function ManageConfiguration(
                 className='lf-button primary-button'
                 data-dismiss='modal'
                 onClick={onClickConfirmButton}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        className={styles.modal}
+        data-backdrop='static'
+        data-keyboard='false'
+        id='ErrorModal'
+        hidden={!showErrorModal}
+      >
+        <div className='modal-dialog modal-dialog-centered'>
+          <div
+            className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
+          >
+            <div className={`modal-header ${styles.header}`}>
+              Error {props.createNew ? 'Saving' : 'Updating'} Profile
+            </div>
+            <div className={`modal-body ${styles.contentBox}`}>
+              {showErrorModal}
+            </div>
+            <div className={`modal-footer ${styles.footer}`}>
+              <button
+                type='button'
+                className='lf-button primary-button'
+                data-dismiss='modal'
+                onClick={onClickErrorButton}
               >
                 OK
               </button>

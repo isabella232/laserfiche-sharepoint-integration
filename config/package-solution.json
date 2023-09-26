@@ -1,37 +1,35 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
-    "name": "laserfiche-sharepoint-integration-client-side-solution",
+    "name": "Laserfiche Sharepoint Integration",
     "id": "9d9d4fa7-bbf4-489a-acd5-0e1709d40e8b",
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
     "isDomainIsolated": false,
     "developer": {
-      "name": "",
+      "name": "Laserfiche",
       "websiteUrl": "",
-      "privacyUrl": "",
-      "termsOfUseUrl": "",
+      "privacyUrl": "https://www.laserfiche.com/legal/privacy/",
+      "termsOfUseUrl": "https://www.laserfiche.com/eula/home/",
       "mpnId": "Undefined-1.13.0"
     },
     "features": [
       {
-        "title": "Application Extension - Deployment of custom action.",
-        "description": "Deploys a custom action with ClientSideComponentId association",
+        "title": "Save to Laserfiche",
+        "description": "Allows user to save SharePoint documents to their Laserfiche repository, with admin-configured metadata mappings.",
         "id": "9c2b7b96-fb6e-4c42-9676-9d434992110f",
         "version": "1.0.0.0",
         "assets": {
-          "elementManifests": [
-            "elements.xml"
-          ]
+          "elementManifests": ["elements.xml"]
         }
       }
     ],
     "metadata": {
       "shortDescription": {
-        "default": "laserfiche-sharepoint-integration is an application to connect Laserfiche and SharePoint"
+        "default": "Laserfiche Sharepoint Integration connects Laserfiche and SharePoint"
       },
       "longDescription": {
-        "default": "laserfiche-sharepoint-integration is an application to connect Laserfiche and SharePoint"
+        "default": "Laserfiche Sharepoint Integration connects Laserfiche and SharePoint by allowing users to save documents to Laserfiche from SharePoint with admin-configured metadata mappings and allowing users to view their Laserfiche repository from within SharePoint."
       },
       "screenshotPaths": [],
       "videoUrl": "",

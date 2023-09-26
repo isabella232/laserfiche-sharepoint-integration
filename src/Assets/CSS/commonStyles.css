@@ -5,3 +5,7 @@
 .cdk-overlay-container {
   z-index: 10000 !important;
 }
+
+.template-adhoc-expansion-panel.mat-expansion-panel {
+  background: inherit;
+}
