@@ -10,7 +10,6 @@ parent: Laserfiche SharePoint Integration Administration Guide
 
 ### Prerequisites
 - be a Site Owner of the SharePoint Site for which the integration will be configured
-
 ### About Tab
 Provides information about the Web Part.
 <a href="../assets/images/aboutTab.png"><img src="../assets/images/aboutTab.png"></a>
