@@ -16,9 +16,9 @@ parent: Laserfiche SharePoint Integration Administration Guide
 
 ### Steps
 1. Navigate to the following url: https://<b>{your-full-subdomain.and-domain.com}</b>/sites/appcatalog/AppCatalog/Forms/AllItems.aspx, where the part in curly braces is replaced by the domain and subdomain of your SharePoint-related websites.
-1. If you can see the Add and Upload buttons, congratulations - you may proceed. If not, ask an administrator to [add you as an admin to the SharePoint Online App Catalog](https://learn.microsoft.com/en-us/office365/customlearning/addappadmin#add-an-administrator).
+1. If you can see the "+New" and "Upload" buttons, then proceed to the next step. If not, ask an administrator to [add you as an admin to the SharePoint Online App Catalog](https://learn.microsoft.com/en-us/office365/customlearning/addappadmin#add-an-administrator).
 1. Click Upload and select the Laserfiche SharePoint package file (.sppkg).
-<a href="../assets/images/uploadSppkgFile.png"><img src="../assets/images/uploadSppkgFile.png"></a>
+<a href="../assets/images/uploadSolution.png"><img src="../assets/images/uploadSolution.png"></a>
   - NOTE: It's possible to build a new SharePoint Integration package file directly from source code by following the instructions in this [README.md](https://github.com/Laserfiche/laserfiche-sharepoint-integration#readme).
 1. Back in your SharePoint Site, navigate to the app catalog by clicking on the "Site Contents" item in the
 navigation bar.

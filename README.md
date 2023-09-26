@@ -1,8 +1,8 @@
 # laserfiche-sharepoint-integration
-
+[Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/)
 ## Summary
 
-This project, built with React, contains 3 SharePoint we that can be used to communicate with Laserfiche. To learn more about web parts, consult Microsoft's documentation for [Using them](https://support.microsoft.com/en-us/office/using-web-parts-on-sharepoint-pages-336e8e92-3e2d-4298-ae01-d404bbe751e0) and [Building them](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/build-a-hello-world-web-part).
+This project, built with React, contains 3 SharePoint web parts that can be used to communicate with Laserfiche. To learn more about web parts, consult Microsoft's documentation for [Using them](https://support.microsoft.com/en-us/office/using-web-parts-on-sharepoint-pages-336e8e92-3e2d-4298-ae01-d404bbe751e0) and [Building them](https://learn.microsoft.com/en-us/sharepoint/dev/spfx/web-parts/get-started/build-a-hello-world-web-part).
 
 ## Prerequisites
 
