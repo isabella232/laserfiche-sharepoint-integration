@@ -35,10 +35,10 @@
       },
       "categories": ["Content management", "Collaboration", "Productivity"],
       "screenshotPaths": [
-        "./assets/BrowseRepository.PNG",
-        "./assets/ConfigureMetadataProfile.PNG",
-        "./assets/MapContentTypeToProfile.PNG",
-        "./assets/OptionToSaveToLaserfiche.PNG"
+        "./assets/BrowseRepository.jpg",
+        "./assets/ConfigureMetadataProfile.jpg",
+        "./assets/MapContentTypeToProfile.jpg",
+        "./assets/OptionToSaveToLaserfiche.jpg"
       ]
     }
   },
