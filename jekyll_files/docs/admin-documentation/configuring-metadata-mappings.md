@@ -1,10 +1,10 @@
 ---
 layout: default
-title: Configure App in SharePoint
+title: Configuring Metadata Mappings
 nav_order: 4
 parent: Laserfiche SharePoint Integration Administration Guide
 ---
-# Configure App in SharePoint
+# Configuring Metadata Mappings
 
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 

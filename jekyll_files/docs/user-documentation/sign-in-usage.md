@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Save a Document to Laserfiche
-nav_order: 2
+nav_order: 1
 parent: Laserfiche SharePoint Integration User Guide
 ---
 

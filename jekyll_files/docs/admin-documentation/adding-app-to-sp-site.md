@@ -1,15 +1,15 @@
 ---
 layout: default
-title: Add App to SharePoint Site
+title: Adding App to SharePoint Site
 nav_order: 2
 parent: Laserfiche SharePoint Integration Administration Guide
 ---
 
 
-# Add App to SharePoint Site
+# Adding App to SharePoint Site
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 ### Prerequisites
-  - Be the owner of a SharePoint Site in an organization which has the Laserfiche integration installed. (see [Add App to Organization](./add-app-organization))
+  - Be the owner of a SharePoint Site in an organization which has the Laserfiche integration installed. (see [Adding App to Organization](./adding-app-organization))
 ### Steps
 1. Go to the SharePoint Site that you would like to install the integration on. If you do not have a SharePoint Site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8) on how to create one.
 1. Navigate to the app catalog by clicking on the "Site Contents" item in the

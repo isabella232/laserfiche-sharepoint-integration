@@ -1,11 +1,11 @@
 ---
 layout: default
-title: Add App to Organization
+title: Adding App to Organization
 nav_order: 1
 parent: Laserfiche SharePoint Integration Administration Guide
 ---
 
-# Add App to Organization
+# Adding App to Organization
 
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 

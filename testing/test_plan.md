@@ -26,7 +26,7 @@ Prerequisites:
 - follow the instructions in the README.md for running locally
 
 Steps:
-1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/add-app-to-sp-site#) for setting up the Laserfiche Sign In Page.
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/adding-app-to-sp-site#) for setting up the Laserfiche Sign In Page.
 
 Expected Result:
 - Instructions in documentation are clear and effective
@@ -53,7 +53,7 @@ Prerequisites
 - follow the instructions in the README.md for running locally
 
 Steps:
-1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/add-app-to-sp-site) for setting up the Repository Explorer Page.
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/adding-app-to-sp-site) for setting up the Repository Explorer Page.
 
 Expected Result:
 - Instructions in documentation are clear and effective
