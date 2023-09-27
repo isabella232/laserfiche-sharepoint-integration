@@ -18,11 +18,9 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 
 ---
 
-## After Pulling Changes
-- run **npm install**
-
 ## To run locally in your SharePoint Workbench
 - Ensure that you are at the solution folder
+  - run **npm install**
   - run **npm run gulp-trust-dev-cert**
   - Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
   - run **npm run serve**
@@ -30,6 +28,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
   - To use a.clouddev.laserfiche.com: Open browser dev tools and go to site Local Storage: set 'spDevMode' to true
 
 ## To test in a SharePoint site using localhost
+- run **npm install**
 - **npm run build**
 - **npm run package**
 - this should result in the creation of a file with the path `/sharepoint/solution/laserfiche-sharepoint-integration.sppkg` from the root folder.
@@ -40,6 +39,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - reference the [Admin Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation) for instructions on how to use the solution file you generated in the first steps to test your changes to the web parts in SharePoint sites.
 
 ## To test in a SharePoint site with files hosted by SharePoint
+- run **npm install**
 - **npm run bundle**
 - **npm run package-solution**
 - This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
