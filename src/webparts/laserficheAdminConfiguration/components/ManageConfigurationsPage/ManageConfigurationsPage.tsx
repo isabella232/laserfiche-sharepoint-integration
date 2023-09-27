@@ -94,6 +94,7 @@ export default function ManageConfigurationsPage(
       setDeleteModal(undefined);
     } catch (err) {
       setError(`Error when removing configuration: ${err.message}`);
+      console.error(err);
     }
   }
 
