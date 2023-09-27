@@ -10,8 +10,8 @@ parent: Laserfiche SharePoint Integration Administration Guide
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 ### Prerequisites
   - Be the owner of a SharePoint Site in an organization which has the Laserfiche integration installed. (see [Add App to Organization](./add-app-organization))
-
-1. Go to the SharePoint Site that you would like to install the integration on. If you do not have a SharePoint Site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8)
+### Steps
+1. Go to the SharePoint Site that you would like to install the integration on. If you do not have a SharePoint Site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8) on how to create one.
 1. Navigate to the app catalog by clicking on the "Site Contents" item in the
 navigation bar.
 <a href="../assets/images/sharePointSiteContents.png"><img src="../assets/images/sharePointSiteContents.png"></a>
@@ -20,7 +20,7 @@ navigation bar.
 1. Add the App named “laserfiche-sharepoint-integration-client-side-solution”.
 <a href="../assets/images/addTheApp.png"><img src="../assets/images/addTheApp.png"></a>
 1. Enable the app if you are asked to do so.
-1. Navigate to your SharePoint site. On successful installation "Laserfiche SharePoint Integration" app is listed under the “Site Contents” tab.
+1. Navigate to your SharePoint site. If successfully installed, the "Laserfiche SharePoint Integration" app will be listed under the “Site Contents” tab.
 <a href="../assets/images/appInstalled.png"><img src="../assets/images/appInstalled.png"></a>
 
 ###  The Laserfiche Sign In Page:
