@@ -11,10 +11,6 @@ parent: Laserfiche SharePoint Integration Administration Guide
 ### Prerequisites
 - be a Site Owner of the SharePoint Site for which the integration will be configured
 
-### Note:
-
-This section is **optional**. Once you have added the app to your site and registered it in Laserfiche, the integration is functional. This guide is for admins who wish to customize certain features of the integration.
-
 ## Overview
 The integration is configured through the Admin Configuration web part. By default, all documents save to the root folder of a laserfiche repository, but the admin configuration web part allows you to specify a destination folder and a [Laserfiche Template](https://doc.laserfiche.com/laserfiche.documentation/en-us/Content/Fields_and_Templates.html) for each [SharePoint content type](https://support.microsoft.com/en-gb/office/introduction-to-content-types-and-content-type-publishing-e1277a2e-a1e8-4473-9126-91a0647766e5). This allows you to configure exactly how the metadata of a SharePoint content type should map to the fields of a Laserfiche Template. See below for specifics on how to configure the app in the web part.
 ### About View
