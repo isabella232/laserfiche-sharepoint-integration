@@ -42,12 +42,12 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - Once you've built and packaged the solution file, you can upload it in the SharePoint admin center.
 
 ## To build documentation locally
-1. follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler.
+1. Follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler.
     - if any dependency installation fails, try downloading the package manually.
     - navigate to the download directory.
     - run `gem install problematic-dependency-name`, where the last word is replaced by the package you downloaded manually.
     - retry installing the original package now that its dependency is installed.
-1. run `bundle install`  to install all the dependencies needed to serve.
+1. Run `bundle install`  to install all the dependencies needed to serve.
 1. Navigate to the `jekyll_files` directory.
-1. run `bundle exec jekyll serve` to serve the documentation.
+1. Run `bundle exec jekyll serve` to serve the documentation.
 1. Open `localhost:4000` in a browser.
