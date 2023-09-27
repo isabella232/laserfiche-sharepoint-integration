@@ -80,7 +80,7 @@ function SaveToLaserficheDialog(props: {
   const [success, setSuccess] = React.useState<
     SavedToLaserficheDocumentData | undefined
   >();
-  const [error, setError] = React.useState<string | undefined>();
+  const [error, setError] = React.useState<JSX.Element | undefined>();
 
   const saveToDialogCloseClick: () => Promise<void> = async () => {
     await props.closeClick(success);
@@ -105,20 +105,24 @@ function SaveToLaserficheDialog(props: {
             } else if (err.status === 404) {
               props.isSuccessfulLoggedIn(true);
               setError(
-                `${err.message}. Check to see if entry ${props.spFileMetadata.entryId} exists and you have access to it. If you do not, contact your administrator.`
+                <>
+                  <span>{err.message}.</span>
+                  <div>{`Check to see if entry with id "${props.spFileMetadata.entryId}" exists and you have access to it. If you do not, contact your administrator.`}</div>
+                </>
               );
+              console.error(err);
             } else {
               props.isSuccessfulLoggedIn(true);
-              setError(err.message);
+              setError(<span>{err.message}</span>);
+              console.error(err);
             }
           }
         } else {
           props.isSuccessfulLoggedIn(false);
           await props.closeClick();
         }
-      }
-      catch (err) {
-        console.error(`Error initializing dialog: ${err}`)
+      } catch (err) {
+        console.error(`Error initializing dialog: ${err}`);
       }
     };
 
@@ -159,7 +163,7 @@ function SaveToLaserficheDialog(props: {
         {success && (
           <SavedToLaserficheSuccessDialogText successfulSave={success} />
         )}
-        {error && <span>{`Error saving document: ${error}`}</span>}
+        {error && <span>{`Error saving:` } {error}</span>}
       </div>
 
       <div className={styles.footer}>

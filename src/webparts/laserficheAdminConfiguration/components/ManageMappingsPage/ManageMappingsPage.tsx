@@ -566,6 +566,9 @@ export default function ManageMappingsPage(
               onChange={(e) => handleChange(e, index)}
             >
               <option>Select</option>
+              <option key='DEFAULT' value='DEFAULT'>
+                {'[Default]'}
+              </option>
               {sharePointContentTypesDisplay}
             </select>
           </td>
@@ -612,6 +615,9 @@ export default function ManageMappingsPage(
               onChange={(e) => handleChange(e, index)}
             >
               <option>Select</option>
+              <option key='DEFAULT' value='DEFAULT'>
+                {'[Default]'}
+              </option>
               {sharePointContentTypesDisplay}
             </select>
           </td>
