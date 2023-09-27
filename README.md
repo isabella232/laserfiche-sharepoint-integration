@@ -43,7 +43,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - **npm run bundle**
 - **npm run package-solution**
 - This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
-- Once you've built and packaged the solution file, you can upload it in the SharePoint admin center (see [Admin Docs](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation))
+- Once you've built and packaged the solution file, you can use it as a production package and upload it in the SharePoint admin center (see [Admin Docs](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation))
 
 ## To build documentation locally
 1. Follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler.
