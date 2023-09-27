@@ -4,7 +4,7 @@ title: Registering App in Laserfiche
 nav_order: 3
 parent: Laserfiche SharePoint Integration Administration Guide
 ---
-# Register App in Laserfiche
+# Registering App in Laserfiche
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 ### Prerequisites
   - Have developer rights in your Laserfiche account.
