@@ -35,9 +35,9 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - this should result in the creation of a file with the path `/sharepoint/solution/laserfiche-sharepoint-integration.sppkg` from the root folder.
 - reference the [Admin Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/) for instructions on how to use the solution file to test your changes to the WebParts in SharePoint Sites.
 
-## To build solution for production
-- **npm run bundle-prod**
-- **npm run package-prod**
+## To test in a SharePoint site with files hosted by SharePoint
+- **npm run bundle**
+- **npm run package-solution**
 - This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
 - Once you've built and packaged the solution file, you can upload it in the SharePoint admin center.
 
