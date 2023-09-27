@@ -21,7 +21,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 ## After Pulling Changes
 - run **npm install**
 
-## To run locally in your SharePoint Workbench, or to support local builds
+## To run locally in your SharePoint Workbench
 - Ensure that you are at the solution folder
   - run **npm run gulp-trust-dev-cert**
   - Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
@@ -33,13 +33,17 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 - **npm run build**
 - **npm run package**
 - this should result in the creation of a file with the path `/sharepoint/solution/laserfiche-sharepoint-integration.sppkg` from the root folder.
-- reference the [Admin Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/) for instructions on how to use the solution file to test your changes to the WebParts in SharePoint Sites.
+- Navigate to the solution folder
+- run **npm run gulp-trust-dev-cert** (one-time only)
+- Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
+- run **npm run serve** to host the code for the integration
+- reference the [Admin Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation) for instructions on how to use the solution file you generated in the first steps to test your changes to the web parts in SharePoint sites.
 
 ## To test in a SharePoint site with files hosted by SharePoint
 - **npm run bundle**
 - **npm run package-solution**
 - This will create the solution file at /sharepoint/solution/laserfiche-sharepoint-integration.sppkg.
-- Once you've built and packaged the solution file, you can upload it in the SharePoint admin center.
+- Once you've built and packaged the solution file, you can upload it in the SharePoint admin center (see [Admin Docs](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation))
 
 ## To build documentation locally
 1. Follow the instructions [here](https://jekyllrb.com/docs/) to install jekyll and bundler.
