@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  packagePath: sharepoint/solution/laserfiche-sharepoint-integration.sppkg
+  packagePath: sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg
   packagePathUserDocs: UserDocuments
 
 jobs:

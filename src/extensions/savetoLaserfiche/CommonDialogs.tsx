@@ -2,7 +2,11 @@ import * as React from 'react';
 import styles from './SendToLaserFiche.module.scss';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { SavedToLaserficheDocumentData } from './SaveDocumentToLaserfiche';
-import { LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL } from '../../webparts/constants';
+import {
+  LF_INDIGO_PINK_CSS_URL,
+  LF_MS_OFFICE_LITE_CSS_URL,
+} from '../../webparts/constants';
+import { ActionTypes } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
 
 const SAVING_DOCUMENT_TO_LASERFICHE = 'Saving document to Laserfiche...';
 
@@ -18,6 +22,10 @@ export default function LoadingDialog(): JSX.Element {
 
 const DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME =
   'Document successfully uploaded to Laserfiche with name:';
+const EXISTING_SP_DOCUMENT_DELETED =
+  'The existing SharePoint document was deleted.';
+const EXISTING_SP_DOCUMENT_REPLACED =
+  'The existing SharePoint document was replaced with a link to the document in Laserfiche.';
 const METADATA_FAILED_TO_SAVE_INVALID_FIELD =
   'All metadata failed to save due to at least one invalid field.';
 const CLOSE = 'Close';
@@ -29,12 +37,8 @@ export function SavedToLaserficheSuccessDialogText(props: {
   successfulSave: SavedToLaserficheDocumentData;
 }): JSX.Element {
   React.useEffect(() => {
-    SPComponentLoader.loadCss(
-      LF_INDIGO_PINK_CSS_URL
-    );
-    SPComponentLoader.loadCss(
-      LF_MS_OFFICE_LITE_CSS_URL
-    );
+    SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+    SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
   }, []);
 
   const metadataFailedNotice: JSX.Element = (
@@ -54,6 +58,12 @@ export function SavedToLaserficheSuccessDialogText(props: {
       <div className={styles.successSaveToLaserfiche}>
         <div className={styles.paddingUnder}>
           {`${DOCUMENT_SUCCESSFULLY_UPLOADED_TO_LASERFICHE_WITH_NAME}  ${props.successfulSave.fileName}.`}
+        </div>
+        <div>
+          {props.successfulSave.action === ActionTypes.MOVE_AND_DELETE &&
+            EXISTING_SP_DOCUMENT_DELETED}
+          {props.successfulSave.action === ActionTypes.REPLACE &&
+            EXISTING_SP_DOCUMENT_REPLACED}
         </div>
         {!props.successfulSave.metadataSaved && metadataFailedNotice}
       </div>
@@ -98,12 +108,8 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
   successfulSave: SavedToLaserficheDocumentData;
 }): JSX.Element {
   React.useEffect(() => {
-    SPComponentLoader.loadCss(
-      LF_INDIGO_PINK_CSS_URL
-    );
-    SPComponentLoader.loadCss(
-      LF_MS_OFFICE_LITE_CSS_URL
-    );
+    SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+    SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
   }, []);
 
   function viewFile(): void {

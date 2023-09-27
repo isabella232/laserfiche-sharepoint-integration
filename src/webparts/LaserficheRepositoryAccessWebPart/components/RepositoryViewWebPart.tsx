@@ -260,6 +260,15 @@ function RepositoryBrowserToolbar(props: {
         repoId
       );
       window.open(webClientNodeUrl);
+    }
+    else if (props.parentItem?.id) {
+      const webClientNodeUrl = getEntryWebAccessUrl(
+        props.parentItem.id,
+        props.webClientUrl,
+        props.parentItem.isContainer,
+        repoId
+      );
+      window.open(webClientNodeUrl);
     } else {
       setShowAlertModal(true);
     }
@@ -275,7 +284,7 @@ function RepositoryBrowserToolbar(props: {
         <div className={styles.buttonContainer}>
           <button
             className={styles.lfMaterialIconButton}
-            title='Open File'
+            title='Open entry in Laserfiche'
             onClick={openFileOrFolder}
           >
             <img
@@ -285,7 +294,7 @@ function RepositoryBrowserToolbar(props: {
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title='Upload File'
+            title='Upload file to Laserfiche'
             onClick={openImportFileModal}
           >
             <img
@@ -295,7 +304,7 @@ function RepositoryBrowserToolbar(props: {
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title='Create Folder'
+            title='Create folder in Laserfiche'
             onClick={openNewFolderModal}
           >
             <img
@@ -305,7 +314,7 @@ function RepositoryBrowserToolbar(props: {
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title='Refresh'
+            title='Refresh Laserfiche folder'
             onClick={props.refreshFolderBrowserAsync}
           >
             <img
@@ -352,7 +361,9 @@ function RepositoryBrowserToolbar(props: {
         hidden={!showAlertModal}
       >
         <div className='modal-dialog'>
-          <div className={`${styles.modalContent} ${styles.wrapper}`}>
+          <div
+            className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
+          >
             <div className='modal-body'>Please select file/folder to open</div>
             <div className='modal-footer'>
               <button
@@ -473,7 +484,7 @@ function ImportFileModal(props: {
           templateName = templateValue;
         }
 
-        setFileUploadPercentage(100);
+        setFileUploadPercentage(80);
         const fieldsmetadata: PostEntryWithEdocMetadataRequest =
           new PostEntryWithEdocMetadataRequest({
             template: templateName,
@@ -501,6 +512,7 @@ function ImportFileModal(props: {
         };
 
         await props.repoClient.entriesClient.importDocument(requestParameters);
+        setFileUploadPercentage(100);
         props.closeImportModal();
       } else {
         fieldContainer.current.forceValidation();
@@ -555,7 +567,7 @@ function ImportFileModal(props: {
       <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
         <div className={`modal-header ${styles.header}`}>
           <div className='modal-title' id='ModalLabel'>
-            Upload File
+            Upload File to Laserfiche
           </div>
           <div
             className='progress'

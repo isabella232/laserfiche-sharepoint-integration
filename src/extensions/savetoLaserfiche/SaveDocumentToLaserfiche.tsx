@@ -28,6 +28,7 @@ export interface SavedToLaserficheDocumentData {
   metadataSaved: boolean;
   failedMetadata?: JSX.Element;
   fileName: string;
+  action: ActionTypes | undefined;
 }
 
 export class SaveDocumentToLaserfiche {
@@ -210,6 +211,7 @@ export class SaveDocumentToLaserfiche {
         pathBack: path,
         metadataSaved: true,
         fileName,
+        action: this.spFileMetadata.action
       };
 
       await this.tryUpdateFileNameAsync(
@@ -258,6 +260,7 @@ export class SaveDocumentToLaserfiche {
           metadataSaved: false,
           failedMetadata,
           fileName,
+          action: undefined
         };
 
         await this.tryUpdateFileNameAsync(repoClient, repoId, error, fileInfo);
@@ -345,6 +348,7 @@ export class SaveDocumentToLaserfiche {
         pathBack: path,
         metadataSaved: true,
         fileName: fileNameWithExt,
+        action: this.spFileMetadata.action
       };
       await this.tryUpdateFileNameAsync(
         repoClient,
