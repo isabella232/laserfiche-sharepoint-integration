@@ -29,7 +29,7 @@ We welcome contributions and feedback. Please follow our [contributing guideline
     - this should open up a window in the browser called a SharePoint workbench. 
   - To use a.clouddev.laserfiche.com: Open browser dev tools and go to site Local Storage: set 'spDevMode' to true
 
-## To build solution for development/testing changes
+## To test in a SharePoint site using localhost
 - **npm run build**
 - **npm run package**
 - this should result in the creation of a file with the path `/sharepoint/solution/laserfiche-sharepoint-integration.sppkg` from the root folder.
