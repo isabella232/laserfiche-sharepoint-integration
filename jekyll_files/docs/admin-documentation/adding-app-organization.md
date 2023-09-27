@@ -21,3 +21,6 @@ parent: Laserfiche SharePoint Integration Administration Guide
 <a href="../assets/images/uploadSolution.png"><img src="../assets/images/uploadSolution.png"></a>
 1. Click on the Deploy button when prompted to trust the solution.
 <a href="../assets/images/trustSolution.png"><img src="../assets/images/trustSolution.png"></a>
+
+### Next Steps
+Follow the steps for [Adding App to SharePoint Site](./adding-app-to-sp-site)
