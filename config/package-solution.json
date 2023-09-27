@@ -34,7 +34,12 @@
         "default": "Laserfiche Sharepoint Online Integration allows you to browse your Laserfiche repository, view documents, and save documents from SharePoint to Laserfiche with configurable metadata mappings."
       },
       "categories": ["Content management", "Collaboration", "Productivity"],
-      "screenshotPaths": ["assets/BrowseRepository.PNG", "assets/ConfigureMetadataProfile.PNG", "assets/MapContentTypeToProfile.PNG", "assets/OptionToSaveToLaserfiche.PNG"]
+      "screenshotPaths": [
+        "./assets/BrowseRepository.PNG",
+        "./assets/ConfigureMetadataProfile.PNG",
+        "./assets/MapContentTypeToProfile.PNG",
+        "./assets/OptionToSaveToLaserfiche.PNG"
+      ]
     }
   },
   "paths": {
