@@ -18,11 +18,10 @@ We welcome contributions and feedback. Please follow our [contributing guideline
 
 ---
 
-## one-time setup
-- clone this repo
+## After Pulling Changes
 - run **npm install**
 
-## To run locally
+## To run locally in your SharePoint Workbench, or to support local builds
 - Ensure that you are at the solution folder
   - run **npm run gulp-trust-dev-cert**
   - Replace `REPLACE_WITH_YOUR_SHAREPOINT_SITE` in serve.json with your sharepoint site
