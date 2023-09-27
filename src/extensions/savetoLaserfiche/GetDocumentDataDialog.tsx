@@ -94,8 +94,10 @@ const FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_M
 const PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN =
   'Please ensure these fields exist for this document and try again.';
 const CANCEL = 'Cancel';
-const NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING = 'No SharePoint Content Type exists for this document and no default mapping exists.';
-const PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING = 'Please update the Content Type or contact your administrator to set up a default mapping.';
+const NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING =
+  'No SharePoint Content Type exists for this document and no default mapping exists.';
+const PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING =
+  'Please update the Content Type or contact your administrator to set up a default mapping.';
 
 function GetDocumentDialogData(props: {
   showSaveToDialog: (fileData: ISPDocumentData) => void;
@@ -112,7 +114,7 @@ function GetDocumentDialogData(props: {
     undefined | SPProfileConfigurationData[]
   >(undefined);
 
-  const [error, setError] = React.useState<string | undefined>(undefined);
+  const [error, setError] = React.useState<JSX.Element | undefined>(undefined);
 
   if (missingFields) {
     <span>
@@ -160,7 +162,7 @@ function GetDocumentDialogData(props: {
         props.showSaveToDialog(docData);
       }
     } catch (err) {
-      setError(`Error saving: ${err.message}`);
+      setError(<div>{`Error saving: ${err.message}`}</div>);
       console.error(err);
     }
   }
@@ -225,12 +227,18 @@ function GetDocumentDialogData(props: {
     if (!matchingMapping) {
       if (!props.spFileInfo.spContentType) {
         setError(
-          `${NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING} ${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`
+          <>
+            <div>{`${NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING}`}</div>
+            <div>{`${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`}</div>
+          </>
         );
       } else {
         const NO_MAPPING_EXISTS = `No mapping exists for SharePoint Content Type "${props.spFileInfo.spContentType}" and no default mapping exists.`;
         setError(
-          `${NO_MAPPING_EXISTS} ${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`
+          <>
+            <div>{`${NO_MAPPING_EXISTS}`}</div>
+            <div>{`${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`}</div>
+          </>
         );
       }
     } else {
@@ -474,7 +482,7 @@ function GetDocumentDialogData(props: {
         {missingFields?.length > 0 && (
           <MissingFieldsDialog missingFields={listFields} />
         )}
-        {error && <span>{error}</span>}
+        {error}
       </div>
 
       <div className={styles.footer}>
