@@ -19,7 +19,6 @@ navigation bar.
 <a href="../assets/images/NewDropDown.png"><img src="../assets/images/NewDropDown.png"></a>
 1. Add the App named “laserfiche-sharepoint-integration-client-side-solution”.
 <a href="../assets/images/addTheApp.png"><img src="../assets/images/addTheApp.png"></a>
-1. Enable the app if you are asked to do so.
 1. Navigate to your SharePoint site. If successfully installed, the "Laserfiche SharePoint Integration" app will be listed under the “Site Contents” tab.
 <a href="../assets/images/appInstalled.png"><img src="../assets/images/appInstalled.png"></a>
 
