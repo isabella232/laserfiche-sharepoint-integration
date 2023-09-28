@@ -24,7 +24,7 @@ Provides information about the Web Part.
 Displays the list of currently defined Profiles. Click on the “Add Profile” button to add a new profile. Click on the pencil icon to edit an existing profile, respectively. Both selections will open the Profile Editor View.
 <a href="../assets/images/profileTab.png"><img src="../assets/images/profileTab.png"></a>
 
-## Profile Editor View
+### Profile Editor View
 - Name: this is the identifier used to associate SharePoint content types with this profile in the Profile Mapping tab.
 - Laserfiche Template: If a profile is assigned a template, then all files saved to Laserfiche through that profile will be assigned that template in Laserfiche. [Learn more about templates](https://doc.laserfiche.com/laserfiche.documentation/en-us/Content/Fields_and_Templates.html).
 - Laserfiche Destination: This option specifies the path to the folder in the Laserfiche Repository where the files associated with this profile will be saved.
@@ -37,7 +37,12 @@ SharePoint file after exporting it to Laserfiche.
     - templates with required fields MUST have columns assigned to them.
     - The association between SharePoint columns and Laserfiche fields should be one-to-one, i.e., you should not attempt to map multiple SharePoint columns to the same Laserfiche field.
 <a href="../assets/images/metadataMapping.png"><img src="../assets/images/metadataMapping.png"></a>
+
 ### Profiles Mapping View
 Displays a list of SharePoint Content Types and their corresponding Laserfiche Profile. If you add a content type/profile pair, then
 any SharePoint content matching that type will be assigned the corresponding profile when you attempt to save the content to Laserfiche.
 <a href="../assets/images/profileMappingTab.png"><img src="../assets/images/profileMappingTab.png"></a>
+
+### Default Profile
+- If you try to save a file to Laserfiche and its SharePoint Content Type is not mapped to any Profile, you will see the error message at the top of the Page. To avoid creating a profile for every possible content type, you can set a default mapping as shown below.
+<a href="../assets/images/defaultMapping.png"><img src="../assets/images/defaultMapping.png"></a>
