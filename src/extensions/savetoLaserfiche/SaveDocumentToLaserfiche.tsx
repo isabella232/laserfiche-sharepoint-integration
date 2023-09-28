@@ -53,7 +53,7 @@ export class SaveDocumentToLaserfiche {
         );
         return result;
       } else {
-        throw Error('You are not logged in or there was an issue retrieving data from SharePoint. Please try again.')
+        throw Error('You are not signed in or there was an issue retrieving data from SharePoint. Please try again.')
       }
     } else {
       // user is not logged in
@@ -385,7 +385,7 @@ export class SaveDocumentToLaserfiche {
     const response = await this.deleteFileAsync();
     window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
     if (!response.ok) {
-      throw Error(`Error occurred deleting file: ${response.statusText}`);
+      throw Error(`An error occurred while deleting file: ${response.statusText}`);
     }
   }
 
@@ -419,7 +419,7 @@ export class SaveDocumentToLaserfiche {
     if (!deleteFile.ok) {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       throw Error(
-        `Error occurred replacing file with link: ${deleteFile.statusText}`
+        `An error occurred while replacing file with link: ${deleteFile.statusText}`
       );
     }
   }
@@ -446,7 +446,7 @@ export class SaveDocumentToLaserfiche {
     } else {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       throw Error(
-        `Error occurred replacing file with link: ${resp.statusText}`
+        `An error occurred while replacing file with link: ${resp.statusText}`
       );
     }
   }
@@ -478,7 +478,7 @@ export class SaveDocumentToLaserfiche {
     if (!resp.ok) {
       window.localStorage.removeItem(SP_LOCAL_STORAGE_KEY);
       throw Error(
-        `Error occurred replacing file with link: ${resp.statusText}`
+        `An error occurred while replacing file with link: ${resp.statusText}`
       );
     }
   }

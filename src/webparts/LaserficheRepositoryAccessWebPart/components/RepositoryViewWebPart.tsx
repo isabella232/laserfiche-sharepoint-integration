@@ -60,12 +60,12 @@ const cols: ColumnDef[] = [
 ];
 
 const fileValidation = 'Please select the file to upload';
-const fileSizeValidation = 'Please select a file below 100MB size';
-const fileNameValidation = 'Please provide proper name of the file';
+const fileSizeValidation = 'Please select a file below 100MB in size';
+const fileNameValidation = 'Please provide a valid filename';
 const fileNameWithBacklash =
-  'Please provide proper name of the file without backslash';
-const folderValidation = 'Please provide folder name';
-const folderNameValidation = 'Invalid Name, only alphanumeric are allowed.';
+  'Please provide a valid filename without backslash';
+const folderValidation = 'Please provide a folder name';
+const folderNameValidation = 'Invalid Name, only alphanumeric characters are allowed.';
 const folderExists = 'Object already exists';
 
 export default function RepositoryViewComponent(props: {

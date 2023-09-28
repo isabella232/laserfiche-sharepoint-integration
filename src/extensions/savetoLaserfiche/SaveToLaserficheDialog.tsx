@@ -107,7 +107,7 @@ function SaveToLaserficheDialog(props: {
               setError(
                 <>
                   <span>{err.message}.</span>
-                  <div>{`Check to see if entry with id "${props.spFileMetadata.entryId}" exists and you have access to it. If you do not, contact your administrator.`}</div>
+                  <div>{`Verify that an entry with ID "${props.spFileMetadata.entryId}" exists and that you have access to it.`}</div>
                 </>
               );
               console.error(err);
