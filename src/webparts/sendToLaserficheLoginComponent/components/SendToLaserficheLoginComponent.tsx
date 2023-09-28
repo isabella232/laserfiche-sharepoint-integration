@@ -72,7 +72,7 @@ export default function SendToLaserficheLoginComponent(
       );
       await dialog.show();
       if (!dialog.successful) {
-        console.warn('Could not login successfully');
+        console.warn('Could not sign in successfully');
       }
     }
   };
@@ -114,11 +114,11 @@ export default function SendToLaserficheLoginComponent(
 
           await dialog.show();
           if (!dialog.successful) {
-            console.warn('Could not login successfully');
+            console.warn('Could not sign in successfully');
           }
         }
       } catch (err) {
-        console.error(`Unable to initialize login page: ${err}`);
+        console.error(`Unable to initialize sign-in page: ${err}`);
       }
     };
 
@@ -150,7 +150,7 @@ export default function SendToLaserficheLoginComponent(
             </p>
           ) : (
             <p>
-              You are not signed in. You can sign in using the button below.
+              You are not signed in. You can sign in using the following button.
             </p>
           )}
         </>

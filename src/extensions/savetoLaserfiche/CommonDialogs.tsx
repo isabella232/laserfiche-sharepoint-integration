@@ -27,7 +27,7 @@ const EXISTING_SP_DOCUMENT_DELETED =
 const EXISTING_SP_DOCUMENT_REPLACED =
   'The existing SharePoint document was replaced with a link to the document in Laserfiche.';
 const METADATA_FAILED_TO_SAVE_INVALID_FIELD =
-  'All metadata failed to save due to at least one invalid field.';
+  'Unable to save metadata due to at least one invalid field value.';
 const CLOSE = 'Close';
 const VIEW_FILE_IN_LASERFICHE = 'View file in Laserfiche';
 

@@ -7,14 +7,14 @@ export default function HomePage(): JSX.Element {
     <div className='p-3'>
       <main className='bg-white shadow-sm'>
         <p className='adminContent'>
-          The Laserfiche Administration page lets you edit your SharePoint and
+          Use the Laserfiche Administration page to edit your SharePoint and
           Laserfiche configuration. Sign in and select the task you want to
-          perform from the menu on the top of this section.
+          perform from the menu at the top of this section.
         </p>
         <p className='adminContent'>
           For more information, see the{' '}
           <a
-            href='https://doc.laserfiche.com/laserfiche.documentation/11/administration/en-us/Default.htm#../Subsystems/Integrations/Content/SharePoint/SharePoint2022Integration.htm'
+            href='https://laserfiche.github.io/laserfiche-sharepoint-integration/'
             target='_blank'
             rel='noreferrer'
             style={{color: '#0079d6'}}
@@ -31,9 +31,9 @@ export default function HomePage(): JSX.Element {
             <span>
               Profiles govern how documents in SharePoint will be saved to
               Laserfiche. You can create multiple profiles for different
-              SharePoint content types. For example, you may want applications
-              stored differently than invoices, and thus you’ll create separate
-              profiles for each.
+              SharePoint content types. For example, if you want applications
+              stored differently than invoices, create separate
+              profiles for each content type.
             </span>
           </p>
           <p>

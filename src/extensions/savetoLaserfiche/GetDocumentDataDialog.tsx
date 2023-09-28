@@ -90,9 +90,9 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
 }
 
 const FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS =
-  'The following SharePoint fields do not have a value for this document, but are required to save to Laserfiche, based on configured mappings:';
+  'The following SharePoint fields are mapped to required fields in Laserfiche and must have valid values:';
 const PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN =
-  'Please ensure these fields exist for this document and try again.';
+  'Please fill out the required fields and try again.';
 const CANCEL = 'Cancel';
 const NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING =
   'No SharePoint Content Type exists for this document and no default mapping exists.';
@@ -115,16 +115,6 @@ function GetDocumentDialogData(props: {
   >(undefined);
 
   const [error, setError] = React.useState<JSX.Element | undefined>(undefined);
-
-  if (missingFields) {
-    <span>
-      {
-        FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS
-      }
-      {missingFields}
-      {PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN}
-    </span>;
-  }
 
   const listFields = (
     <ul>
@@ -502,9 +492,11 @@ function MissingFieldsDialog(props: {
 }): JSX.Element {
   const textInside = (
     <span>
-      The following SharePoint field values are blank and are mapped to required
-      Laserfiche fields:
-      {props.missingFields}Please fill out these required fields and try again.
+      {
+        FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS
+      }
+      {props.missingFields}
+      {PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN}
     </span>
   );
 
