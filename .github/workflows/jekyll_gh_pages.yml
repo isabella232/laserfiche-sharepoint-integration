@@ -4,7 +4,7 @@ name: Deploy SharePoint Integration Documentation
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: ["robbie/documentation"]
+    branches: ["1.x"]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
