@@ -12,9 +12,7 @@ on:
 env:
   packagePath: sharepoint/solution/LaserficheSharePointOnlineIntegration.sppkg
   packagePathUserDocs: UserDocuments
-  majorVersion: 1
-  minorVersion: 0
-  fullVersion: $majorVersion.$minorVersion.${{github.run_number}}
+  fullVersion: 1.0.${{github.run_number}}
 
 jobs:
   build:
