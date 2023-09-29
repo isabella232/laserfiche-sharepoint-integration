@@ -14,7 +14,7 @@ env:
   packagePathUserDocs: UserDocuments
   majorVersion: 1
   minorVersion: 0
-  fullVersion: ${{env.majorVersion}}.${{env.minorVersion}}.${{github.run_number}}
+  fullVersion: $majorVersion.$minorVersion.${{github.run_number}}
 
 jobs:
   build:
