@@ -36,7 +36,7 @@ jobs:
           message: Workflow run ${{github.server_url}}/${{github.repository}}/actions/runs/${{ github.run_id}}
 
       - name: replace version
-        run: sed -i 's/VERSION_TO_UPDATE/${{env.fullVersion}}/g' ./../config/package-solution.json
+        run: sed -i 's/VERSION_TO_UPDATE/${{env.fullVersion}}/g' config/package-solution.json
 
       - name: Install dependencies
         run: npm ci
