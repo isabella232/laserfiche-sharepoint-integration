@@ -39,9 +39,6 @@ jobs:
       - name: replace package.json version
         run: sed -i 's/VERSION_TO_UPDATE/${{env.fullVersion}}/g' package.json
 
-      - name: echo
-        run: cat config/package-solution.json
-
       - name: Install dependencies
         run: npm ci
 
