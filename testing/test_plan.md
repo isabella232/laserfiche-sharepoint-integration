@@ -147,14 +147,7 @@ Prerequisites
 - Repository Explorer web part must exist
 
 Steps:
-
-1. Create a new folder by clicking on the folder icon with the plus sign inside
-   - Expected Result:
-1. Double-click on the folder to go into it.
-1. Create another folder within the first and click into it.
-1. Click on the upload button and choose a file to upload.
-1. Click on the uploaded file to select it and then click the icon of the the northeast arrow in a square to open the file in Laserfiche
-1. Use the breadcrumb navigation above the column titles to navigate back to the top level of the repository.
+1. Follow the instructions in the [Documentation](https://laserfiche.github.io/laserfiche-sharepoint-integration/docs/admin-documentation/adding-app-to-sp-site) for setting up the Repository Explorer Page.
 
 Expected Results:
 

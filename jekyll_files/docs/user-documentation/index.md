@@ -10,20 +10,10 @@ has_children: true
 ## PRE-RELEASE DOCUMENTATION - SUBJECT TO CHANGE
 
 ## Overview
-Laserfiche SharePoint Integration comprises of three web parts:
+Laserfiche SharePoint Integration provides two services:
 
-### The Repository Explorer web part
-This SharePoint web part provides a view to browse the content of a
-Laserfiche cloud repository and open documents in Web Client. For more information, consult the [Repository Explorer Documentation](./repository-explorer-usage)
+### The Save To Laserfiche Command
+This provides the option to export documents directly from SharePoint to Laserfiche.
 
-### The Laserfiche Sign In web part
-
-This SharePoint web part allows you to export files directly from SharePoint to Laserfiche. It provides the essential functionality of the SharePoint/Laserfiche Integration. Advanced Settings can be configured in the [Admin Configuration Documentation](../admin-documentation/configure-app-in-sharepoint).
-
-### The Admin Configuration web part 
-
-This SharePoint web part is used to define how SharePoint metadata should map to Laserfiche
-metadata when sending Documents from SharePoint to Laserfiche, as well
-as where to save the document itself in Laserfiche. This web part contains three tabs. 
-For more information, consult the [Admin Configuration Documentation](../admin-documentation/configure-app-in-sharepoint)
-
+### The Repository View
+This web part allows you to view your Laserfiche Repository inside SharePoint webpages.

@@ -16,7 +16,6 @@ import { RepositoryClientExInternal } from '../../../repository-client/repositor
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import { getRegion } from '../../../Utils/Funcs';
-import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 import styles from './LaserficheAdminConfiguration.module.scss';
 import { SPPermission } from '@microsoft/sp-page-context';
 
@@ -66,42 +65,43 @@ export default function LaserficheAdminConfiguration(
 
   React.useEffect(() => {
     const initializeComponentAsync: () => Promise<void> = async () => {
-      SPComponentLoader.loadCss(
-        LF_INDIGO_PINK_CSS_URL
-      );
-      SPComponentLoader.loadCss(
-        LF_MS_OFFICE_LITE_CSS_URL
-      );
-      await SPComponentLoader.loadScript(
-        ZONE_JS_URL
-      );
-      await SPComponentLoader.loadScript(
-        LF_UI_COMPONENTS_URL
-      );
-      const loginCompleted: () => Promise<void> = async () => {
-        await getAndInitializeRepositoryClientAndServicesAsync();
-        setLoggedIn(true);
-      };
-      const logoutCompleted: () => Promise<void> = async () => {
-        setLoggedIn(false);
-      };
-
-      loginComponent.current.addEventListener('loginCompleted', loginCompleted);
-      loginComponent.current.addEventListener(
-        'logoutCompleted',
-        logoutCompleted
-      );
-      if (loginComponent.current.authorization_credentials) {
-        await getAndInitializeRepositoryClientAndServicesAsync();
-        setLoggedIn(true);
+      try {
+        SPComponentLoader.loadCss(
+          LF_INDIGO_PINK_CSS_URL
+        );
+        SPComponentLoader.loadCss(
+          LF_MS_OFFICE_LITE_CSS_URL
+        );
+        await SPComponentLoader.loadScript(
+          ZONE_JS_URL
+        );
+        await SPComponentLoader.loadScript(
+          LF_UI_COMPONENTS_URL
+        );
+        const loginCompleted: () => Promise<void> = async () => {
+          await getAndInitializeRepositoryClientAndServicesAsync();
+          setLoggedIn(true);
+        };
+        const logoutCompleted: () => Promise<void> = async () => {
+          setLoggedIn(false);
+        };
+  
+        loginComponent.current.addEventListener('loginCompleted', loginCompleted);
+        loginComponent.current.addEventListener(
+          'logoutCompleted',
+          logoutCompleted
+        );
+        if (loginComponent.current.authorization_credentials) {
+          await getAndInitializeRepositoryClientAndServicesAsync();
+          setLoggedIn(true);
+        }
+      }
+      catch (err) {
+        console.error(`Error initializing configuration page: ${err}`);
       }
     };
 
-    initializeComponentAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void initializeComponentAsync();
   }, []);
 
   return (

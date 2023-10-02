@@ -9,7 +9,6 @@ import {
   PostEntryWithEdocMetadataRequest,
   PutFieldValsRequest,
   FileParameter,
-  ProblemDetails,
 } from '@laserfiche/lf-repository-api-client';
 import {
   LfRepoTreeNodeService,
@@ -61,12 +60,13 @@ const cols: ColumnDef[] = [
 ];
 
 const fileValidation = 'Please select the file to upload';
-const fileSizeValidation = 'Please select a file below 100MB size';
-const fileNameValidation = 'Please provide proper name of the file';
+const fileSizeValidation = 'Please select a file below 100MB in size';
+const fileNameValidation = 'Please provide a valid filename';
 const fileNameWithBacklash =
-  'Please provide proper name of the file without backslash';
-const folderValidation = 'Please provide folder name';
-const folderNameValidation = 'Invalid Name, only alphanumeric are allowed.';
+  'Please provide a valid filename without backslash';
+const folderValidation = 'Please provide a folder name';
+const folderNameValidation =
+  'Invalid Name, only alphanumeric characters are allowed.';
 const folderExists = 'Object already exists';
 
 export default function RepositoryViewComponent(props: {
@@ -141,10 +141,14 @@ export default function RepositoryViewComponent(props: {
           'pageCount',
           'templateName',
         ];
-        await repoBrowser?.initAsync(lfRepoTreeService);
-        setParentItem(repoBrowser?.currentFolder as LfRepoTreeNode);
-        repoBrowser?.setColumnsToDisplay(cols);
-        await repoBrowser?.refreshAsync();
+        try {
+          await repoBrowser?.initAsync(lfRepoTreeService);
+          setParentItem(repoBrowser?.currentFolder as LfRepoTreeNode);
+          repoBrowser?.setColumnsToDisplay(cols);
+          await repoBrowser?.refreshAsync();
+        } catch (err) {
+          console.error(err);
+        }
       } else {
         console.debug(
           'Unable to initialize tree, lfRepoTreeService is undefined'
@@ -152,11 +156,7 @@ export default function RepositoryViewComponent(props: {
       }
     };
     if (props.repoClient) {
-      initializeTreeAsync().catch((err: Error | ProblemDetails) => {
-        console.warn(
-          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-        );
-      });
+      void initializeTreeAsync();
     }
   }, [props.repoClient, props.loggedIn]);
 
@@ -180,16 +180,22 @@ export default function RepositoryViewComponent(props: {
     }
   };
 
+  const refreshFolderBrowserAsync: () => Promise<void> = async () => {
+    await repositoryBrowser.current.refreshAsync(false);
+  };
+
   return (
     <>
       <div>
-        <main className='bg-white shadow-sm'>
-          <div style={{margin: '10px 0px'}}>
+        <main className='bg-white'>
+          <div style={{ margin: '10px 0px' }}>
             <img
               style={{ width: '30px' }}
               src={require('./../../../Assets/Images/laserfiche-logo.png')}
             />
-            <span className={styles.browserTitle}>Laserfiche Repository Explorer</span>
+            <span className={styles.browserTitle}>
+              Laserfiche Repository Explorer
+            </span>
           </div>
           {props.loggedIn && (
             <>
@@ -199,6 +205,7 @@ export default function RepositoryViewComponent(props: {
                 parentItem={parentItem}
                 loggedIn={props.loggedIn}
                 webClientUrl={props.webClientUrl}
+                refreshFolderBrowserAsync={refreshFolderBrowserAsync}
               />
               <div
                 className='lf-folder-browser-sample-container'
@@ -229,6 +236,7 @@ function RepositoryBrowserToolbar(props: {
   selectedItem: LfRepoTreeNode;
   parentItem: LfRepoTreeNode;
   loggedIn: boolean;
+  refreshFolderBrowserAsync: () => Promise<void>;
 }): JSX.Element {
   const [showUploadModal, setShowUploadModal] = React.useState(false);
   const [showCreateModal, setShowCreateModal] = React.useState(false);
@@ -253,6 +261,14 @@ function RepositoryBrowserToolbar(props: {
         repoId
       );
       window.open(webClientNodeUrl);
+    } else if (props.parentItem?.id) {
+      const webClientNodeUrl = getEntryWebAccessUrl(
+        props.parentItem.id,
+        props.webClientUrl,
+        props.parentItem.isContainer,
+        repoId
+      );
+      window.open(webClientNodeUrl);
     } else {
       setShowAlertModal(true);
     }
@@ -268,81 +284,105 @@ function RepositoryBrowserToolbar(props: {
         <div className={styles.buttonContainer}>
           <button
             className={styles.lfMaterialIconButton}
-            title='Open File'
+            title='Open entry in Laserfiche'
             onClick={openFileOrFolder}
           >
-            <span className='material-icons-outlined'>open_in_new</span>
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#open`}
+            />
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title='Upload File'
+            title='Upload file to Laserfiche'
             onClick={openImportFileModal}
           >
-            <span className='material-icons-outlined'>upload</span>
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#upload`}
+            />
           </button>
           <button
             className={styles.lfMaterialIconButton}
-            title='Create Folder'
+            title='Create folder in Laserfiche'
             onClick={openNewFolderModal}
           >
-            <span className='material-icons-outlined'>create_new_folder</span>
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#add-folder`}
+            />
+          </button>
+          <button
+            className={styles.lfMaterialIconButton}
+            title='Refresh Laserfiche folder'
+            onClick={props.refreshFolderBrowserAsync}
+          >
+            <img
+              className={styles.waIcon}
+              src={`${require('./../../../Assets/Images/waicons.svg')}#refresh`}
+            />
           </button>
         </div>
       </div>
-      <div
-        className={styles.modal}
-        id='uploadModal'
-        data-backdrop='static'
-        data-keyboard='false'
-        hidden={!showUploadModal}
-      >
-        {showUploadModal && (
-          <ImportFileModal
+      {showUploadModal && (
+        <div
+          className={styles.modal}
+          id='uploadModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          {showUploadModal && (
+            <ImportFileModal
+              repoClient={props.repoClient}
+              loggedIn={props.loggedIn}
+              parentItem={props.parentItem}
+              closeImportModal={() => setShowUploadModal(false)}
+            />
+          )}
+        </div>
+      )}
+      {showCreateModal && (
+        <div
+          className={styles.modal}
+          id='createModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          <CreateFolderModal
             repoClient={props.repoClient}
-            loggedIn={props.loggedIn}
+            closeCreateFolderModal={() => setShowCreateModal(false)}
             parentItem={props.parentItem}
-            closeImportModal={() => setShowUploadModal(false)}
           />
-        )}
-      </div>
-      <div
-        className={styles.modal}
-        id='createModal'
-        data-backdrop='static'
-        data-keyboard='false'
-        hidden={!showCreateModal}
-      >
-        <CreateFolderModal
-          repoClient={props.repoClient}
-          closeCreateFolderModal={() => setShowCreateModal(false)}
-          parentItem={props.parentItem}
-        />
-      </div>
-      <div
-        className={styles.modal}
-        id='AlertModal'
-        data-backdrop='static'
-        data-keyboard='false'
-        hidden={!showAlertModal}
-      >
-        <div className='modal-dialog'>
-          <div
-            className={`${styles.modalContent} ${styles.wrapper}`}
-          >
-            <div className='modal-body'>Please select file/folder to open</div>
-            <div className='modal-footer'>
-              <button
-                type='button'
-                className='lf-button primary-button'
-                data-dismiss='modal'
-                onClick={confirmAlertButton}
-              >
-                OK
-              </button>
+        </div>
+      )}
+      {showAlertModal && (
+        <div
+          className={styles.modal}
+          id='AlertModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          <div className='modal-dialog'>
+            <div
+              className={`modal-content ${styles.modalContent} ${styles.wrapper}`}
+            >
+              <div className='modal-body'>
+                Please select file/folder to open
+              </div>
+              <div className='modal-footer'>
+                <button
+                  type='button'
+                  className='lf-button primary-button'
+                  data-dismiss='modal'
+                  onClick={confirmAlertButton}
+                >
+                  OK
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
@@ -365,6 +405,7 @@ function ImportFileModal(props: {
   const [fileName, setFileName] = React.useState<string | undefined>(undefined);
   const [adhocDialogOpened, setAdhocDialogOpened] =
     React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | undefined>(undefined);
 
   const onDialogOpened: () => void = () => {
     setAdhocDialogOpened(true);
@@ -376,18 +417,18 @@ function ImportFileModal(props: {
 
   React.useEffect(() => {
     const initializeFieldContainerAsync: () => Promise<void> = async () => {
-      fieldContainer.current.addEventListener('dialogOpened', onDialogOpened);
-      fieldContainer.current.addEventListener('dialogClosed', onDialogClosed);
+      try {
+        fieldContainer.current.addEventListener('dialogOpened', onDialogOpened);
+        fieldContainer.current.addEventListener('dialogClosed', onDialogClosed);
 
-      lfFieldsService = new LfFieldsService(props.repoClient);
-      await fieldContainer.current.initAsync(lfFieldsService);
+        lfFieldsService = new LfFieldsService(props.repoClient);
+        await fieldContainer.current.initAsync(lfFieldsService);
+      } catch (err) {
+        console.error(error);
+      }
     };
     if (props.repoClient) {
-      initializeFieldContainerAsync().catch((err: Error | ProblemDetails) => {
-        console.warn(
-          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-        );
-      });
+      void initializeFieldContainerAsync();
     }
   }, [props.repoClient, props.loggedIn]);
 
@@ -396,88 +437,95 @@ function ImportFileModal(props: {
   };
 
   const importFileToRepositoryAsync: () => Promise<void> = async () => {
-    const fileData = file;
-    const repoId = await props.repoClient.getCurrentRepoId();
-    setFileUploadPercentage(5);
-    setImportFileValidationMessage(undefined);
-    if (!fileData) {
-      setImportFileValidationMessage(fileValidation);
-      return;
-    }
-    const fileDataSize = fileData.size;
-    if (fileDataSize > 100000000) {
-      setImportFileValidationMessage(fileSizeValidation);
-      return;
-    }
-    if (!fileName) {
-      setImportFileValidationMessage(fileNameValidation);
-      return;
-    }
-    const extension = PathUtils.getCleanedExtension(fileData.name);
-    const renamedFile = new File([fileData], fileName + extension);
-    const fileContainsBacklash = fileName.includes('\\');
-    if (fileContainsBacklash) {
-      setImportFileValidationMessage(fileNameWithBacklash);
-      return;
-    }
-    const fieldValidation = fieldContainer.current.forceValidation();
-    if (fieldValidation) {
-      const fieldValues = fieldContainer.current.getFieldValues();
-      const formattedFieldValues:
-        | {
-            [key: string]: FieldToUpdate;
-          }
-        | undefined = {};
-
-      for (const key in fieldValues) {
-        const value = fieldValues[key];
-        formattedFieldValues[key] = new FieldToUpdate({
-          ...value,
-          values: value.values.map((val) => new ValueToUpdate(val)),
-        });
+    try {
+      const fileData = file;
+      const repoId = await props.repoClient.getCurrentRepoId();
+      setFileUploadPercentage(5);
+      setImportFileValidationMessage(undefined);
+      if (!fileData) {
+        setFileUploadPercentage(0);
+        setImportFileValidationMessage(fileValidation);
+        return;
       }
-
-      const templateValue = getTemplateName();
-      let templateName;
-      if (templateValue) {
-        templateName = templateValue;
+      const fileDataSize = fileData.size;
+      if (fileDataSize > 100000000) {
+        setFileUploadPercentage(0);
+        setImportFileValidationMessage(fileSizeValidation);
+        return;
       }
+      if (!fileName) {
+        setFileUploadPercentage(0);
+        setImportFileValidationMessage(fileNameValidation);
+        return;
+      }
+      const extension = PathUtils.getCleanedExtension(fileData.name);
+      const renamedFile = new File([fileData], fileName + extension);
+      const fileContainsBacklash = fileName.includes('\\');
+      if (fileContainsBacklash) {
+        setFileUploadPercentage(0);
+        setImportFileValidationMessage(fileNameWithBacklash);
+        return;
+      }
+      const fieldValidation = fieldContainer.current.forceValidation();
+      if (fieldValidation) {
+        const fieldValues = fieldContainer.current.getFieldValues();
+        const formattedFieldValues:
+          | {
+              [key: string]: FieldToUpdate;
+            }
+          | undefined = {};
 
-      setFileUploadPercentage(100);
-      const fieldsmetadata: PostEntryWithEdocMetadataRequest =
-        new PostEntryWithEdocMetadataRequest({
-          template: templateName,
-          metadata: new PutFieldValsRequest({
-            fields: formattedFieldValues,
-          }),
-        });
-      const fileNameWithExt = fileName + extension;
-      const fileextensionperiod = extension;
-      const fileNameNoPeriod = fileName;
-      const parentEntryId = props.parentItem.id;
+        for (const key in fieldValues) {
+          const value = fieldValues[key];
+          formattedFieldValues[key] = new FieldToUpdate({
+            ...value,
+            values: value.values.map((val) => new ValueToUpdate(val)),
+          });
+        }
 
-      const file: FileParameter = {
-        data: renamedFile,
-        fileName: fileNameWithExt,
-      };
-      const requestParameters = {
-        repoId,
-        parentEntryId: Number.parseInt(parentEntryId, 10),
-        electronicDocument: file,
-        autoRename: true,
-        fileName: fileNameNoPeriod,
-        request: fieldsmetadata,
-        extension: fileextensionperiod,
-      };
+        const templateValue = getTemplateName();
+        let templateName;
+        if (templateValue) {
+          templateName = templateValue;
+        }
 
-      try {
+        setFileUploadPercentage(80);
+        const fieldsmetadata: PostEntryWithEdocMetadataRequest =
+          new PostEntryWithEdocMetadataRequest({
+            template: templateName,
+            metadata: new PutFieldValsRequest({
+              fields: formattedFieldValues,
+            }),
+          });
+        const fileNameWithExt = fileName + extension;
+        const fileextensionperiod = extension;
+        const fileNameNoPeriod = fileName;
+        const parentEntryId = props.parentItem.id;
+
+        const file: FileParameter = {
+          data: renamedFile,
+          fileName: fileNameWithExt,
+        };
+        const requestParameters = {
+          repoId,
+          parentEntryId: Number.parseInt(parentEntryId, 10),
+          electronicDocument: file,
+          autoRename: true,
+          fileName: fileNameNoPeriod,
+          request: fieldsmetadata,
+          extension: fileextensionperiod,
+        };
+
         await props.repoClient.entriesClient.importDocument(requestParameters);
+        setFileUploadPercentage(100);
         props.closeImportModal();
-      } catch (error) {
-        window.alert('Error uploding file:' + JSON.stringify(error));
+      } else {
+        fieldContainer.current.forceValidation();
       }
-    } else {
-      fieldContainer.current.forceValidation();
+    } catch (err) {
+      setFileUploadPercentage(0);
+      setError(err.message);
+      console.error(error);
     }
   };
 
@@ -500,6 +548,7 @@ function ImportFileModal(props: {
       setFile(inputFile);
       setFileName(withoutExtension);
     } else {
+      setFileUploadPercentage(0);
       setImportFileValidationMessage(fileSizeValidation);
     }
   }
@@ -521,10 +570,10 @@ function ImportFileModal(props: {
   return (
     <div className='modal-dialog modal-dialog-scrollable modal-lg'>
       <div className={`modal-content ${styles.modalContent} ${styles.wrapper}`}>
-        <div className='modal-header'>
-          <h5 className='modal-title' id='ModalLabel'>
-            Upload File
-          </h5>
+        <div className={`modal-header ${styles.header}`}>
+          <div className='modal-title' id='ModalLabel'>
+            Upload File to Laserfiche
+          </div>
           <div
             className='progress'
             style={{
@@ -544,51 +593,61 @@ function ImportFileModal(props: {
             </div>
           </div>
         </div>
-        <div className='modal-body' style={{ height: '600px' }}>
-          <div className='input-group mb-3'>
-            <div className='custom-file'>
-              <input
-                type='file'
-                className='custom-file-input'
-                id='importFile'
-                onChange={setFileToImport}
-                aria-describedby='inputGroupFileAddon04'
-                placeholder='Choose file'
-              />
-              <label className='custom-file-label' id='importFileName'>
-                {file?.name ? file.name : 'Choose a file'}
-              </label>
-            </div>
-          </div>
-          {validationError}
-          <div className='form-group row mb-3'>
-            <label className='col-sm-3 col-form-label'>Name</label>
-            <div className='col-sm-10'>
-              <input
-                type='text'
-                className='form-control'
-                id='uploadFileID'
-                onChange={setNewFileName}
-                value={fileName}
-              />
-            </div>
-          </div>
-          <div
-            className={`lf-component-container${
-              adhocDialogOpened ? ' lfAdhocMinHeight' : ''
-            }`}
-          >
-            <lf-field-container
-              collapsible='true'
-              startCollapsed='true'
-              ref={fieldContainer}
-            />
-          </div>
+        <div className={`modal-body ${styles.contentBox}`}>
+          {!error && (
+            <>
+              <div className='input-group mb-3'>
+                <div className='custom-file'>
+                  <input
+                    type='file'
+                    className='custom-file-input'
+                    id='importFile'
+                    onChange={setFileToImport}
+                    aria-describedby='inputGroupFileAddon04'
+                    placeholder='Choose file'
+                  />
+                  <label className='custom-file-label' id='importFileName'>
+                    {file?.name ? file.name : 'Choose a file'}
+                  </label>
+                </div>
+              </div>
+              {validationError}
+              <div className='form-group row mb-3'>
+                <label className='col-sm-3 col-form-label'>Name</label>
+                <div className='col-sm-9'>
+                  <input
+                    type='text'
+                    className='form-control'
+                    id='uploadFileID'
+                    onChange={setNewFileName}
+                    value={fileName}
+                  />
+                </div>
+              </div>
+              <div
+                className={`lf-component-container${
+                  adhocDialogOpened ? ' lfAdhocMinHeight' : ''
+                }`}
+              >
+                <lf-field-container
+                  collapsible='true'
+                  startCollapsed='true'
+                  ref={fieldContainer}
+                />
+              </div>
+            </>
+          )}
+          {error && (
+            <span
+              style={{ justifyContent: 'center' }}
+            >{`Error uploading: ${error}`}</span>
+          )}
         </div>
-        <div className='modal-footer'>
+        <div className={`modal-footer ${styles.footer}`}>
           <button
             type='button'
             className='lf-button primary-button'
+            disabled={fileUploadPercentage > 0}
             onClick={importFileToRepositoryAsync}
           >
             OK

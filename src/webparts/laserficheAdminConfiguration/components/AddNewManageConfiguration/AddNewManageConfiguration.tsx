@@ -11,7 +11,7 @@ import {
 import { SPHttpClient, ISPHttpClientOptions } from '@microsoft/sp-http';
 import { IListItem } from '../IListItem';
 import {
-  ADMIN_CONFIGURATION_LIST,
+  LASERFICHE_ADMIN_CONFIGURATION_NAME,
   MANAGE_CONFIGURATIONS,
 } from '../../../constants';
 import { getSPListURL } from '../../../../Utils/Funcs';
@@ -49,7 +49,9 @@ export default function AddNewManageConfiguration(
   const [profileConfig, setProfileConfig] = useState(initialConfig);
   const [validate, setValidate] = useState(false);
   const [configNameError, setConfigNameError] = useState(undefined);
-  const handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void = (profileConfig: ProfileConfiguration) => {
+  const handleProfileConfigUpdate: (
+    profileConfig: ProfileConfiguration
+  ) => void = (profileConfig: ProfileConfiguration) => {
     setValidate(false);
     setProfileConfig(profileConfig);
   };
@@ -64,10 +66,10 @@ export default function AddNewManageConfiguration(
   async function saveSPConfigurationsAsync(
     Id: string,
     configsToSave: ProfileConfiguration[]
-  ): Promise<boolean> {
+  ): Promise<void> {
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/items(${Id})`;
     const body: string = JSON.stringify({
       Title: MANAGE_CONFIGURATIONS,
@@ -88,20 +90,17 @@ export default function AddNewManageConfiguration(
       SPHttpClient.configurations.v1,
       options
     );
-    if (response.ok) {
-      return true;
-    } else {
-      return false;
+    if (!response.ok) {
+      throw Error(response.statusText);
     }
-    // TODO should this really throw?
   }
 
-  async function saveNewManageConfigurationAsync(): Promise<boolean> {
+  async function saveNewManageConfigurationAsync(): Promise<void> {
     setValidate(true);
     setConfigNameError(undefined);
     const validate = validateNewConfiguration(profileConfig);
     if (validate) {
-      const manageConfigurationConfig: IListItem[] = await GetItemIdByTitle();
+      const manageConfigurationConfig: IListItem[] = await GetItemIdForManageConfigurations();
       if (manageConfigurationConfig?.length > 0) {
         const configWithCurrentName = manageConfigurationConfig[0];
         const savedProfileConfigurations: ProfileConfiguration[] =
@@ -113,11 +112,10 @@ export default function AddNewManageConfiguration(
         if (!profileExists) {
           const allConfigurations =
             savedProfileConfigurations.concat(profileConfig);
-          const succeeeded = await saveSPConfigurationsAsync(
+          await saveSPConfigurationsAsync(
             configWithCurrentName.Id,
             allConfigurations
           );
-          return succeeeded;
         } else {
           setConfigNameError(
             <span>
@@ -127,42 +125,38 @@ export default function AddNewManageConfiguration(
           );
         }
       } else {
-        const suceeded = await saveNewPageConfigurationAsync();
-        return suceeded;
+        await saveNewPageConfigurationAsync();
       }
+    } else {
+      throw Error('Invalid configuration. Please review any errors.');
     }
-    return false;
   }
 
-  async function GetItemIdByTitle(): Promise<IListItem[]> {
+  async function GetItemIdForManageConfigurations(): Promise<IListItem[]> {
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/Items?$select=Id,Title,JsonValue&$filter=Title eq '${MANAGE_CONFIGURATIONS}'`;
-    try {
-      const res = await fetch(restApiUrl, {
-        method: 'GET',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-        },
-      });
-      const results = await res.json();
-      if (results.value.length > 0) {
-        return results.value as IListItem[];
-      } else {
-        return null;
-      }
-    } catch (error) {
-      console.log('error occured' + error);
+    const res = await fetch(restApiUrl, {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    const results = await res.json();
+    if (results.value.length > 0) {
+      return results.value as IListItem[];
+    } else {
+      return null;
     }
   }
 
-  async function saveNewPageConfigurationAsync(): Promise<boolean> {
+  async function saveNewPageConfigurationAsync(): Promise<void> {
     const profileConfigAsString = JSON.stringify([profileConfig]);
     const restApiUrl = `${getSPListURL(
       props.context,
-      ADMIN_CONFIGURATION_LIST
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
     )}/items`;
     const body: string = JSON.stringify({
       Title: MANAGE_CONFIGURATIONS,
@@ -181,10 +175,8 @@ export default function AddNewManageConfiguration(
       SPHttpClient.configurations.v1,
       options
     );
-    if (response.ok) {
-      return true;
-    } else {
-      return false;
+    if (!response.ok) {
+      throw Error(response.statusText);
     }
   }
 
@@ -192,7 +184,10 @@ export default function AddNewManageConfiguration(
   if (validate) {
     if (configNameError) {
       configNameValidation = configNameError;
-    } else if (!profileConfig.ConfigurationName || profileConfig.ConfigurationName.length === 0) {
+    } else if (
+      !profileConfig.ConfigurationName ||
+      profileConfig.ConfigurationName.length === 0
+    ) {
       configNameValidation = (
         <span>Please specify a name for this configuration</span>
       );
@@ -212,10 +207,7 @@ export default function AddNewManageConfiguration(
   const extraConfiguration = (
     <>
       <div className={`${styles.formGroupRow} form-group row`}>
-        <label
-          htmlFor='txt0'
-          className='col-sm-3 col-form-label'
-        >
+        <label htmlFor='txt0' className='col-sm-3 col-form-label'>
           Profile Name <span style={{ color: 'red' }}>*</span>
         </label>
         <div className='col-sm-6'>
