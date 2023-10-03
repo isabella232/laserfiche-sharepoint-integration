@@ -4,7 +4,13 @@ import { SPComponentLoader } from '@microsoft/sp-loader';
 import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
-import { clientId, LF_INDIGO_PINK_CSS_URL, LF_MS_OFFICE_LITE_CSS_URL, LF_UI_COMPONENTS_URL, ZONE_JS_URL } from '../../constants';
+import {
+  clientId,
+  LF_INDIGO_PINK_CSS_URL,
+  LF_MS_OFFICE_LITE_CSS_URL,
+  LF_UI_COMPONENTS_URL,
+  ZONE_JS_URL,
+} from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
 import { useEffect, useState } from 'react';
 import RepositoryViewComponent from './RepositoryViewWebPart';
@@ -13,7 +19,6 @@ require('../../../Assets/CSS/bootstrap.min.css');
 import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { getRegion } from '../../../Utils/Funcs';
-import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 import styles from './LaserficheRepositoryAccess.module.scss';
 
 declare global {
@@ -69,42 +74,37 @@ export default function LaserficheRepositoryAccessWebPart(
       };
 
     const initializeComponentAsync: () => Promise<void> = async () => {
-      await SPComponentLoader.loadScript(
-        ZONE_JS_URL
-      );
-      await SPComponentLoader.loadScript(
-        LF_UI_COMPONENTS_URL
-      );
-      SPComponentLoader.loadCss(
-        LF_INDIGO_PINK_CSS_URL
-      );
-      SPComponentLoader.loadCss(
-        LF_MS_OFFICE_LITE_CSS_URL
-      );
-      const loginCompleted: () => Promise<void> = async () => {
-        await getAndInitializeRepositoryClientAndServicesAsync();
-        setLoggedIn(true);
-      };
-      const logoutCompleted: () => Promise<void> = async () => {
-        setLoggedIn(false);
-      };
+      try {
+        await SPComponentLoader.loadScript(ZONE_JS_URL);
+        await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
+        SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+        SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
+        const loginCompleted: () => Promise<void> = async () => {
+          await getAndInitializeRepositoryClientAndServicesAsync();
+          setLoggedIn(true);
+        };
+        const logoutCompleted: () => Promise<void> = async () => {
+          setLoggedIn(false);
+        };
 
-      loginComponent.current.addEventListener('loginCompleted', loginCompleted);
-      loginComponent.current.addEventListener(
-        'logoutCompleted',
-        logoutCompleted
-      );
-      if (loginComponent.current.authorization_credentials) {
-        await getAndInitializeRepositoryClientAndServicesAsync();
-        setLoggedIn(true);
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompleted
+        );
+        loginComponent.current.addEventListener(
+          'logoutCompleted',
+          logoutCompleted
+        );
+        if (loginComponent.current.authorization_credentials) {
+          await getAndInitializeRepositoryClientAndServicesAsync();
+          setLoggedIn(true);
+        }
+      } catch (err) {
+        console.error(`Unable to initialize repository explorer: ${err}`);
       }
     };
 
-    initializeComponentAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void initializeComponentAsync();
   }, []);
 
   return (
