@@ -151,17 +151,17 @@ Steps:
 #### Test 'after import' configuration
 
 Steps:
-- Create a Profile named `Duplicate in Laserfiche` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import.
-- Create a Profile named `Replace with Link` that saves to the same folder and Replaces SharePoint file with a link after import.
-- Create a Profile named `Delete From SharePoint` that saves to the same folder and Deletes SharePoint file after import.
+1. Create a Profile named `Duplicate in Laserfiche` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import.
+1. Create a Profile named `Replace with Link` that saves to the same folder and Replaces SharePoint file with a link after import.
+1. Create a Profile named `Delete From SharePoint` that saves to the same folder and Deletes SharePoint file after import.
 
 Expected Results:
   - Those three profiles exist
 
 #### Test metadata configuration
 Steps:
-- Create a Profile named `number metadata` that saves to a folde of your choice and leaves a copy of the file in SharePoint after import. Assign a template that has a required number field in Laserfiche, and map the SharePoint Column `Actual Work` to the required number field.
-- Save the Profile
+1. Create a Profile named `number metadata` that saves to a folde of your choice and leaves a copy of the file in SharePoint after import. Assign a template that has a required number field in Laserfiche, and map the SharePoint Column `Actual Work` to the required number field.
+1. Save the Profile
 
 Expected Results:
 - Profile appears
@@ -176,24 +176,26 @@ Prerequisites:
 - Laserfiche Admin Configuration Page must already exist
 #### Test Default Profile with No Content Type 
 Steps:
-# TODO: remove content type from SP or re-order
+1. Inside the SharePoint site's `Documents` tab, remove the column displaying `Content Type`. 
+1. In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping. Make sure no other mappings exist.
+1. Attempt to save a file to Laserfiche inside the Documents tab.
 
-  - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
-  - # TODO save a document and add expected results
+Expected Results
+- The file is saved according to the Default Profile
 #### Test Default Profile
 Steps:
-  - Replace content type in SP
-  - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
-  - Eliminate all other mappings
-  - Save a document from the Documents Tab of the SharePoint site to Laserfiche
+1. Replace content type as a column in the Documents tab.
+1. In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
+1. Eliminate all other mappings
+1. Save a document from the Documents Tab of the SharePoint site to Laserfiche
 
 Expected Results:
   - The file should save in the destination folder you configured in the Default section.
 
 #### Test No Default Profile Save
 Steps:
-  - Remove all SharePoint Content Type -> Laserfiche Profile Mappings
-  - Attempt to save a Document from the documents tab
+1. Remove all SharePoint Content Type -> Laserfiche Profile Mappings
+1. Attempt to save a Document from the documents tab
 
 Expected Result:
   - Document does not save
@@ -201,69 +203,69 @@ Expected Result:
 
 #### Test Save when a required field doesn't exist
 Steps:
-  - Add SharePoint Column `Actual Work` to SharePoint Library
-  - Make sure that `Actual Work` has no value for a specific document
-  - Set the Default mapping to `number metadata`, and save. There should be no other mappings
-  - Attempt to save the specific document to Laserfiche
+1. Add SharePoint Column `Actual Work` to SharePoint Library
+1. Make sure that `Actual Work` has no value for a specific document
+1. Set the Default mapping to `number metadata`, and save. There should be no other mappings
+1. Attempt to save the specific document to Laserfiche
 
 Expected Results:
   - The document does not save
   - Error message that says that Actual Work doesn't have a value.
 #### Test metadata constraint failed case
 Steps:
-  - Add SharePoint Column "Actual Work" to SharePoint Library
-  - Add value for "Actual Work" for a specific document to be a very large number
-  - Set the Default mapping to `number metadata`, and save.
-  - Attempt to save the specific document to Laserfiche
+1. Add SharePoint Column "Actual Work" to SharePoint Library
+1. Add value for "Actual Work" for a specific document to be a very large number
+1. Set the Default mapping to `number metadata`, and save.
+1. Attempt to save the specific document to Laserfiche
   
 Expected Results:
   - The document should save, BUT
-  - you should get an Warning that says the metadata didn't save.
+  - There should be a warning that says the metadata didn't save.
 # TODO Capitalization Pass
 #### Test specific mapping overrides default
 Steps:
-  - Remove all Profile Mappings
-  - add a mapping from `[Default]` to `Default`
-  - add a mapping from `Document` to `number metadata`
-  - choose a Document in SharePoint
-  - update the `Actual Work` column of the document to have a value of 5
-  - attempt to save the document to Laserfiche
+1. Remove all Profile Mappings
+1. Add a mapping from `[Default]` to `Default`
+1. Add a mapping from `Document` to `number metadata`
+1. Choose a Document in SharePoint
+1. Update the `Actual Work` column of the document to have a value of 5
+1. Attempt to save the document to Laserfiche
 
 Expected Results:
   - The document should successfully save
   - The document's number field should have a value of 5.
 #### Test replace with URL action
 Steps:
-  - edit the mapping from `Document` so that it points to `Replace with Link`
-  - attempt to save a Document to Laserfiche
+1. Edit the mapping from `Document` so that it points to `Replace with Link`
+1. Attempt to save a Document to Laserfiche
 
 Expected Results:
   - The document should successfully appear in Laserfiche
   - In SharePoint, the document should be replaced with a link
-  - link should actually link to the document in LF
+  - Link should actually link to the document in LF
 
 #### Test delete after save to Laserfiche
 Steps:
-  - edit the mapping from  `Document` so that it points to `Delete From SharePoint`
-  - attempt to save a Document to Laserfiche
+1. Edit the mapping from  `Document` so that it points to `Delete From SharePoint`
+1. Attempt to save a Document to Laserfiche
 
 Expected Results:
   - The document should exist in Laserfiche and no longer exist in SharePoint
 
 #### Test saving .url files to Laserfiche
 Steps:
-  - attempt to save a .url file to Laserfiche
+1. Attempt to save a .url file to Laserfiche
 
 Expected Result:
   - You should be told that you can't save a .url file to Laserfiche.
 
 #### Test Mapping Content Types to multiple Profiles
 Steps:
-  - In addition to the existing `[Default]` -> `Default` mapping, add a mapping from `[Default]` to `Replace with Link`.
-  - Click Save
+1. In addition to the existing `[Default]` -> `Default` mapping, add a mapping from `[Default]` to `Replace with Link`.
+1. Click Save
 
 Expected Results
-  - the new mapping should not save
+  - The new mapping should not save
   - You should see an error message saying a mapping already exists for that content type
 ### Repository Explorer
 
