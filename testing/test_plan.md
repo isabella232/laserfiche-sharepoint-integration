@@ -98,11 +98,9 @@ Expected Results:
 Prerequisites:
 
 - Follow the [Installation](#installation) and [Site Configuration](#site-configuration) steps successfully
+- You must NOT BE a site owner of the site containing that page.
 
-#### Test Access Rights of Web Part
-Prerequisites:
-- the admin configuration web part must exist in a SharePoint Page
-- you must NOT BE a site owner of the site containing that page.
+#### Test Restricted Access to Web Part
 
 Steps:
 1. Attempt to open the admin configuration web part on the protected page.
