@@ -12,9 +12,10 @@ to ensure adequate coverage.
 
 - [Installation](#installation)
 - [Site Configuration](#site-configuration)
-- [Integration Configuration](#integration-configuration)
-- [Save to Laserfiche](#save-to-laserfiche)
-- [Repository View](#repository-view)
+- [Admin Access Rights](#admin-access-rights)
+- [Profiles](#profiles)
+- [Save to Laserfiche and Profile Mapping](#save-to-laserfiche-and-profile-mapping-tab)
+- [Repository Explorer](#repository-explorer)
 
 ### **Installation**
 
@@ -92,7 +93,7 @@ Expected Results:
 - App is registered successfully in Laserfiche dev console
 - You can sign in on all three pages you created above
 
-### Integration Configuration
+### Admin Access Rights
 
 Prerequisites:
 
