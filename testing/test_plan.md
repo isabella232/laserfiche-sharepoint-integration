@@ -122,7 +122,7 @@ Steps:
 #### Test Profile Error Handling
 Steps:
 1. Go to the Profiles tab and click the `Add Profile` button.
-1. Name the Profile, `Bad Profile`, select the Folder which you created in the functionality test of the Repository Explorer web part as the destination folder, and select the `General` template. In the Mapping section, Click `Add Field`, and choose `Actual Work` for the SharePoint Column and `Date (2)` for the Laserfiche Field.
+1. Name the Profile `Bad Profile`, select a folder of your choice as the destination folder, and select a template containing a Date field. In the Mapping section, Click `Add Field`, and choose `Actual Work` for the SharePoint Column and the Date field for the Laserfiche Field.
     - Expected Results: 
       - Warning/error that the data types don't match.
       - Profile is not saved.
@@ -142,6 +142,7 @@ Steps:
 1. Click the pencil button to edit a profile and add some compatible metadata mappings like a text type for the SharePoint Column and a String type for the Laserfiche Field, for example. Click Save.
     - Expected Results:
       - The page should indicate that the profile was saved.
+      - If you click edit again, you should see the changes that you originally made
 
 #### Test 'after import' configuration
 
@@ -155,11 +156,11 @@ Expected Results:
 
 #### Test metadata configuration
 Steps:
-1. Create a Profile named `number metadata` that saves to a folde of your choice and leaves a copy of the file in SharePoint after import. Assign a template that has a required number field in Laserfiche, and map the SharePoint Column `Actual Work` to the required number field.
-1. Save the Profile
+1. Create a Profile named `number metadata` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import. Assign a template that has a required number field in Laserfiche, and map the SharePoint Column `Actual Work` to the required number field.
+1. Save the Profile.
 
 Expected Results:
-- Profile appears
+- Profile appears.
 
 
 ### Save to Laserfiche and Profile Mapping Tab
@@ -172,20 +173,30 @@ Prerequisites:
 #### Test Default Profile with No Content Type 
 Steps:
 1. Inside the SharePoint site's `Documents` tab, remove the column displaying `Content Type`. 
-1. In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping. Make sure no other mappings exist.
+1. In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to save the mapping. Make sure no other mappings exist.
 1. Attempt to save a file to Laserfiche inside the Documents tab.
 
 Expected Results
 - The file is saved according to the Default Profile
+
+#### Test with No Default Profile and with No Content Type
+Steps:
+1. Inside the SharePoint site's `Documents` tab, remove the column displaying `Content Type` if it exists. 
+1. In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to save the mapping. Make sure no other mappings exist.
+1. Attempt to save a file to Laserfiche inside the Documents tab.
+
+Expected Results
+- The file is not saved
+- An error message explains that the file is not saved because there is no default mapping
 #### Test Default Profile
 Steps:
-1. Replace content type as a column in the Documents tab.
+1. Add `Content Type` as a column in the Documents tab if it doesn't already exist.
 1. In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
 1. Eliminate all other mappings
 1. Save a document from the Documents Tab of the SharePoint site to Laserfiche
 
 Expected Results:
-  - The file should save in the destination folder you configured in the Default section.
+  - The file should save in the destination folder you configured in the Default Profile.
 
 #### Test No Default Profile Save
 Steps:
@@ -220,7 +231,7 @@ Expected Results:
 #### Test specific mapping overrides default
 Steps:
 1. Remove all Profile Mappings
-1. Add a mapping from `[Default]` to `Default`
+1. Add a mapping from `[Default]` to `Example Profile Name`
 1. Add a mapping from `Document` to `number metadata`
 1. Choose a Document in SharePoint
 1. Update the `Actual Work` column of the document to have a value of 5
@@ -228,7 +239,7 @@ Steps:
 
 Expected Results:
   - The document should successfully save
-  - The document's number field should have a value of 5.
+  - The document's number field should have a value of 5 in Laserfiche Web Client.
 #### Test replace with URL action
 Steps:
 1. Edit the mapping from `Document` so that it points to `Replace with Link`
@@ -256,12 +267,13 @@ Expected Result:
 
 #### Test Mapping Content Types to multiple Profiles
 Steps:
-1. In addition to the existing `[Default]` -> `Default` mapping, add a mapping from `[Default]` to `Replace with Link`.
+1. In addition to the existing `[Default]` -> `Example Profile Name` mapping, add a mapping from `[Default]` to `Replace with Link`.
 1. Click Save
 
 Expected Results
   - The new mapping should not save
   - You should see an error message saying a mapping already exists for that content type
+
 ### Repository Explorer
 
 Prerequisites:
@@ -279,14 +291,13 @@ Steps:
 
 Steps:
 
-1. Refresh repository explorer to the root folder
-1. Click open button
+1. Open repository explorer to the root folder
+1. Without selecting an entry, click the Open button.
    - Expected result: Open root folder in Laserfiche in a new tab
-1. Return to repository explorer, double-click on a folder to enter it.
-1. Select (single-click) a folder inside
+1. Return to repository explorer and select (single-click) a folder inside
 1. Click open button
    - Expected result: Open the selected folder in Laserfiche in a new tab
-1. Select (single-click) a document inside
+1. Return to repository explorer and select (single-click) a document inside
 1. Click the open button
    - Expected result: Open the selected document in Laserfiche in a new tab
 
@@ -320,11 +331,11 @@ Steps:
 1. Click ok
     - Expected behavior: Dialog closes
 1. Use refresh button to refresh open folder
-    - Expected behavior: File exists in currently opened folder (not the one selected)
+    - Expected behavior: File exists in currently opened folder (does not replace file)
 1. Back in repository explorer, click the import file button
 1. Upload test file using browse button
 1. Add template
-1. Make an error in the metadata
+1. Make an error in the metadata (e.g., required field empty)
 1. Attempt to upload file
     - Expected behavior: File not uploaded, metadata component shows relevant errors if not already shown
 1. Add valid metadata
@@ -346,7 +357,7 @@ Steps:
 
 Test delete after save action 
 
-1. Navigate folder where you have permissions to create entries
+1. Navigate to a folder where you have permissions to create entries
 1. Use create folder button
 1. Create folder with valid name
     - Expected Results: Dialog closes
@@ -357,7 +368,7 @@ Test delete after save action
     - Expected results: Dialog remains open, error specifies to provide a folder name
 1. Close dialog
 1. Use create folder button
-1. Use name with invalid characters (Ex/ )
+1. Use name with invalid characters (e.g. `~!@#$%^&*()` )
 1. Attempt to create folder
     - Expected results: Dialog remains open, error  specifies to provide a valid folder name
 1. Use create folder button
