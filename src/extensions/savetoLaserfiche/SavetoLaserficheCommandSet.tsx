@@ -82,10 +82,10 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         'The selected file is checked out. Please discard the checkout or check the file back in before trying to save to Laserfiche.'
       );
     } else if (fileSize > 100000000) {
-      alert('Please select a file below 100MB size');
+      alert('Please select a file below 100MB in size');
     } else if (!this.hasSignInPage) {
       alert(
-        'Missing "LaserficheSignIn" SharePoint page. Please refer to the admin guide and complete configuration steps exactly as described.'
+        'Missing "LaserficheSignIn" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.'
       );
     } else {
       await this.trySaveToLaserficheAsync({
@@ -110,7 +110,6 @@ export default class SendToLfCommandSet extends BaseListViewCommandSet<ISendToLf
         }
       );
       const sitePages = await res.json();
-      console.log(sitePages);
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
         if (pageName === SpWebPartNames.LaserficheSignIn) {

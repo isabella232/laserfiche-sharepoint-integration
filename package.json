@@ -1,6 +1,6 @@
 {
   "name": "laserfiche-sharepoint-integration",
-  "version": "1.0.0",
+  "version": "VERSION_TO_UPDATE",
   "private": true,
   "main": "lib/index.js",
   "license": "MIT",
@@ -9,6 +9,8 @@
     "url": "https://github.com/Laserfiche/laserfiche-sharepoint-integration"
   },
   "scripts": {
+    "bundle": "gulp bundle --ship",
+    "package-solution": "gulp package-solution --ship",
     "build": "gulp bundle",
     "package": "gulp package-solution",
     "clean": "gulp clean",
@@ -55,7 +57,6 @@
     "eslint": "8.7.0",
     "eslint-plugin-react-hooks": "4.3.0",
     "gulp": "~4.0.2",
-    "tailwindcss": "^3.3.3",
     "typescript": "4.5.5",
     "url-loader": "^4.1.1"
   },
