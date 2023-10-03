@@ -108,13 +108,17 @@ Steps:
   - Expected Results: You should not be able to do any configuring, and there should
   be an error message explaining that you don't have the necessary rights.
 
+
+### Profiles
+Prerequisites:
+
+- Follow the [Installation](#installation) and [Site Configuration](#site-configuration) steps successfully
+- the admin configuration web part must exist in a SharePoint Page
+- you must BE a site owner of the site containing that page.
 #### Create standard profile
 
 Prerequisites:
-
-- the admin configuration web part must exist in a SharePoint Page
-- you must BE a site owner of the site containing that page.
-- finish testing the functionality of the repository explorer web part
+- None
 
 Steps:
 
