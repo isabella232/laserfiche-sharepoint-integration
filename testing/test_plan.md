@@ -162,7 +162,7 @@ Steps:
 #### Test 'after import' configuration
 
 Steps:
-- Create a Profile named `Profile 1` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import.
+- Create a Profile named `Profile 1` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import. Give it the template 'testing template', and map the SharePoint Column `Actual Work` to the required Laserfiche Field `Number (2)`.
 - Create a Profile named `Profile 2` that saves to the same folder and Replaces SharePoint file with a link after import.
 - Create a Profile named `Profile 3` that saves to the same folder and Deletes SharePoint file after import.
 
@@ -183,25 +183,63 @@ Steps:
 Expected Results:
   - The file should save in the destination folder you configured in the Default section.
 
-#### Test happy path save
-
+#### Test No Default Profile Save
 Steps:
+  - Remove all SharePoint Content Type -> Laserfiche Profile Mappings
+  - attempt to save a Document from the documents tab
+Expected Result:
+  - We should encounter an error that tells us to set up a default mapping or to set up a mapping for the relevant content type
 
-1. Upload a document of some kind with some text to the Document's tab of a SharePoint site
-1. Right-click on the document.
-1. Select the Save To Laserfiche option
-1. Select View File in Laserfiche
-1. Return to the original tab and select close
-
+#### Test Save when a required field doesn't exist
+Steps:
+  - Add SharePoint Column "Actual Work" to SharePoint Library
+  - Make sure that "Actual Work" has no value for a specific document
+  - Set the Default mapping to `Profile 1`, and save. There should be no other mappings
+  - Attempt to save the specific document to Laserfiche
 Expected Results:
+  - The document should not save
+  - you should get an error message that says that Actual Work doesn't have a value.
+#### Test metadata constraint failed case
+Steps:
+  - Add SharePoint Column "Actual Work" to SharePoint Library
+  - Add value for "Actual Work" for a specific document to be a very large number
+  - Set the Default mapping to `Profile 1`, and save.
+  - Attempt to save the specific document to Laserfiche
+Expected Results:
+  - The document should save, BUT
+  - you should get an Warning that says the metadata didn't save.
 
-1. Does not test Integration behavior
-1. The `Save to Laserfiche` option should exist in the resulting drop down.
-1. A dialog should immediately open, and eventually display a success message and a button saying `View File in Laserfiche`
-1. The file should be opened in a new tab with a `Back` button. Clicking the `Back` button should display a folder view containing the document saved to Laserfiche.
-1. The dialog should disappear.
-### Begin Additions
-Admin page (https://lfdevm365.sharepoint.com/sites/TestSiteAlex/SitePages/Admin-Configuration.aspx) – On site you are an owner 
+#### Test specific mapping
+Steps:
+  - Remove all Profile Mappings
+  - add a mapping from `[Default]` to `Default`
+  - add a mapping from `Document` to `Profile 1`
+  - assign a Document in SharePoint to have 5 Actual Work
+  - attempt to save the document to Laserfiche
+Expected Results:
+  - The document should successfully save
+  - The document's field `Number (2)` should have a value of 5.
+#### Test replace with URL action
+Steps:
+  - edit the mapping from `Document` so that it points to `Profile 2`
+  - attempt to save a Document to Laserfiche
+Expected Results:
+  - The document should successfully appear in Laserfiche
+  - In SharePoint, the document should be replaced with a link
+
+#### Test delete after save to Laserfiche
+Steps:
+  - edit the mapping from  `Document` so that it points to `Profile 3`
+  - attempt to save a Document to Laserfiche
+Expected Results:
+  - The document should exist in Laserfiche and no longer exist in SharePoint
+
+#### Test saving .url files to Laserfiche
+Steps:
+  - attempt to save a .url file to Laserfiche
+Expected Result:
+  - You should be told that you can't save a .url file to Laserfiche.
+
 
 ### Repository Explorer
 
