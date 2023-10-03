@@ -13,5 +13,5 @@ export interface IManageConfigurationProps {
   context: WebPartContext;
   validate: boolean;
   handleProfileConfigUpdate: (profileConfig: ProfileConfiguration) => void;
-  saveConfiguration: () => Promise<boolean>;
+  saveConfiguration: () => Promise<void>;
 }

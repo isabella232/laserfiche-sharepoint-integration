@@ -3,7 +3,7 @@ import styles from './SendToLaserFiche.module.scss';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import {
-  ADMIN_CONFIGURATION_LIST,
+  LASERFICHE_ADMIN_CONFIGURATION_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   MANAGE_CONFIGURATIONS,
@@ -17,7 +17,6 @@ import {
 import { Navigation } from 'spfx-navigation';
 import { SPHttpClient, SPHttpClientResponse } from '@microsoft/sp-http';
 import {
-  ActionTypes,
   ProfileConfiguration,
   SPProfileConfigurationData,
 } from '../../webparts/laserficheAdminConfiguration/components/ProfileConfigurationComponents';
@@ -30,7 +29,6 @@ import {
   TemplateFieldInfo,
   ValueToUpdate,
   WFieldType,
-  ProblemDetails,
 } from '@laserfiche/lf-repository-api-client';
 import { IListItem } from '../../webparts/laserficheAdminConfiguration/components/IListItem';
 import { getSPListURL } from '../../Utils/Funcs';
@@ -56,7 +54,9 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
     super();
   }
 
-  showNextDialog: (data: ISPDocumentData) => Promise<void> = async (data: ISPDocumentData) => {
+  showNextDialog: (data: ISPDocumentData) => Promise<void> = async (
+    data: ISPDocumentData
+  ) => {
     const saveToLfDialog = new SaveToLaserficheCustomDialog(data, () =>
       this.close()
     );
@@ -90,11 +90,14 @@ export class GetDocumentDataCustomDialog extends BaseDialog {
 }
 
 const FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS =
-  'The following SharePoint fields do not have a value for this document, but are required to save to Laserfiche, based on configured mappings:';
+  'The following SharePoint fields are mapped to required fields in Laserfiche and must have valid values:';
 const PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN =
-  'Please ensure these fields exist for this document and try again.';
-
+  'Please fill out the required fields and try again.';
 const CANCEL = 'Cancel';
+const NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING =
+  'No SharePoint Content Type exists for this document and no default mapping exists.';
+const PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING =
+  'Please update the Content Type or contact your administrator to set up a default mapping.';
 
 function GetDocumentDialogData(props: {
   showSaveToDialog: (fileData: ISPDocumentData) => void;
@@ -111,79 +114,68 @@ function GetDocumentDialogData(props: {
     undefined | SPProfileConfigurationData[]
   >(undefined);
 
-  if (missingFields) {
-    <span>
-      {FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS}
-      {missingFields}
-      {PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN}
-    </span>;
-  }
+  const [error, setError] = React.useState<JSX.Element | undefined>(undefined);
 
-  const listFields = <ul>{missingFields?.map((field) => (
-    <li key={field.Title}>{field.Title}</li>
-  ))}</ul>;
+  const listFields = (
+    <ul>
+      {missingFields?.map((field) => (
+        <li key={field.Title}>{field.Title}</li>
+      ))}
+    </ul>
+  );
 
   React.useEffect(() => {
-    SPComponentLoader.loadCss(
-      LF_INDIGO_PINK_CSS_URL
-    );
-    SPComponentLoader.loadCss(
-      LF_MS_OFFICE_LITE_CSS_URL
-    );
+    SPComponentLoader.loadCss(LF_INDIGO_PINK_CSS_URL);
+    SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
 
-    saveDocumentToLaserficheAsync().catch((err: Error | ProblemDetails) => {
-      console.warn(
-        `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
-      );
-    });
+    void saveDocumentToLaserficheAsync();
   }, []);
 
   async function saveDocumentToLaserficheAsync(): Promise<void> {
-    const libraryUrl = props.context.pageContext.list.title;
-    const allSPFieldValues: { [key: string]: string } =
-      await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
-    const allSPFieldProperties: SPProfileConfigurationData[] =
-      await getAllFieldsPropertiesAsync(libraryUrl);
-    const docData = await getDocumentDataAsync(
-      allSPFieldValues,
-      allSPFieldProperties
-    );
-
-    if (docData) {
-      window.localStorage.setItem(
-        SP_LOCAL_STORAGE_KEY,
-        JSON.stringify(docData)
+    try {
+      const libraryUrl = props.context.pageContext.list.title;
+      const allSPFieldValues: { [key: string]: string } =
+        await getAllFieldsValuesAsync(libraryUrl, props.spFileInfo.fileId);
+      const allSPFieldProperties: SPProfileConfigurationData[] =
+        await getAllFieldsPropertiesAsync(libraryUrl);
+      const docData = await getDocumentDataAsync(
+        allSPFieldValues,
+        allSPFieldProperties
       );
 
-      props.showSaveToDialog(docData);
+      if (docData) {
+        window.localStorage.setItem(
+          SP_LOCAL_STORAGE_KEY,
+          JSON.stringify(docData)
+        );
+
+        props.showSaveToDialog(docData);
+      }
+    } catch (err) {
+      setError(<div>{`Error saving: ${err.message}`}</div>);
+      console.error(err);
     }
   }
 
   async function getAllFieldsPropertiesAsync(
     libraryUrl: string
   ): Promise<SPProfileConfigurationData[]> {
-    try {
-      const res = await fetch(
-        `${getSPListURL(
-          this.context,
-          libraryUrl
-        )}/Fields?$filter=Group ne '_Hidden'`,
-        {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      const results = await res.json();
-      const spFieldNameDefs: SPProfileConfigurationData[] = JSON.parse(
-        results.value
-      );
-      return spFieldNameDefs;
-    } catch (error) {
-      console.log('error occured' + error);
-    }
+    const res = await fetch(
+      `${getSPListURL(
+        props.context,
+        libraryUrl
+      )}/Fields?$filter=Group ne '_Hidden'`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+    const results = await res.json();
+    const spFieldNameDefs: SPProfileConfigurationData[] = results.value;
+    return spFieldNameDefs;
   }
 
   async function getDocumentDataAsync(
@@ -193,7 +185,7 @@ function GetDocumentDialogData(props: {
     const response: SPHttpClientResponse = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
-        ADMIN_CONFIGURATION_LIST
+        LASERFICHE_ADMIN_CONFIGURATION_NAME
       )}/items?$filter=Title eq '${MANAGE_MAPPING}'&$top=1`,
       SPHttpClient.configurations.v1,
       {
@@ -214,11 +206,31 @@ function GetDocumentDialogData(props: {
       matchingMapping = manageMappingDetails.find(
         (el) => el.SharePointContentType === props.spFileInfo.spContentType
       );
+      if (!matchingMapping) {
+        matchingMapping = manageMappingDetails.find(
+          (el) => el.SharePointContentType === 'DEFAULT'
+        );
+      }
     }
 
     let docData: ISPDocumentData;
     if (!matchingMapping) {
-      docData = getDocumentDataNoMetadata();
+      if (!props.spFileInfo.spContentType) {
+        setError(
+          <>
+            <div>{`${NO_SP_CONTENT_TYPE_EXISTS_AND_NO_DEFAULT_MAPPING}`}</div>
+            <div>{`${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`}</div>
+          </>
+        );
+      } else {
+        const NO_MAPPING_EXISTS = `No mapping exists for SharePoint Content Type "${props.spFileInfo.spContentType}" and no default mapping exists.`;
+        setError(
+          <>
+            <div>{`${NO_MAPPING_EXISTS}`}</div>
+            <div>{`${PLEASE_UPDATE_CONTENT_TYPE_OR_CONTACT_ADMIN_FOR_DEFAULT_MAPPING}`}</div>
+          </>
+        );
+      }
     } else {
       docData = await getDocumentDataWithMapping(
         matchingMapping,
@@ -239,7 +251,7 @@ function GetDocumentDialogData(props: {
     const adminConfigList = await props.context.spHttpClient.get(
       `${getSPListURL(
         props.context,
-        ADMIN_CONFIGURATION_LIST
+        LASERFICHE_ADMIN_CONFIGURATION_NAME
       )}/items?$filter=Title eq '${MANAGE_CONFIGURATIONS}'&$top=1`,
       SPHttpClient.configurations.v1,
       {
@@ -300,26 +312,22 @@ function GetDocumentDialogData(props: {
     libraryUrl: string,
     fileId: string
   ): Promise<{ [key: string]: string }> {
-    try {
-      const res = await props.context.spHttpClient.get(
-        `${getSPListURL(
-          props.context,
-          libraryUrl
-        )}/items(${fileId})/FieldValuesForEdit`,
-        SPHttpClient.configurations.v1,
-        {
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+    const res = await props.context.spHttpClient.get(
+      `${getSPListURL(
+        props.context,
+        libraryUrl
+      )}/items(${fileId})/FieldValuesForEdit`,
+      SPHttpClient.configurations.v1,
+      {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-      const allSpFieldValues = await res.json();
-      return allSpFieldValues;
-    } catch (error) {
-      console.log('error ocurred' + error);
-    }
+    const allSpFieldValues = await res.json();
+    return allSpFieldValues;
   }
 
   function getDocumentDataWithMetadata(
@@ -348,19 +356,6 @@ function GetDocumentDialogData(props: {
     return fileData;
   }
 
-  function getDocumentDataNoMetadata(): ISPDocumentData {
-    const fileData: ISPDocumentData = {
-      fileName: props.spFileInfo.fileName,
-      documentName: props.spFileInfo.fileName,
-      fileUrl: props.spFileInfo.spFileUrl,
-      entryId: '1',
-      contextPageAbsoluteUrl: props.context.pageContext.web.absoluteUrl,
-      action: ActionTypes.COPY,
-    };
-
-    return fileData;
-  }
-
   function formatMetadata(
     matchingLFConfig: ProfileConfiguration,
     missingRequiredFields: SPProfileConfigurationData[],
@@ -371,7 +366,9 @@ function GetDocumentDialogData(props: {
     for (const mapping of matchingLFConfig.mappedFields) {
       const spFieldName = mapping.spField.InternalName;
       // TODO which one to use?
-      let spDocFieldValue: string = allSpFieldValues[spFieldName] ?? allSpFieldValues[mapping.spField.Title];
+      let spDocFieldValue: string =
+        allSpFieldValues[spFieldName] ??
+        allSpFieldValues[mapping.spField.Title];
 
       if (spDocFieldValue?.length > 0) {
         const lfField = mapping.lfField;
@@ -471,10 +468,11 @@ function GetDocumentDialogData(props: {
       </div>
 
       <div className={styles.contentBox}>
-        {!(missingFields?.length > 0) && <LoadingDialog />}
+        {!(missingFields?.length > 0) && !error && <LoadingDialog />}
         {missingFields?.length > 0 && (
           <MissingFieldsDialog missingFields={listFields} />
         )}
+        {error}
       </div>
 
       <div className={styles.footer}>
@@ -489,12 +487,16 @@ function GetDocumentDialogData(props: {
   );
 }
 
-function MissingFieldsDialog(props: { missingFields: JSX.Element }): JSX.Element {
+function MissingFieldsDialog(props: {
+  missingFields: JSX.Element;
+}): JSX.Element {
   const textInside = (
     <span>
-      The following SharePoint field values are blank and are mapped to required
-      Laserfiche fields:
-      {props.missingFields}Please fill out these required fields and try again.
+      {
+        FOLLOWING_SP_FIELDS_NO_VALUE_FOR_DOC_BUT_REQUIRED_IN_LASERFICHE_BASED_ON_MAPPINGS
+      }
+      {props.missingFields}
+      {PLEASE_ENSURE_FIELDS_EXIST_FOR_DOCUMENT_AND_TRY_AGAIN}
     </span>
   );
 

@@ -3,7 +3,6 @@ import { NavLink } from 'react-router-dom';
 import { useEffect } from 'react';
 import { IAdminPageProps } from './IAdminPageProps';
 import { CreateConfigurations } from '../../../../Utils/CreateConfigurations';
-import { ProblemDetails } from '@laserfiche/lf-repository-api-client';
 require('../../../../Assets/CSS/bootstrap.min.css');
 require('./../../../../Assets/CSS/commonStyles.css');
 import styles from './../LaserficheAdminConfiguration.module.scss';
@@ -21,9 +20,9 @@ declare global {
 export default function AdminMainPage(props: IAdminPageProps): JSX.Element {
   useEffect(() => {
     CreateConfigurations.ensureAdminConfigListCreatedAsync(props.context).catch(
-      (err: Error | ProblemDetails) => {
+      (err: Error) => {
         console.warn(
-          `Error: ${(err as Error).message ?? (err as ProblemDetails).title}`
+          `Error: ${err.message}`
         );
       }
     );

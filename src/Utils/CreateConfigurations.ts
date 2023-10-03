@@ -3,7 +3,7 @@ import {
   SPHttpClientResponse,
   ISPHttpClientOptions,
 } from '@microsoft/sp-http';
-import { ADMIN_CONFIGURATION_LIST } from '../webparts/constants';
+import { LASERFICHE_ADMIN_CONFIGURATION_NAME } from '../webparts/constants';
 import { getSPListURL } from './Funcs';
 import { BaseComponentContext } from '@microsoft/sp-component-base';
 
@@ -13,7 +13,10 @@ export class CreateConfigurations {
   public static async ensureAdminConfigListCreatedAsync(
     context: BaseComponentContext
   ): Promise<void> {
-    const listUrl: string = getSPListURL(context, ADMIN_CONFIGURATION_LIST);
+    const listUrl: string = getSPListURL(
+      context,
+      LASERFICHE_ADMIN_CONFIGURATION_NAME
+    );
     const response = await context.spHttpClient.get(
       listUrl,
       SPHttpClient.configurations.v1
@@ -39,24 +42,29 @@ export class CreateConfigurations {
     context: BaseComponentContext,
     formDigestValue: string
   ): Promise<string> {
-    const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
-    const listDefinition = {
-      Title: ADMIN_CONFIGURATION_LIST,
-      Description: 'My description',
-      BaseTemplate: 100,
-    };
-    const spHttpClientOptions: ISPHttpClientOptions = {
-      body: JSON.stringify(listDefinition),
-    };
-    const responses: SPHttpClientResponse = await context.spHttpClient.post(
-      url,
-      SPHttpClient.configurations.v1,
-      spHttpClientOptions
-    );
-    const adminConfigList = await responses.json();
-    const listTitle = adminConfigList.Title;
-    await this.createColumnsAsync(context, listTitle, formDigestValue);
-    return listTitle;
+    try {
+      const url: string = context.pageContext.web.absoluteUrl + '/_api/web/lists';
+      const listDefinition = {
+        Title: LASERFICHE_ADMIN_CONFIGURATION_NAME,
+        Description: 'My description',
+        BaseTemplate: 100,
+      };
+      const spHttpClientOptions: ISPHttpClientOptions = {
+        body: JSON.stringify(listDefinition),
+      };
+      const responses: SPHttpClientResponse = await context.spHttpClient.post(
+        url,
+        SPHttpClient.configurations.v1,
+        spHttpClientOptions
+      );
+      const adminConfigList = await responses.json();
+      const listTitle = adminConfigList.Title;
+      await this.createColumnsAsync(context, listTitle, formDigestValue);
+      return listTitle;
+    }
+    catch (err) {
+      console.error(`Error when creating LaserficheAdminConfiguration List: ${err}`);
+    }
   }
 
   private static async updateAdminConfigListSecurityAsync(
@@ -91,7 +99,9 @@ export class CreateConfigurations {
     );
   }
 
-  private static async getMembersGroupIdAsync(context: BaseComponentContext): Promise<string> {
+  private static async getMembersGroupIdAsync(
+    context: BaseComponentContext
+  ): Promise<string> {
     const membersGroupName = `${context.pageContext.web.title} Members`;
 
     const res = await fetch(
@@ -225,7 +235,6 @@ export class CreateConfigurations {
     formDigestValue: string
   ): Promise<void> {
     const siteUrl: string = getSPListURL(context, listTitle) + '/fields';
-    try {
       await fetch(siteUrl, {
         method: 'POST',
         body: JSON.stringify({
@@ -239,9 +248,5 @@ export class CreateConfigurations {
           'X-RequestDigest': formDigestValue,
         },
       });
-      console.log('Fields created');
-    } catch {
-      console.log('Error!');
-    }
   }
 }
