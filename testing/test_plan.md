@@ -104,8 +104,7 @@ Prerequisites:
 
 Steps:
 1. Attempt to open the admin configuration web part on the protected page.
-  - Expected Results: You should not be able to do any configuring, and there should
-  be an error message explaining that you don't have the necessary rights.
+    - Expected Results: You should not be able to do any configuring, and there should be an error message explaining that you don't have the necessary rights.
 
 
 ### Profiles
@@ -114,10 +113,7 @@ Prerequisites:
 - Follow the [Installation](#installation) and [Site Configuration](#site-configuration) steps successfully
 - You must BE a site owner of the site containing that page.
 #### Create standard profile
-# TODO:
-- pass on indentation
 Steps:
-# Pass on Indentation
 1. Go to the Profiles tab and click the `Add Profile` button.
 1. Name the Profile `Example Profile Name`, do not select a template, select a folder you have access to save into, and choose `Leave a copy of the file in SharePoint` for the `After import` behavior. Click the Save button.
    - Expected Results: You should see a success dialog, and then get returned to the `Profiles Tab`, where the new profile should be visible.
@@ -144,9 +140,9 @@ Steps:
 
 Steps:
 1. Click the pencil button to edit a profile and add some compatible metadata mappings like a text type for the SharePoint Column and a String type for the Laserfiche Field, for example. Click Save.
-  - Expected Results:
-    - The page should indicate that the profile was saved.
-    - If you edit the profile, you should find that it saved your edits.
+    - Expected Results:
+      - The page should indicate that the profile was saved.
+      - If you edit the profile, you should find that it saved your edits.
 
 #### Test 'after import' configuration
 
