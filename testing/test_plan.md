@@ -118,9 +118,6 @@ Prerequisites:
 - you must BE a site owner of the site containing that page.
 #### Create standard profile
 
-Prerequisites:
-- None
-
 Steps:
 
 1. Go to the Profiles tab and click the `Add Profile` button.
@@ -130,16 +127,11 @@ Steps:
 
 
 #### Test Profile Error Handling
-Prerequisites:
-
-- the admin configuration web part must exist in a SharePoint Page
-- you must BE a site owner of the site containing that page.
-
 Steps:
 1. Go to the Profiles tab and click the `Add Profile` button.
 1. Name the Profile, `Bad Profile`, select the Folder which you created in the functionality test of the Repository Explorer web part as the destination folder, and select the `General` template. In the Mapping section, Click `Add Field`, and choose `Actual Work` for the SharePoint Column and `Date (2)` for the Laserfiche Field.
   - Expected Results: 
-    - You should get a warning/error that the data types don't match.
+    - You should get a warning/errorthat the data types don't match.
     - You should't be able to save
 1. Delete the SP Column/LF field pair.
   - Expected Results:
@@ -176,6 +168,7 @@ Steps:
 
 Prerequisites:
 
+- Follow the [Profiles](#profiles) Tests successfully
 - Laserfiche Sign In Page must already exist
 - Laserfiche Admin Configuration Page must already exist
 
