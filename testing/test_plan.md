@@ -112,15 +112,13 @@ Steps:
 Prerequisites:
 
 - Follow the [Installation](#installation) and [Site Configuration](#site-configuration) steps successfully
-- the admin configuration web part must exist in a SharePoint Page
-- you must BE a site owner of the site containing that page.
+- You must BE a site owner of the site containing that page.
 #### Create standard profile
 
 Steps:
 
 1. Go to the Profiles tab and click the `Add Profile` button.
-  - Expected Results: Something resembling the following Profile Editor appears: [Could Not Display Image](./assets/profileCreator.png)
-1. Name the Profile `Example Profile Name`, do not select a template, select the Folder which you created in the functionality test of the Repository Explorer web part as the destination folder, and choose `Leave a copy of the file in SharePoint` for the `After import` behavior. Click the Save button.
+1. Name the Profile `Example Profile Name`, do not select a template, select a folder you have access to save into, and choose `Leave a copy of the file in SharePoint` for the `After import` behavior. Click the Save button.
   - Expected Results: You should see a success dialog, and then get returned to the `Profiles Tab`, where the new profile should be visible.
 
 
@@ -131,21 +129,16 @@ Steps:
   - Expected Results: 
     - You should get a warning/errorthat the data types don't match.
     - You should't be able to save
-1. Delete the SP Column/LF field pair.
+3. Delete the SP Column/LF field pair.
   - Expected Results:
     - You should be able to save (button not disabled)
-1. Save the Profile
-1. Add a New Profile, and name it `Bad Profile` as well. Attempt to Save.
+4. Save the Profile
+5. Add a New Profile, and name it `Bad Profile` as well. Attempt to Save.
   - Expected Results:
       - The Profile should not be added.
       - The page should not indicate that the profile was added
       - The page should explain that the profile was not added because a profile with that name already exists.
-1. Add a New Profile, and attempt to Save.
-  - Expected Results:
-      - The Profile should not be added.
-      - The page should not indicate that the profile was added
-      - The page should explain that the profile was not added because the profile lacked a name.
-1. Delete the profile named `Bad Profile`.
+6. Delete the profile named `Bad Profile`.
 #### Test Edit Profile
 
 Steps:
@@ -157,10 +150,15 @@ Steps:
 #### Test 'after import' configuration
 
 Steps:
-- Create a Profile named `Profile 1` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import. Give it the template 'testing template', and map the SharePoint Column `Actual Work` to the required Laserfiche Field `Number (2)`.
-- Create a Profile named `Profile 2` that saves to the same folder and Replaces SharePoint file with a link after import.
-- Create a Profile named `Profile 3` that saves to the same folder and Deletes SharePoint file after import.
+- Create a Profile named `Duplicate in Laserfiche` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import.
+- Create a Profile named `Replace with Link` that saves to the same folder and Replaces SharePoint file with a link after import.
+- Create a Profile named `Delete From SharePoint` that saves to the same folder and Deletes SharePoint file after import.
+Expected Results:
+  - Those three profiles exist
 
+#### Test metadata configuration
+Steps:
+- Create a Profile named `number metadata` that saves to a folde of your choice and leaves a copy of the file in SharePoint after import. Give it the template 'testing template', and map the SharePoint Column `Actual Work` to the required Laserfiche Field `Number (2)`.
 
 ### Save to Laserfiche and Profile Mapping Tab
 
@@ -169,38 +167,45 @@ Prerequisites:
 - Follow the [Profiles](#profiles) Tests successfully
 - Laserfiche Sign In Page must already exist
 - Laserfiche Admin Configuration Page must already exist
-
-#### Test Default Profile with Save
+#### Test Default Profile with No Content Type 
 Steps:
-  - Create a Profile named `Default` with destination as a folder that you created. Save the Profile.
-  - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Default` Laserfiche Profile. Remember to Save the mapping.
+
+  - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
+#### Test Default Profile
+Steps:
+  - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
   - Eliminate all other mappings
   - Save a document from the Documents Tab of the SharePoint site to Laserfiche
+
 Expected Results:
   - The file should save in the destination folder you configured in the Default section.
 
 #### Test No Default Profile Save
 Steps:
   - Remove all SharePoint Content Type -> Laserfiche Profile Mappings
-  - attempt to save a Document from the documents tab
+  - Attempt to save a Document from the documents tab
+
 Expected Result:
-  - We should encounter an error that tells us to set up a default mapping or to set up a mapping for the relevant content type
+  - Document does not save
+  - Error that requests a default mapping or a mapping for the relevant content type
 
 #### Test Save when a required field doesn't exist
 Steps:
   - Add SharePoint Column "Actual Work" to SharePoint Library
   - Make sure that "Actual Work" has no value for a specific document
-  - Set the Default mapping to `Profile 1`, and save. There should be no other mappings
+  - Set the Default mapping to `number metadata`, and save. There should be no other mappings
   - Attempt to save the specific document to Laserfiche
+
 Expected Results:
-  - The document should not save
-  - you should get an error message that says that Actual Work doesn't have a value.
+  - The document does not save
+  - Error message that says that Actual Work doesn't have a value.
 #### Test metadata constraint failed case
 Steps:
   - Add SharePoint Column "Actual Work" to SharePoint Library
   - Add value for "Actual Work" for a specific document to be a very large number
-  - Set the Default mapping to `Profile 1`, and save.
+  - Set the Default mapping to `number metadata`, and save.
   - Attempt to save the specific document to Laserfiche
+  
 Expected Results:
   - The document should save, BUT
   - you should get an Warning that says the metadata didn't save.
@@ -209,37 +214,42 @@ Expected Results:
 Steps:
   - Remove all Profile Mappings
   - add a mapping from `[Default]` to `Default`
-  - add a mapping from `Document` to `Profile 1`
+  - add a mapping from `Document` to `number metadata`
   - assign a Document in SharePoint to have 5 Actual Work
   - attempt to save the document to Laserfiche
+
 Expected Results:
   - The document should successfully save
   - The document's field `Number (2)` should have a value of 5.
 #### Test replace with URL action
 Steps:
-  - edit the mapping from `Document` so that it points to `Profile 2`
+  - edit the mapping from `Document` so that it points to `Replace with Link`
   - attempt to save a Document to Laserfiche
+
 Expected Results:
   - The document should successfully appear in Laserfiche
   - In SharePoint, the document should be replaced with a link
 
 #### Test delete after save to Laserfiche
 Steps:
-  - edit the mapping from  `Document` so that it points to `Profile 3`
+  - edit the mapping from  `Document` so that it points to `Delete From SharePoint`
   - attempt to save a Document to Laserfiche
+
 Expected Results:
   - The document should exist in Laserfiche and no longer exist in SharePoint
 
 #### Test saving .url files to Laserfiche
 Steps:
   - attempt to save a .url file to Laserfiche
+
 Expected Result:
   - You should be told that you can't save a .url file to Laserfiche.
 
 #### Test Mapping Content Types to multiple Profiles
 Steps:
-  - In addition to the existing `[Default]` -> `Default` mapping, add a mapping from `[Default]` to `Profile 2`.
+  - In addition to the existing `[Default]` -> `Default` mapping, add a mapping from `[Default]` to `Replace with Link`.
   - Click Save
+  
 Expected Results
   - the new mapping should not save
   - You should see an error message saying a mapping already exists for that content type
