@@ -209,7 +209,7 @@ Expected Results:
   - The document should save, BUT
   - you should get an Warning that says the metadata didn't save.
 
-#### Test specific mapping
+#### Test specific mapping overrides default
 Steps:
   - Remove all Profile Mappings
   - add a mapping from `[Default]` to `Default`
@@ -240,7 +240,13 @@ Steps:
 Expected Result:
   - You should be told that you can't save a .url file to Laserfiche.
 
-
+#### Test Mapping Content Types to multiple Profiles
+Steps:
+  - In addition to the existing `[Default]` -> `Default` mapping, add a mapping from `[Default]` to `Profile 2`.
+  - Click Save
+Expected Results
+  - the new mapping should not save
+  - You should see an error message saying a mapping already exists for that content type
 ### Repository Explorer
 
 Prerequisites:
