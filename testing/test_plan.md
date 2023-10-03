@@ -122,8 +122,6 @@ Steps:
   - Expected Results: Something resembling the following Profile Editor appears: [Could Not Display Image](./assets/profileCreator.png)
 1. Name the Profile `Example Profile Name`, do not select a template, select the Folder which you created in the functionality test of the Repository Explorer web part as the destination folder, and choose `Leave a copy of the file in SharePoint` for the `After import` behavior. Click the Save button.
   - Expected Results: You should see a success dialog, and then get returned to the `Profiles Tab`, where the new profile should be visible.
-1. Go to the Profile Mapping tab and click the `Add` button.
-1. Select `Document` for the SharePoint Content Type and select `Example Profile Name` for the `Laserfiche Profile`. Click the floppy disk icon to save.
 
 
 #### Test Profile Error Handling
@@ -152,6 +150,7 @@ Steps:
       - The Profile should not be added.
       - The page should not indicate that the profile was added
       - The page should explain that the profile was not added because the profile lacked a name.
+1. Delete the profile named `Bad Profile`.
 #### Test Edit Profile
 
 Steps:
@@ -160,21 +159,29 @@ Steps:
     - The page should indicate that the profile was saved.
     - If you edit the profile, you should find that it saved your edits.
 
-#### Test Creating Different Profiles
+#### Test 'after import' configuration
 
 Steps:
+- Create a Profile named `Profile 1` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import.
+- Create a Profile named `Profile 2` that saves to the same folder and Replaces SharePoint file with a link after import.
+- Create a Profile named `Profile 3` that saves to the same folder and Deletes SharePoint file after import.
 
 
-#### Test Default Profile
-Steps:
-
-
-
-### Save to Laserfiche
+### Save to Laserfiche and Profile Mapping Tab
 
 Prerequisites:
 
 - Laserfiche Sign In Page must already exist
+- Laserfiche Admin Configuration Page must already exist
+
+#### Test Default Profile with Save
+Steps:
+  - Create a Profile named `Default` with destination as a folder that you created. Save the Profile.
+  - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Default` Laserfiche Profile. Remember to Save the mapping.
+  - Eliminate all other mappings
+  - Save a document from the Documents Tab of the SharePoint site to Laserfiche
+Expected Results:
+  - The file should save in the destination folder you configured in the Default section.
 
 #### Test happy path save
 
