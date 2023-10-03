@@ -153,12 +153,18 @@ Steps:
 - Create a Profile named `Duplicate in Laserfiche` that saves to a folder of your choice and leaves a copy of the file in SharePoint after import.
 - Create a Profile named `Replace with Link` that saves to the same folder and Replaces SharePoint file with a link after import.
 - Create a Profile named `Delete From SharePoint` that saves to the same folder and Deletes SharePoint file after import.
+
 Expected Results:
   - Those three profiles exist
 
 #### Test metadata configuration
 Steps:
-- Create a Profile named `number metadata` that saves to a folde of your choice and leaves a copy of the file in SharePoint after import. Give it the template 'testing template', and map the SharePoint Column `Actual Work` to the required Laserfiche Field `Number (2)`.
+- Create a Profile named `number metadata` that saves to a folde of your choice and leaves a copy of the file in SharePoint after import. Assign a template that has a required number field in Laserfiche, and map the SharePoint Column `Actual Work` to the required number field.
+- Save the Profile
+
+Expected Results:
+- Profile appears
+
 
 ### Save to Laserfiche and Profile Mapping Tab
 
@@ -249,7 +255,7 @@ Expected Result:
 Steps:
   - In addition to the existing `[Default]` -> `Default` mapping, add a mapping from `[Default]` to `Replace with Link`.
   - Click Save
-  
+
 Expected Results
   - the new mapping should not save
   - You should see an error message saying a mapping already exists for that content type
