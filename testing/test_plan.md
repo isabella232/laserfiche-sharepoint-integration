@@ -124,11 +124,11 @@ Steps:
 1. Go to the Profiles tab and click the `Add Profile` button.
 1. Name the Profile, `Bad Profile`, select the Folder which you created in the functionality test of the Repository Explorer web part as the destination folder, and select the `General` template. In the Mapping section, Click `Add Field`, and choose `Actual Work` for the SharePoint Column and `Date (2)` for the Laserfiche Field.
     - Expected Results: 
-      - You should get a warning/error that the data types don't match.
-      - You should't be able to save
+      - Warning/error that the data types don't match.
+      - Profile is not saved.
 1. Delete the SP Column/LF field pair.
     - Expected Results:
-      - You should be able to save (button not disabled)
+      - Profile can be saved (button not disabled)
 1. Save the Profile
 1. Add a New Profile, and name it `Bad Profile` as well. Attempt to Save.
     - Expected Results:
@@ -142,7 +142,6 @@ Steps:
 1. Click the pencil button to edit a profile and add some compatible metadata mappings like a text type for the SharePoint Column and a String type for the Laserfiche Field, for example. Click Save.
     - Expected Results:
       - The page should indicate that the profile was saved.
-      - If you edit the profile, you should find that it saved your edits.
 
 #### Test 'after import' configuration
 
@@ -217,7 +216,7 @@ Steps:
 Expected Results:
   - The document should save, BUT
   - There should be a warning that says the metadata didn't save.
-# TODO Capitalization Pass
+
 #### Test specific mapping overrides default
 Steps:
 1. Remove all Profile Mappings
