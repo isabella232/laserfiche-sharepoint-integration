@@ -114,31 +114,32 @@ Prerequisites:
 - Follow the [Installation](#installation) and [Site Configuration](#site-configuration) steps successfully
 - You must BE a site owner of the site containing that page.
 #### Create standard profile
-
+# TODO:
+- pass on indentation
 Steps:
-
+# Pass on Indentation
 1. Go to the Profiles tab and click the `Add Profile` button.
 1. Name the Profile `Example Profile Name`, do not select a template, select a folder you have access to save into, and choose `Leave a copy of the file in SharePoint` for the `After import` behavior. Click the Save button.
-  - Expected Results: You should see a success dialog, and then get returned to the `Profiles Tab`, where the new profile should be visible.
+   - Expected Results: You should see a success dialog, and then get returned to the `Profiles Tab`, where the new profile should be visible.
 
 
 #### Test Profile Error Handling
 Steps:
 1. Go to the Profiles tab and click the `Add Profile` button.
 1. Name the Profile, `Bad Profile`, select the Folder which you created in the functionality test of the Repository Explorer web part as the destination folder, and select the `General` template. In the Mapping section, Click `Add Field`, and choose `Actual Work` for the SharePoint Column and `Date (2)` for the Laserfiche Field.
-  - Expected Results: 
-    - You should get a warning/errorthat the data types don't match.
-    - You should't be able to save
-3. Delete the SP Column/LF field pair.
-  - Expected Results:
-    - You should be able to save (button not disabled)
-4. Save the Profile
-5. Add a New Profile, and name it `Bad Profile` as well. Attempt to Save.
-  - Expected Results:
-      - The Profile should not be added.
-      - The page should not indicate that the profile was added
-      - The page should explain that the profile was not added because a profile with that name already exists.
-6. Delete the profile named `Bad Profile`.
+    - Expected Results: 
+      - You should get a warning/error that the data types don't match.
+      - You should't be able to save
+1. Delete the SP Column/LF field pair.
+    - Expected Results:
+      - You should be able to save (button not disabled)
+1. Save the Profile
+1. Add a New Profile, and name it `Bad Profile` as well. Attempt to Save.
+    - Expected Results:
+        - The Profile should not be added.
+        - The page should not indicate that the profile was added
+        - The page should explain that the profile was not added because a profile with that name already exists.
+1. Delete the profile named `Bad Profile`.
 #### Test Edit Profile
 
 Steps:
@@ -175,10 +176,13 @@ Prerequisites:
 - Laserfiche Admin Configuration Page must already exist
 #### Test Default Profile with No Content Type 
 Steps:
+# TODO: remove content type from SP or re-order
 
   - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
+  - # TODO save a document and add expected results
 #### Test Default Profile
 Steps:
+  - Replace content type in SP
   - In the Profile Mapping Tab, associate the `[Default]` SharePoint Content Type with the `Example Profile Name` Laserfiche Profile. Remember to Save the mapping.
   - Eliminate all other mappings
   - Save a document from the Documents Tab of the SharePoint site to Laserfiche
@@ -197,8 +201,8 @@ Expected Result:
 
 #### Test Save when a required field doesn't exist
 Steps:
-  - Add SharePoint Column "Actual Work" to SharePoint Library
-  - Make sure that "Actual Work" has no value for a specific document
+  - Add SharePoint Column `Actual Work` to SharePoint Library
+  - Make sure that `Actual Work` has no value for a specific document
   - Set the Default mapping to `number metadata`, and save. There should be no other mappings
   - Attempt to save the specific document to Laserfiche
 
@@ -215,18 +219,19 @@ Steps:
 Expected Results:
   - The document should save, BUT
   - you should get an Warning that says the metadata didn't save.
-
+# TODO Capitalization Pass
 #### Test specific mapping overrides default
 Steps:
   - Remove all Profile Mappings
   - add a mapping from `[Default]` to `Default`
   - add a mapping from `Document` to `number metadata`
-  - assign a Document in SharePoint to have 5 Actual Work
+  - choose a Document in SharePoint
+  - update the `Actual Work` column of the document to have a value of 5
   - attempt to save the document to Laserfiche
 
 Expected Results:
   - The document should successfully save
-  - The document's field `Number (2)` should have a value of 5.
+  - The document's number field should have a value of 5.
 #### Test replace with URL action
 Steps:
   - edit the mapping from `Document` so that it points to `Replace with Link`
@@ -235,6 +240,7 @@ Steps:
 Expected Results:
   - The document should successfully appear in Laserfiche
   - In SharePoint, the document should be replaced with a link
+  - link should actually link to the document in LF
 
 #### Test delete after save to Laserfiche
 Steps:
