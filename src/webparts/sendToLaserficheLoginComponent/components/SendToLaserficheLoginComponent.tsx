@@ -97,7 +97,7 @@ export default function SendToLaserficheLoginComponent(
           document.body.style.display = 'none';
           if (loginComponent.current.state !== LoginState.LoggedIn) {
             if (!document.referrer.includes('accounts.')) {
-              loginComponent.current.initLoginFlowAsync();
+              await loginComponent.current.initLoginFlowAsync();
             } else {
               window.close();
             }
@@ -223,8 +223,9 @@ export default function SendToLaserficheLoginComponent(
     window.open(url, '_blank', 'popup');
   }
 
-  let redirectURL =
+  const redirectURL =
     window.location.origin + window.location.pathname + '?autologin';
+
   return (
     <React.StrictMode>
       <div className={styles.signInHeader}>
