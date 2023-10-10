@@ -104,6 +104,13 @@ export default function LaserficheAdminConfiguration(
     void initializeComponentAsync();
   }, []);
 
+  function clickLogin(): void {
+    const url =
+      props.context.pageContext.web.absoluteUrl +
+      '/SitePages/LaserficheSignIn.aspx?autologin';
+    window.open(url, '_blank', 'popup');
+  }
+
   return (
     <React.StrictMode>
       <HashRouter>
@@ -117,7 +124,11 @@ export default function LaserficheAdminConfiguration(
                   redirect_behavior='Replace'
                   client_id={clientId}
                   ref={loginComponent}
+                  hidden
                 />
+                <button onClick={clickLogin}>
+                  {loggedIn ? 'Sign out' : 'Sign in'}
+                </button>
               </div>
               <AdminMainPage
                 context={props.context}
