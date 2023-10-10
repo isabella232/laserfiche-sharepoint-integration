@@ -94,6 +94,7 @@ export default function SendToLaserficheLoginComponent(
         await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
 
         if (window.location.href.includes('autologin')) {
+          document.body.style.display = 'none';
           if (loginComponent.current.state !== LoginState.LoggedIn) {
             if (!document.referrer.includes('accounts.')) {
               loginComponent.current.initLoginFlowAsync();
@@ -244,7 +245,12 @@ export default function SendToLaserficheLoginComponent(
           ref={loginComponent}
           hidden
         />
-        <button onClick={clickLogin}>
+        <button
+          onClick={clickLogin}
+          className={`lf-button login-button ${
+            loggedIn ? 'sec-button' : 'primary-button'
+          }`}
+        >
           {loggedIn ? 'Sign out' : 'Sign in'}
         </button>
         <br />

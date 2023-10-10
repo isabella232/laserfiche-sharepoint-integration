@@ -129,7 +129,12 @@ export default function LaserficheRepositoryAccessWebPart(
             ref={loginComponent}
             hidden
           />
-          <button onClick={clickLogin}>
+          <button
+            onClick={clickLogin}
+            className={`lf-button login-button ${
+              loggedIn ? 'sec-button' : 'primary-button'
+            }`}
+          >
             {loggedIn ? 'Sign out' : 'Sign in'}
           </button>
         </div>
