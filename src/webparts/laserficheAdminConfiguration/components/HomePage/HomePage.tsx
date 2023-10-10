@@ -20,8 +20,7 @@ export default function HomePage(): JSX.Element {
             style={{color: '#0079d6'}}
           >
             help documentation.
-          </a>{' '}
-          <i>Note: the help link is not live yet.</i>{' '}
+          </a>
         </p>
         <div className='adminContent'>
           <p>
