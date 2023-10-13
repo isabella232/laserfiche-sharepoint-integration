@@ -276,7 +276,8 @@ export default function SendToLaserficheLoginComponent(
       props.context.pageContext.web.absoluteUrl +
       '/SitePages/LaserficheSignIn.aspx?autologin';
 
-    const loginWindow = window.open(url, '_blank', 'popup');
+    const loginWindow = window.open(url, 'loginWindow', 'popup');
+    loginWindow.resizeTo(800, 600);
     window.addEventListener('message', (event) => {
       if (event.origin === window.origin) {
         if (event.data === 'loginWindowSuccess') {
