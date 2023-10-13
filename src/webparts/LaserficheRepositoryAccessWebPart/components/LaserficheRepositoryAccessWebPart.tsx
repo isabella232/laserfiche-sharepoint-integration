@@ -1,7 +1,10 @@
 import * as React from 'react';
 import SvgHtmlIcons from '../components/SVGHtmlIcons';
 import { SPComponentLoader } from '@microsoft/sp-loader';
-import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
+import {
+  AbortedLoginError,
+  LfLoginComponent,
+} from '@laserfiche/types-lf-ui-components';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import {
@@ -111,7 +114,20 @@ export default function LaserficheRepositoryAccessWebPart(
     const url =
       props.context.pageContext.web.absoluteUrl +
       '/SitePages/LaserficheSignIn.aspx?autologin';
-    window.open(url, '_blank', 'popup');
+    const loginWindow = window.open(url, '_blank', 'popup');
+    window.addEventListener('message', (event) => {
+      if (event.origin === window.origin) {
+        if (event.data === 'loginWindowSuccess') {
+          loginWindow.close();
+        } else if (event.data) {
+          const parsedError: AbortedLoginError = event.data;
+          loginWindow.close();
+          window.alert(
+            `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
+          );
+        }
+      }
+    });
   }
 
   return (

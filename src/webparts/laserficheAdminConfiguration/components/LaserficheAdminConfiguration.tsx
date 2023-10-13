@@ -17,7 +17,10 @@ import {
   ZONE_JS_URL,
 } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
-import { LfLoginComponent } from '@laserfiche/types-lf-ui-components';
+import {
+  AbortedLoginError,
+  LfLoginComponent,
+} from '@laserfiche/types-lf-ui-components';
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import { IRepositoryApiClientExInternal } from '../../../repository-client/repository-client-types';
 import { SPComponentLoader } from '@microsoft/sp-loader';
@@ -109,7 +112,20 @@ export default function LaserficheAdminConfiguration(
     const url =
       props.context.pageContext.web.absoluteUrl +
       '/SitePages/LaserficheSignIn.aspx?autologin';
-    window.open(url, '_blank', 'popup');
+    const loginWindow = window.open(url, '_blank', 'popup');
+    window.addEventListener('message', (event) => {
+      if (event.origin === window.origin) {
+        if (event.data === 'loginWindowSuccess') {
+          loginWindow.close();
+        } else if (event.data) {
+          const parsedError: AbortedLoginError = event.data;
+          loginWindow.close();
+          window.alert(
+            `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
+          );
+        }
+      }
+    });
   }
 
   return (
