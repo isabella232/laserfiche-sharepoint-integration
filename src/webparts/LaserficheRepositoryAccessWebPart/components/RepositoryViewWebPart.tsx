@@ -47,7 +47,7 @@ const cols: ColumnDef[] = [
   },
   {
     id: 'pageCount',
-    displayName: 'Page',
+    displayName: 'Pages',
     defaultWidth: '100px',
     resizable: true,
     sortable: true,
