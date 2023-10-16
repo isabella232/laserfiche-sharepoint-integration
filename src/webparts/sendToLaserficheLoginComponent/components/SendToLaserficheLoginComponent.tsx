@@ -22,7 +22,6 @@ import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/S
 import { getEntryWebAccessUrl, getRegion } from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
 import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
-
 declare global {
   // eslint-disable-next-line
   namespace JSX {
