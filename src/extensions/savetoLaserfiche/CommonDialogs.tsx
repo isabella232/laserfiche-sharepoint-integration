@@ -134,6 +134,35 @@ export function SavedToLaserficheSuccessDialogButtons(props: {
   );
 }
 
+export function MessageDialog(props: {
+  title: string;
+  message: string;
+  clickOkay: () => void;
+}): JSX.Element {
+  return (
+    <div className='modal-dialog modal-dialog-centered'>
+      <div className={`modal-content ${styles.wrapper}`}>
+        <div className={styles.header}>
+          <h5 className='modal-title' id='ModalLabel'>
+            {props.title}
+          </h5>
+        </div>
+        <div className={styles.contentBox}>{props.message}</div>
+        <div className={styles.footer}>
+          <button
+            type='button'
+            className='lf-button primary-button'
+            data-dismiss='modal'
+            onClick={props.clickOkay}
+          >
+            Okay
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const createPromise: () => Promise<boolean>[] = () => {
   let resolver;
   return [
@@ -152,7 +181,9 @@ export const useConfirm: () => [
   const [resolver, setResolver] = React.useState({ resolve: null });
   const [label, setLabel] = React.useState('');
 
-  const getConfirmation: (text: string) => Promise<boolean> = async (text: string) => {
+  const getConfirmation: (text: string) => Promise<boolean> = async (
+    text: string
+  ) => {
     setLabel(text);
     setOpen(true);
     const [promise, resolve] = await createPromise();
@@ -160,7 +191,9 @@ export const useConfirm: () => [
     return promise;
   };
 
-  const onClick: (status: boolean) => Promise<void> = async (status: boolean) => {
+  const onClick: (status: boolean) => Promise<void> = async (
+    status: boolean
+  ) => {
     setOpen(false);
     resolver.resolve(status);
   };

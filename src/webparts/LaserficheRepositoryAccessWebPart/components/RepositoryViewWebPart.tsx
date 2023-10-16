@@ -467,17 +467,17 @@ function ImportFileModal(props: {
       const renamedFile = new File([fileData], fileName + extension);
       const fileContainsBacklash = fileName.includes('\\');
       try {
-        const name = await props.repoClient.entriesClient.getEntryByPath({
+        const entryWithPathExists = await props.repoClient.entriesClient.getEntryByPath({
           repoId,
           fullPath: PathUtils.combinePaths(props.parentItem.path, fileName),
         });
-        if (name) {
+        if (entryWithPathExists) {
           setShowImport(false);
-          const status = await getConfirmation(
+          const confirmUpload = await getConfirmation(
             ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
           );
           setShowImport(true);
-          if (status) {
+          if (confirmUpload) {
             // continue
           } else {
             setFileUploadPercentage(0);
@@ -487,6 +487,9 @@ function ImportFileModal(props: {
       } catch (err) {
         if ((err as APIServerException).statusCode === 404) {
           // doesn't exist, good to go
+        }
+        else {
+          throw err;
         }
       }
       if (fileContainsBacklash) {

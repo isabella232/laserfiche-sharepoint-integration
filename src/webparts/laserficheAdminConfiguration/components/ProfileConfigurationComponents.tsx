@@ -711,7 +711,7 @@ function getMappingErrorMessage(
             display: 'flex',
             alignItems: 'center',
           }}
-          title={`SharePoint field type of ${spFieldtype} cannot be mapped with Laserfiche field type of ${getCorrespondingTypeFieldName}}`}
+          title={`SharePoint field type of ${spFieldtype} cannot be mapped with Laserfiche field type of ${lfFieldTypeDisplayName}`}
         >
           <span
             className='material-icons-outlined'

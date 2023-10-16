@@ -12,6 +12,7 @@ import {
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
+  LOGIN_WINDOW_SUCCESS,
   ZONE_JS_URL,
 } from '../../constants';
 import { NgElement, WithProperties } from '@angular/elements';
@@ -23,6 +24,7 @@ import './LaserficheRepositoryAccess.module.scss';
 import { ILaserficheRepositoryAccessWebPartProps } from './ILaserficheRepositoryAccessWebPartProps';
 import { getRegion } from '../../../Utils/Funcs';
 import styles from './LaserficheRepositoryAccess.module.scss';
+import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
 
 declare global {
   // eslint-disable-next-line
@@ -46,6 +48,9 @@ export default function LaserficheRepositoryAccessWebPart(
   const [loggedIn, setLoggedIn] = useState<boolean>(false);
   const [repoClient, setRepoClient] = useState<
     IRepositoryApiClientExInternal | undefined
+  >(undefined);
+  const [messageErrorModal, setMessageErrorModal] = useState<
+    JSX.Element | undefined
   >(undefined);
 
   const region = getRegion();
@@ -118,15 +123,22 @@ export default function LaserficheRepositoryAccessWebPart(
     loginWindow.resizeTo(800, 600);
     window.addEventListener('message', (event) => {
       if (event.origin === window.origin) {
-        if (event.data === 'loginWindowSuccess') {
+        if (event.data === LOGIN_WINDOW_SUCCESS) {
           loginWindow.close();
         } else if (event.data) {
           const parsedError: AbortedLoginError = event.data;
           if (parsedError.ErrorMessage && parsedError.ErrorType) {
             loginWindow.close();
-            window.alert(
-              `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
+            const mes = (
+              <MessageDialog
+                title='Sign In Failed'
+                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
+                clickOkay={() => {
+                  setMessageErrorModal(undefined);
+                }}
+              />
             );
+            setMessageErrorModal(mes);
           }
         }
       }
@@ -157,6 +169,16 @@ export default function LaserficheRepositoryAccessWebPart(
             {loggedIn ? 'Sign out' : 'Sign in'}
           </button>
         </div>
+        {messageErrorModal !== undefined && (
+            <div
+              className={styles.modal}
+              id='messageErrorModal'
+              data-backdrop='static'
+              data-keyboard='false'
+            >
+              {messageErrorModal}
+            </div>
+          )}
         <RepositoryViewComponent
           webClientUrl={webClientUrl}
           repoClient={repoClient}

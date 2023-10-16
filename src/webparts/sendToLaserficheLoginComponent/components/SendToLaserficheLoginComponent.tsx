@@ -11,6 +11,7 @@ import {
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
+  LOGIN_WINDOW_SUCCESS,
   SP_LOCAL_STORAGE_KEY,
   ZONE_JS_URL,
 } from '../../constants';
@@ -20,6 +21,7 @@ import { ISPDocumentData } from '../../../Utils/Types';
 import SaveToLaserficheCustomDialog from '../../../extensions/savetoLaserfiche/SaveToLaserficheDialog';
 import { getEntryWebAccessUrl, getRegion } from '../../../Utils/Funcs';
 import styles from './SendToLaserficheLoginComponent.module.scss';
+import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialogs';
 
 declare global {
   // eslint-disable-next-line
@@ -43,6 +45,10 @@ export default function SendToLaserficheLoginComponent(
   > = React.useRef();
 
   const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
+  const [messageErrorModal, setMessageErrorModal] = React.useState<
+    JSX.Element | undefined
+  >(undefined);
+
   let sentPostMessage = false;
 
   const region = getRegion();
@@ -61,14 +67,14 @@ export default function SendToLaserficheLoginComponent(
   }
   const loginText: JSX.Element | undefined = getLoginText();
 
-  const autoLoginCompleted: () => Promise<void> = async () => {
+  const loginCompletedInPopup: () => Promise<void> = async () => {
     if (!sentPostMessage) {
-      window.opener.postMessage('loginWindowSuccess', window.origin);
+      window.opener.postMessage(LOGIN_WINDOW_SUCCESS, window.origin);
       sentPostMessage = true;
     }
   };
 
-  const loginCompleted: () => Promise<void> = async () => {
+  const loginCompletedInMainWindow: () => Promise<void> = async () => {
     setLoggedIn(true);
     if (spFileMetadata) {
       const dialog = new SaveToLaserficheCustomDialog(
@@ -86,57 +92,44 @@ export default function SendToLaserficheLoginComponent(
     }
   };
 
-  const logoutCompleted: (
-    ev: CustomEvent<void | AbortedLoginError>,
-    autoLogout?: boolean
-  ) => void = (
-    ev: CustomEvent<void | AbortedLoginError>,
-    autoLogout: boolean = false
-  ) => {
-    const logOutError = ev.detail;
-    if (autoLogout && !logOutError) {
-      if (!sentPostMessage) {
-        window.opener.postMessage('loginWindowSuccess', window.origin);
-        sentPostMessage = true;
+  const logoutCompletedInMainWindow: () => void = () => {
+    setLoggedIn(false);
+  };
+
+  const logoutCompletedInPopup: (ev: Event) => void = (ev: Event) => {
+    const errorOccurred = (ev as CustomEvent).detail;
+    if (errorOccurred) {
+      if (!errorOccurred) {
+        if (!sentPostMessage) {
+          window.opener.postMessage(LOGIN_WINDOW_SUCCESS, window.origin);
+          sentPostMessage = true;
+        }
+      } else if (errorOccurred) {
+        if (!sentPostMessage) {
+          window.opener.postMessage(errorOccurred, window.origin);
+          sentPostMessage = true;
+        }
       }
-    } else if (logOutError) {
-      if (!sentPostMessage) {
-        window.opener.postMessage(logOutError, window.origin);
-        sentPostMessage = true;
-      }
-    } else {
-      setLoggedIn(false);
     }
   };
 
   React.useEffect(() => {
-    const logoutCompleteCallBackTrue: (ev: Event) => void = (ev: Event) => {
-      const errorOccurred = (ev as CustomEvent).detail;
-      if (errorOccurred) {
-        logoutCompleted(ev as CustomEvent, true);
-      }
-    };
-
-    const logoutCompleteCallBackFalse: (ev: Event) => void = (ev: Event) => {
-      logoutCompleted(ev as CustomEvent);
-    };
-
     const cleanUpFunction: () => void = () => {
       loginComponent.current.removeEventListener(
         'loginCompleted',
-        loginCompleted
+        loginCompletedInMainWindow
       );
       loginComponent.current.removeEventListener(
         'loginCompleted',
-        autoLoginCompleted
+        loginCompletedInPopup
       );
       loginComponent.current.removeEventListener(
         'logoutCompleted',
-        logoutCompleteCallBackTrue
+        logoutCompletedInPopup
       );
       loginComponent.current.removeEventListener(
         'logoutCompleted',
-        logoutCompleteCallBackFalse
+        logoutCompletedInMainWindow
       );
     };
 
@@ -146,67 +139,16 @@ export default function SendToLaserficheLoginComponent(
         SPComponentLoader.loadCss(LF_MS_OFFICE_LITE_CSS_URL);
         loginComponent.current.addEventListener(
           'logoutCompleted',
-          logoutCompleteCallBackTrue
+          logoutCompletedInPopup
         );
         await SPComponentLoader.loadScript(ZONE_JS_URL);
         await SPComponentLoader.loadScript(LF_UI_COMPONENTS_URL);
 
         if (window.location.href.includes('autologin')) {
           document.body.style.display = 'none';
-          if (loginComponent.current.state !== LoginState.LoggedIn) {
-            if (
-              !document.referrer.includes('accounts.') &&
-              !document.referrer.includes('signin.')
-            ) {
-              await loginComponent.current.initLoginFlowAsync();
-              loginComponent.current.addEventListener(
-                'loginCompleted',
-                autoLoginCompleted
-              );
-            } else if (loginComponent.current.state === LoginState.LoggedOut) {
-              if (!sentPostMessage) {
-                window.opener.postMessage('loginWindowSuccess', window.origin);
-                sentPostMessage = true;
-              }
-            } else {
-              loginComponent.current.addEventListener(
-                'loginCompleted',
-                autoLoginCompleted
-              );
-            }
-          } else {
-            const loginbutton = loginComponent.current.querySelector(
-              '.login-button'
-            ) as HTMLButtonElement;
-            loginbutton.click();
-          }
+          await handleLoginOrLogoutInPopupAsync();
         } else {
-          loginComponent.current.addEventListener(
-            'loginCompleted',
-            loginCompleted
-          );
-          loginComponent.current.addEventListener('logoutCompleted', (ev) =>
-            logoutCompleted(ev as CustomEvent)
-          );
-          const isLoggedIn: boolean =
-            loginComponent.current.state === LoginState.LoggedIn;
-
-          setLoggedIn(isLoggedIn);
-          if (isLoggedIn && spFileMetadata) {
-            const dialog = new SaveToLaserficheCustomDialog(
-              spFileMetadata,
-              async (success) => {
-                if (success) {
-                  Navigation.navigate(success.pathBack, true);
-                }
-              }
-            );
-
-            await dialog.show();
-            if (!dialog.successful) {
-              console.warn('Could not sign in successfully');
-            }
-          }
+          await handleLoginOrLogoutInMainWindowAsync();
         }
       } catch (err) {
         console.error(`Unable to initialize sign-in page: ${err}`);
@@ -218,6 +160,72 @@ export default function SendToLaserficheLoginComponent(
 
     return cleanUpFunction;
   }, []);
+
+  async function handleLoginOrLogoutInMainWindowAsync(): Promise<void> {
+    loginComponent.current.addEventListener(
+      'loginCompleted',
+      loginCompletedInMainWindow
+    );
+    loginComponent.current.addEventListener(
+      'logoutCompleted',
+      logoutCompletedInMainWindow
+    );
+    const isLoggedIn: boolean =
+      loginComponent.current.state === LoginState.LoggedIn;
+
+    setLoggedIn(isLoggedIn);
+    if (isLoggedIn && spFileMetadata) {
+      await trySaveToLaserficheAsync();
+    }
+  }
+
+  async function trySaveToLaserficheAsync(): Promise<void> {
+    const dialog = new SaveToLaserficheCustomDialog(
+      spFileMetadata,
+      async (success) => {
+        if (success) {
+          Navigation.navigate(success.pathBack, true);
+        }
+      }
+    );
+
+    await dialog.show();
+    if (!dialog.successful) {
+      console.warn('Could not sign in successfully');
+    }
+  }
+
+  async function handleLoginOrLogoutInPopupAsync(): Promise<void> {
+    if (loginComponent.current.state !== LoginState.LoggedIn) {
+      const redirectedFromACS =
+        document.referrer.includes('accounts.') ||
+        document.referrer.includes('signin.');
+      const loggedOut: boolean =
+        loginComponent.current.state === LoginState.LoggedOut;
+      if (!redirectedFromACS) {
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompletedInPopup
+        );
+        await loginComponent.current.initLoginFlowAsync();
+      } else if (loggedOut && redirectedFromACS) {
+        if (!sentPostMessage) {
+          window.opener.postMessage(LOGIN_WINDOW_SUCCESS, window.origin);
+          sentPostMessage = true;
+        }
+      } else {
+        loginComponent.current.addEventListener(
+          'loginCompleted',
+          loginCompletedInPopup
+        );
+      }
+    } else {
+      const logoutButton = loginComponent.current.querySelector(
+        '.login-button'
+      ) as HTMLButtonElement;
+      logoutButton.click();
+    }
+  }
 
   function getLoginText(): JSX.Element {
     let loginText: JSX.Element | undefined;
@@ -294,15 +302,22 @@ export default function SendToLaserficheLoginComponent(
     loginWindow.resizeTo(800, 600);
     window.addEventListener('message', (event) => {
       if (event.origin === window.origin) {
-        if (event.data === 'loginWindowSuccess') {
+        if (event.data === LOGIN_WINDOW_SUCCESS) {
           loginWindow.close();
         } else if (event.data) {
           const parsedError: AbortedLoginError = event.data;
           if (parsedError.ErrorMessage && parsedError.ErrorType) {
             loginWindow.close();
-            window.alert(
-              `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
+            const mes = (
+              <MessageDialog
+                title='Sign In Failed'
+                message={`Sign in failed, please try again. Details: ${parsedError.ErrorMessage}`}
+                clickOkay={() => {
+                  setMessageErrorModal(undefined);
+                }}
+              />
             );
+            setMessageErrorModal(mes);
           }
         }
       }
@@ -347,6 +362,16 @@ export default function SendToLaserficheLoginComponent(
           </button>
         )}
       </div>
+      {messageErrorModal !== undefined && (
+        <div
+          className={styles.modal}
+          id='messageErrorModal'
+          data-backdrop='static'
+          data-keyboard='false'
+        >
+          {messageErrorModal}
+        </div>
+      )}
     </React.StrictMode>
   );
 }

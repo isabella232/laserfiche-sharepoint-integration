@@ -129,19 +129,19 @@ function SaveToLaserficheDialog(props: {
                   repoId,
                   entryId: Number.parseInt(props.spFileMetadata.entryId, 10),
                 });
-              const name = validRepoClient.entriesClient.getEntryByPath({
+              const entryWithPathExists = validRepoClient.entriesClient.getEntryByPath({
                 repoId,
                 fullPath: PathUtils.combinePaths(
                   entryInfo.fullPath,
                   props.spFileMetadata.fileName
                 ),
               });
-              if (name) {
+              if (entryWithPathExists) {
                 setShowSaveTo(false);
-                const status = await getConfirmation(
+                const confirmSave = await getConfirmation(
                   ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
                 );
-                if (status) {
+                if (confirmSave) {
                   setShowSaveTo(true);
                   await continueSavingDocumentAsync(saveToLF);
                 } else {
@@ -154,6 +154,9 @@ function SaveToLaserficheDialog(props: {
               const docDoesNotAlreadyExists = (err as APIServerException).statusCode === 404;
               if (docDoesNotAlreadyExists) {
                 await continueSavingDocumentAsync(saveToLF);
+              }
+              else {
+                throw err;
               }
             }
           } catch (err) {

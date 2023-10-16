@@ -4,6 +4,8 @@ export const LASERFICHE_ADMIN_CONFIGURATION_NAME = 'LaserficheAdminConfiguration
 export const MANAGE_MAPPING = 'ManageMapping';
 export const MANAGE_CONFIGURATIONS = 'ManageConfigurations';
 
+export const LOGIN_WINDOW_SUCCESS = 'loginWindowSuccess';
+
 export const SP_LOCAL_STORAGE_KEY = 'spdocdata';
 export const SPDEVMODE_LOCAL_STORAGE_KEY = 'spDevMode';
 
