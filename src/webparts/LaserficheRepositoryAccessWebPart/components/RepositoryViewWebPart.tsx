@@ -388,6 +388,7 @@ function RepositoryBrowserToolbar(props: {
   );
 }
 
+const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME = 'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
 function ImportFileModal(props: {
   repoClient: IRepositoryApiClientExInternal;
   loggedIn: boolean;
@@ -473,7 +474,7 @@ function ImportFileModal(props: {
         if (name) {
           setShowImport(false);
           const status = await getConfirmation(
-            'An entry with the same name already exists in the specified folder. If you continue, the document will be automatically renamed.'
+            ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
           );
           setShowImport(true);
           if (status) {

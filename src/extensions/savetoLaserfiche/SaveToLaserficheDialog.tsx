@@ -76,6 +76,7 @@ export default class SaveToLaserficheCustomDialog extends BaseDialog {
   }
 }
 
+const ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME = 'An entry with the same name already exists in the specified folder. If you continue, Laserfiche will automatically rename the new document.';
 function SaveToLaserficheDialog(props: {
   isSuccessfulLoggedIn: (success: boolean) => void;
   closeClick: (success?: SavedToLaserficheDocumentData) => Promise<void>;
@@ -138,7 +139,7 @@ function SaveToLaserficheDialog(props: {
               if (name) {
                 setShowSaveTo(false);
                 const status = await getConfirmation(
-                  'An entry with the same name already exists in the specified folder. If you continue, the document will be automatically renamed.'
+                  ENTRY_WITH_SAME_NAME_EXISTS_IN_FOLDER_IF_CONTINUE_LF_WILL_RENAME
                 );
                 if (status) {
                   setShowSaveTo(true);
