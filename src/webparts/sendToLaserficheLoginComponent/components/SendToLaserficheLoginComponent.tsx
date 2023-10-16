@@ -43,6 +43,7 @@ export default function SendToLaserficheLoginComponent(
   > = React.useRef();
 
   const [loggedIn, setLoggedIn] = React.useState<boolean>(false);
+  let sentPostMessage = false;
 
   const region = getRegion();
 
@@ -61,7 +62,10 @@ export default function SendToLaserficheLoginComponent(
   const loginText: JSX.Element | undefined = getLoginText();
 
   const autoLoginCompleted: () => Promise<void> = async () => {
-    window.opener.postMessage('loginWindowSuccess', window.origin);
+    if (!sentPostMessage) {
+      window.opener.postMessage('loginWindowSuccess', window.origin);
+      sentPostMessage = true;
+    }
   };
 
   const loginCompleted: () => Promise<void> = async () => {
@@ -91,9 +95,15 @@ export default function SendToLaserficheLoginComponent(
   ) => {
     const logOutError = ev.detail;
     if (autoLogout && !logOutError) {
-      window.opener.postMessage('loginWindowSuccess', window.origin);
+      if (!sentPostMessage) {
+        window.opener.postMessage('loginWindowSuccess', window.origin);
+        sentPostMessage = true;
+      }
     } else if (logOutError) {
-      window.opener.postMessage(logOutError, window.origin);
+      if (!sentPostMessage) {
+        window.opener.postMessage(logOutError, window.origin);
+        sentPostMessage = true;
+      }
     } else {
       setLoggedIn(false);
     }
@@ -154,7 +164,10 @@ export default function SendToLaserficheLoginComponent(
                 autoLoginCompleted
               );
             } else if (loginComponent.current.state === LoginState.LoggedOut) {
-              window.opener.postMessage('loginWindowSuccess', window.origin);
+              if (!sentPostMessage) {
+                window.opener.postMessage('loginWindowSuccess', window.origin);
+                sentPostMessage = true;
+              }
             } else {
               loginComponent.current.addEventListener(
                 'loginCompleted',
@@ -200,6 +213,7 @@ export default function SendToLaserficheLoginComponent(
       }
     };
 
+    cleanUpFunction();
     void setUpLoginComponentAsync();
 
     return cleanUpFunction;
@@ -284,10 +298,12 @@ export default function SendToLaserficheLoginComponent(
           loginWindow.close();
         } else if (event.data) {
           const parsedError: AbortedLoginError = event.data;
-          loginWindow.close();
-          window.alert(
-            `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
-          );
+          if (parsedError.ErrorMessage && parsedError.ErrorType) {
+            loginWindow.close();
+            window.alert(
+              `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
+            );
+          }
         }
       }
     });

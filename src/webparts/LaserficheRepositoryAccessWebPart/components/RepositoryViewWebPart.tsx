@@ -67,7 +67,7 @@ const fileNameValidation = 'Please provide a valid filename';
 const fileNameWithBacklash =
   'Please provide a valid filename without backslash';
 const folderValidation = 'Please provide a folder name';
-const folderNameValidation = 'Entry names cannot contain backslash';
+const folderBackslashNameValidation = 'Entry names cannot contain backslash';
 const folderExists = 'Object already exists';
 
 export default function RepositoryViewComponent(props: {
@@ -720,8 +720,8 @@ function CreateFolderModal(props: {
 
   const createNewFolderAsync: () => Promise<void> = async () => {
     if (folderName) {
-      if (/^[^\\\\]*$/.test(folderName)) {
-        setCreateFolderNameValidationMessage(folderNameValidation);
+      if (/^[\\\\]*$/.test(folderName)) {
+        setCreateFolderNameValidationMessage(folderBackslashNameValidation);
       } else {
         setCreateFolderNameValidationMessage(undefined);
 

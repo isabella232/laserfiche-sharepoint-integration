@@ -120,10 +120,12 @@ export default function LaserficheAdminConfiguration(
           loginWindow.close();
         } else if (event.data) {
           const parsedError: AbortedLoginError = event.data;
-          loginWindow.close();
-          window.alert(
-            `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
-          );
+          if (parsedError.ErrorMessage && parsedError.ErrorType) {
+            loginWindow.close();
+            window.alert(
+              `Error retrieving login credentials: ${parsedError.ErrorMessage}. Please try again.`
+            );
+          }
         }
       }
     });
