@@ -421,7 +421,7 @@ function GetDocumentDialogData(props: {
       lfField.fieldType === WFieldType.LongInteger ||
       lfField.fieldType === WFieldType.Number
     ) {
-      const extractOnlyNumbers = spDocFieldValue.replace(/[^0-9]/g, '');
+      const extractOnlyNumbers = spDocFieldValue.replace(/[^0-9.]/g, '');
       spDocFieldValue = extractOnlyNumbers;
     }
     return spDocFieldValue;
