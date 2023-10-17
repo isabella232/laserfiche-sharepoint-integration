@@ -9,6 +9,7 @@ import { IRepositoryApiClientExInternal } from '../../../repository-client/repos
 import { RepositoryClientExInternal } from '../../../repository-client/repository-client';
 import {
   clientId,
+  LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
@@ -44,7 +45,7 @@ const FOR_MORE_INFO_VISIT = 'For more information visit';
 const ONCE_SIGNED_IN_YOULL_SEE_REPOSITORY =
   "Once signed in you'll be able to view your Laserfiche repository.";
 
-const needLaserficheSignInPage = `Missing "LaserficheSignIn" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
+const needLaserficheSignInPage = `Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function LaserficheRepositoryAccessWebPart(
   props: ILaserficheRepositoryAccessWebPartProps
 ): JSX.Element {
@@ -137,7 +138,7 @@ export default function LaserficheRepositoryAccessWebPart(
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
-        if (pageName === 'LaserficheSignIn') {
+        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
           return true;
         }
       }

@@ -8,6 +8,7 @@ import {
 } from '@laserfiche/types-lf-ui-components';
 import {
   clientId,
+  LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
@@ -39,7 +40,7 @@ const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
   'You must be a currently licensed Laserfiche Cloud user to use this web part.';
 const FOR_MORE_INFO_VISIT = 'For more information visit';
 
-const needLaserficheSignInPage = `Sign in failed. Missing "LaserficheSignIn" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
+const needLaserficheSignInPage = `Sign in failed. Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ): JSX.Element {
@@ -321,7 +322,7 @@ export default function SendToLaserficheLoginComponent(
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
-        if (pageName === 'LaserficheSignIn') {
+        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
           return true;
         }
       }

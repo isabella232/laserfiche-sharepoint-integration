@@ -11,6 +11,7 @@ import EditManageConfiguration from './EditManageConfiguration/EditManageConfigu
 import AddNewManageConfiguration from './AddNewManageConfiguration/AddNewManageConfiguration';
 import {
   clientId,
+  LASERFICHE_SIGNIN_PAGE_NAME,
   LF_INDIGO_PINK_CSS_URL,
   LF_MS_OFFICE_LITE_CSS_URL,
   LF_UI_COMPONENTS_URL,
@@ -33,7 +34,7 @@ import { MessageDialog } from '../../../extensions/savetoLaserfiche/CommonDialog
 const YOU_DO_NOT_HAVE_RIGHTS_FOR_ADMIN_CONFIG_PLEASE_CONTACT_ADMIN =
   'You do not have the necessary rights to view or edit the Laserfiche SharePoint Integration configuration. Please contact your administrator for help.';
 
-const needLaserficheSignInPage = `Missing "LaserficheSignIn" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
+const needLaserficheSignInPage = `Missing "${LASERFICHE_SIGNIN_PAGE_NAME}" SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function LaserficheAdminConfiguration(
   props: ILaserficheAdminConfigurationProps
 ): JSX.Element {
@@ -129,7 +130,7 @@ export default function LaserficheAdminConfiguration(
       const sitePages = await res.json();
       for (let o = 0; o < sitePages.value.length; o++) {
         const pageName = sitePages.value[o].Title;
-        if (pageName === 'LaserficheSignIn') {
+        if (pageName === LASERFICHE_SIGNIN_PAGE_NAME) {
           return true;
         }
       }
