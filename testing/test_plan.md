@@ -198,6 +198,12 @@ Steps:
 Expected Results:
   - The file should save in the destination folder you configured in the Default Profile.
 
+#### Test Saving already saved document
+Prerequisites:
+  - execute the `Test Default Profile` test
+Steps:
+  - Save the same document to Laserfiche as in the Test Default Profile Test
+Expected Results: You should get a warning that an entry with the same name already exists, and that Laserfiche will rename the new documents. If you continue, and open the file in Laserfiche, the document should be renamed.
 #### Test No Default Profile Save
 Steps:
 1. Remove all SharePoint Content Type -> Laserfiche Profile Mappings
