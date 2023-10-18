@@ -23,6 +23,7 @@ parent: Laserfiche SharePoint Integration Administration Guide
    <a href="../assets/images/redirectUri.png"><img src="../assets/images/redirectUri.png"></a>
 1. Copy the URL from your SharePoint LaserficheSignIn page, append the query parameter `?autologin` and add it to the developer console as a new redirect URI. The URI should end with `SitePages/LaserficheSignIn.aspx?autologin`.
    <a href="../assets/images/urlExample.png"><img src="../assets/images/urlExample.png"></a>
+    - For example, if your LaserficheSignInPage was named `https://subdomain.sharepoint.com/sites/my-test-site/SitePages/LaserficheSignIn.aspx`, then the redirect URI you would add to the Laserfiche devconsole would be `https://subdomain.sharepoint.com/sites/my-test-site/SitePages/LaserficheSignIn.aspx?autologin`.
 1. You should now be able to sign in on each of the components.
 
 ### Next Steps
