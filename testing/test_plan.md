@@ -372,7 +372,7 @@ Test delete after save action
 1. Attempt to create folder
     - Expected results: Dialog remains open, error  specifies to provide a valid folder name
 1. Use create folder button.
-1. Use name with alphanumeric and with someone of the valid special characters `!@#$%^&*()`.
+1. Use name with alphanumeric and with some of the valid special characters `!@#$%^&*()`.
 1. Attempt to create folder.
 1. Use refresh button
     - Expected results: New folder exists in currently open folder with special characters in the name.
