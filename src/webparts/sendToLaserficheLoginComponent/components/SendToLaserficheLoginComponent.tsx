@@ -327,6 +327,7 @@ export default function SendToLaserficheLoginComponent(
         }
       }
     } catch (error) {
+      console.warn(`Unable to determine if a SharePoint Page with name ${LASERFICHE_SIGNIN_PAGE_NAME} exists.`)
       return false;
     }
     return false;
