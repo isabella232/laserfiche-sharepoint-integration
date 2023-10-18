@@ -143,7 +143,7 @@ export default function LaserficheRepositoryAccessWebPart(
         }
       }
     } catch (error) {
-      // TODO
+      return false;
     }
     return false;
   }

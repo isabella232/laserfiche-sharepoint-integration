@@ -40,7 +40,7 @@ const YOU_MUST_BE_CLOUD_USER_TO_USE_WEB_PART =
   'You must be a currently licensed Laserfiche Cloud user to use this web part.';
 const FOR_MORE_INFO_VISIT = 'For more information visit';
 
-const needLaserficheSignInPage = `Sign in failed. Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
+const needLaserficheSignInPage = `Missing ${LASERFICHE_SIGNIN_PAGE_NAME} SharePoint page. Please refer to the Adding App to SharePoint Site topic in the administration guide for configuration steps.`;
 export default function SendToLaserficheLoginComponent(
   props: ISendToLaserficheLoginComponentProps
 ): JSX.Element {
@@ -327,7 +327,7 @@ export default function SendToLaserficheLoginComponent(
         }
       }
     } catch (error) {
-      // TODO
+      return false;
     }
     return false;
   }

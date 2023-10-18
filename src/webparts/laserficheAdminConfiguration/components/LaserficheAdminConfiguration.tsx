@@ -135,7 +135,7 @@ export default function LaserficheAdminConfiguration(
         }
       }
     } catch (error) {
-      // TODO
+      return false;
     }
     return false;
   }
