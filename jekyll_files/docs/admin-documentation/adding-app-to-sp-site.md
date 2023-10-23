@@ -14,7 +14,7 @@ parent: Laserfiche SharePoint Integration Administration Guide
 
 ### Steps
 
-1. Go to the SharePoint site that you would like to install the integration on. If you do not have a SharePoint site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8) on how to create one.
+1. Go to the SharePoint site that you would like to install the integration on. If you do not have a SharePoint site already, you can find instructions [here](https://support.microsoft.com/en-gb/office/create-a-site-in-sharepoint-4d1e11bf-8ddc-499d-b889-2b48d10b1ce8){:target="_blank"} on how to create one.
 1. Navigate to the app catalog by clicking on the "Site contents" item in the
    navigation bar.
    <a href="../assets/images/sharePointSiteContents.png"><img src="../assets/images/sharePointSiteContents.png"></a>
