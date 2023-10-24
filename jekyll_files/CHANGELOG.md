@@ -5,7 +5,7 @@ nav_order: 4
 ---
 # Laserfiche SharePoint Online Integration Changelog
 
-## 1.0.0.280
+## 1.0.0.360
 
 ### Features
 
