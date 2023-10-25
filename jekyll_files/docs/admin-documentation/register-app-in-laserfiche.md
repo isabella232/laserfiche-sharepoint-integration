@@ -2,7 +2,7 @@
 layout: default
 title: Registering App in Laserfiche
 nav_order: 2
-parent: Laserfiche SharePoint Integration Administration Guide
+parent: Laserfiche SharePoint Online Integration Administration Guide
 ---
 
 # Registering App in Laserfiche

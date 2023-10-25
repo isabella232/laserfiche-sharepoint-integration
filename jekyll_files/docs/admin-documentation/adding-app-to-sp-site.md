@@ -2,7 +2,7 @@
 layout: default
 title: Adding App to SharePoint Site
 nav_order: 1
-parent: Laserfiche SharePoint Integration Administration Guide
+parent: Laserfiche SharePoint Online Integration Administration Guide
 ---
 
 # Adding App to SharePoint Site

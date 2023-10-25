@@ -2,7 +2,7 @@
 layout: default
 title: Configuring Metadata Mappings
 nav_order: 3
-parent: Laserfiche SharePoint Integration Administration Guide
+parent: Laserfiche SharePoint Online Integration Administration Guide
 ---
 
 # Configuring Metadata Mappings
