@@ -15,8 +15,7 @@ parent: Laserfiche SharePoint Online Integration Administration Guide
 
 ### Steps
 
-Follow Microsoft's documentation for [adding apps from the SharePoint Store](https://learn.microsoft.com/en-us/sharepoint/use-app-catalog#add-apps-from-the-sharepoint-store){:target="_blank"} or for [adding custom apps](https://learn.microsoft.com/en-us/sharepoint/use-app-catalog#add-custom-apps)
-{:target="_blank"}.
+Follow Microsoft's documentation for [adding apps from the SharePoint Store](https://learn.microsoft.com/en-us/sharepoint/use-app-catalog#add-apps-from-the-sharepoint-store){:target="_blank"} or for [adding custom apps](https://learn.microsoft.com/en-us/sharepoint/use-app-catalog#add-custom-apps){:target="_blank"}.
 
 ### Next Steps
 

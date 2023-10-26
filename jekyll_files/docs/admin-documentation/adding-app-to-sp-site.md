@@ -14,7 +14,7 @@ parent: Laserfiche SharePoint Online Integration Administration Guide
 
 ### Initial Steps
 
-Follow Microsoft's instructions for [adding an app to a site in SharePoint](https://support.microsoft.com/en-us/office/add-an-app-to-a-site-ef9c0dbd-7fe1-4715-a1b0-fe3bc81317cb){:target="_blank"}
+Follow Microsoft's instructions for [adding an app to a site in SharePoint](https://support.microsoft.com/en-us/office/add-an-app-to-a-site-ef9c0dbd-7fe1-4715-a1b0-fe3bc81317cb){:target="_blank"}.
 
 
 ### The Laserfiche Sign In Page
