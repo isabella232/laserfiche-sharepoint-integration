@@ -13,7 +13,7 @@
   "powerHeader.commentMode": "line",
   "powerHeader.autoInsert.enable": true,
   "powerHeader.autoInsert.allow": "all",
-  "powerHeader.template": "Copyright (c) <author>.\\nLicensed under the <licenseType> License. See LICENSE in the project root for license information.",
+  "powerHeader.template": "Copyright (c) <author>.\\nLicensed under the <licenseType> License. See LICENSE.md in the project root for license information.",
   "powerHeader.variables": ["<author>='Laserfiche'", "<licenseType>='MIT'"],
   "[html]": {
     "powerHeader.commentMode": "block"
