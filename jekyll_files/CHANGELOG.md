@@ -10,8 +10,8 @@ nav_order: 4
 ### Features
 
 - Initial release
-- Ability to save documents to Laserfiche from SharePoint with mapped metadata
-- Ability to view your Laserfiche repository from within SharePoint
+- Ability to save documents in a SharePoint document library to Laserfiche
+- Ability to view your Laserfiche repository from within SharePoint Online
 
 ### Known Issues
 - **488127:** Importing file from repository explorer hits a dead end when invalid metadata is entered
@@ -22,4 +22,5 @@ nav_order: 4
     - **Workaround:** Delete the profile or reconfigure the metadata of the profile.
 - **490833:** Content Type can't be determined unless column is shown
     - **Workaround:** Display the `Content Type` column in the Documents tab of the site.
+- **492278:** Image files are saved to Laserfiche as electronic documents
 
