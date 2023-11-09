@@ -1,3 +1,5 @@
+<!--Copyright (c) Laserfiche.
+Licensed under the MIT License. See LICENSE in the project root for license information.-->
 ---
 layout: default
 title: Laserfiche SharePoint Online Integration Administration Guide
